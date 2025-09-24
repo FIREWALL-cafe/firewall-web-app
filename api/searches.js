@@ -7,18 +7,13 @@ export default async function handler(req, res) {
   // Handle both GET and POST (app uses POST, backend expects GET)
   if (req.method === 'GET' || req.method === 'POST') {
     try {
-      const { query, page, page_size, cities, search_locations, ...otherFilters } = req.query;
+      const { query, page, page_size, search_locations, ...otherFilters } = req.query;
 
       const paginationParams = {
         page: page || 1,
         page_size: page_size || 25
       };
       const finalFilters = { ...otherFilters, ...paginationParams };
-
-      if (cities) {
-        finalFilters.search_locations = cities;
-        delete finalFilters.cities;
-      }
 
       if (search_locations) {
         finalFilters.search_locations = search_locations;
