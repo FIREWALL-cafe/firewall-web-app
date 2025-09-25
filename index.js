@@ -136,7 +136,23 @@ app.post('/images', async (req, res) => {
 
     // Extract results with fallback to empty arrays on failure
     const googleResults = results[0].status === 'fulfilled' ? results[0].value : [];
-    const baiduResults = results[1].status === 'fulfilled' ? results[1].value : [];
+    let baiduResults = [];
+    let baiduTimeoutInfo = null;
+
+    if (results[1].status === 'fulfilled') {
+      const baiduResponse = results[1].value;
+
+      // Check if it's a timeout response object or regular array
+      if (baiduResponse && baiduResponse.timeout) {
+        baiduResults = baiduResponse.images || [];
+        baiduTimeoutInfo = {
+          url: baiduResponse.url,
+          error: baiduResponse.error
+        };
+      } else if (Array.isArray(baiduResponse)) {
+        baiduResults = baiduResponse;
+      }
+    }
 
     // Log any failures for debugging
     if (results[0].status === 'rejected') {
@@ -144,6 +160,11 @@ app.post('/images', async (req, res) => {
     }
     if (results[1].status === 'rejected') {
       console.error('Baidu image search failed:', results[1].reason);
+    }
+
+    // Log timeout URL for debugging
+    if (baiduTimeoutInfo) {
+      console.error('Baidu search timed out. URL:', baiduTimeoutInfo.url);
     }
 
     const { searchId } = await saveImages({
@@ -165,12 +186,18 @@ app.post('/images', async (req, res) => {
     data.translation = translatedQuery;
 
     // Add status information if either service failed
-    if (results[0].status === 'rejected' || results[1].status === 'rejected') {
+    if (results[0].status === 'rejected' || results[1].status === 'rejected' || baiduTimeoutInfo) {
       data.partialResults = true;
       data.errors = {
         google: results[0].status === 'rejected' ? 'Failed to fetch Google images' : null,
-        baidu: results[1].status === 'rejected' ? 'Failed to fetch Baidu images (may be blocked in your region)' : null
+        baidu: results[1].status === 'rejected' ? 'Failed to fetch Baidu images (may be blocked in your region)' :
+               baiduTimeoutInfo ? `${baiduTimeoutInfo.error} - URL: ${baiduTimeoutInfo.url}` : null
       };
+
+      // Add timeout URL info for browser console logging
+      if (baiduTimeoutInfo) {
+        data.baiduTimeout = baiduTimeoutInfo;
+      }
     }
   } catch (error) {
     console.error('Error processing image search:', error);

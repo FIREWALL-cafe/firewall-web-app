@@ -232,7 +232,17 @@ const getBaiduImages = async (query) => {
   } catch (error) {
     console.error('Error fetching baidu images:', error.message);
 
-    // Return empty array on any error to allow the app to continue functioning
+    // If it's a timeout error, return error info along with empty results
+    if (error.message === 'Baidu request timeout') {
+      return {
+        images: [],
+        timeout: true,
+        url: json_url,
+        error: 'Baidu request timeout'
+      };
+    }
+
+    // Return empty array on any other error to allow the app to continue functioning
     return [];
   }
 };

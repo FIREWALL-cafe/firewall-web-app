@@ -32,6 +32,13 @@ const searchImages = async options => {
     const response = await fetch('/images', { ...defaultConfig, ...options });
 
     const results = await response.json();
+
+    // Log Baidu timeout URL to browser console for debugging
+    if (results.baiduTimeout) {
+      console.error('Baidu search timeout detected. URL:', results.baiduTimeout.url);
+      console.error('Error:', results.baiduTimeout.error);
+    }
+
     return results;
   } catch (error) {
     // Handle error silently
