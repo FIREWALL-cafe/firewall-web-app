@@ -9,14 +9,20 @@ function SubscribeSection({ title }) {
 
   return (
     <div
-      className={`flex flex-col w-full pb-4 md:pb-0 ${isContactPage ? 'md:w-1/2' : ''} h-full ${isContactPage ? 'bg-white' : 'bg-newsletter'}`}
+      className={`flex flex-col w-full pb-4 md:pb-0 ${isContactPage ? 'md:w-1/2' : ''} h-full ${
+        isContactPage ? 'bg-white' : 'bg-newsletter'
+      }`}
     >
       <div
-        className={`flex flex-col items-center ${isContactPage ? 'justify-center' : ''} w-full h-full px-2 md:px-8 lg:px-12`}
+        className={`flex flex-col items-center ${
+          isContactPage ? 'justify-center' : ''
+        } w-full h-full px-2 md:px-8 lg:px-12`}
       >
         <div className={`flex flex-col w-full ${isContactPage ? 'max-w-[500px]' : 'max-w-2xl'}`}>
           <div
-            className={`flex flex-col mt-3 md:mt-24 w-full md:text-xl ${isContactPage ? 'text-black' : 'text-white'}`}
+            className={`flex flex-col mt-3 md:mt-24 w-full md:text-xl ${
+              isContactPage ? 'text-black' : 'text-white'
+            }`}
           >
             <div>
               <div id="mc_embed_shell">
@@ -24,12 +30,16 @@ function SubscribeSection({ title }) {
                   <div className={isContactPage ? '' : 'py-8 md:py-12'}>
                     <div className="relative">
                       <h2
-                        className={`font-display-04 font-bitmap-song ${isContactPage ? 'text-black' : 'text-white'}`}
+                        className={`font-display-04 font-bitmap-song ${
+                          isContactPage ? 'text-black' : 'text-white'
+                        }`}
                       >
                         {subscriptionTitle}
                       </h2>
                       <div
-                        className={`font-display-04 font-bitmap-song ${isContactPage ? 'text-red-500' : 'text-red-600'}`}
+                        className={`font-display-04 font-bitmap-song ${
+                          isContactPage ? 'text-red-500' : 'text-red-600'
+                        }`}
                       >
                         保持联系
                       </div>

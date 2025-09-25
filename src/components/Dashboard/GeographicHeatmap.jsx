@@ -197,7 +197,7 @@ const GeographicHeatmap = ({ onUSClick }) => {
   if (loading) {
     return (
       <div className="h-96 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
       </div>
     );
   }
@@ -275,7 +275,9 @@ const GeographicHeatmap = ({ onUSClick }) => {
                     }}
                     onMouseEnter={() => {
                       if (hasData) {
-                        const tooltipText = `${displayName}: ${countryData.search_count} searches (${countryData.percentage}%)`;
+                        const tooltipText = `${displayName}: ${
+                          countryData.search_count
+                        } searches (${countryData.percentage}%)`;
                         setTooltipContent(
                           code2 === 'US' && onUSClick
                             ? `${tooltipText} (Click to view states)`
@@ -308,7 +310,7 @@ const GeographicHeatmap = ({ onUSClick }) => {
         <div className="text-xs font-semibold mb-2">Search Activity</div>
         <div className="flex items-center gap-2">
           <div className="text-xs">Low</div>
-          <div className="w-20 h-3 bg-gradient-to-r from-blue-50 to-blue-700 rounded"></div>
+          <div className="w-20 h-3 bg-gradient-to-r from-blue-50 to-blue-700 rounded" />
           <div className="text-xs">High</div>
         </div>
       </div>

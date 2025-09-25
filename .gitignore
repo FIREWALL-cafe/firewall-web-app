@@ -113,3 +113,6 @@ design-tokens/
 .playwright/
 .playwright*
 .vercel
+.claude
+/client/config.js
+/server/config.js

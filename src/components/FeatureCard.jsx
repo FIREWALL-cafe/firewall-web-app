@@ -16,7 +16,9 @@ function FeatureCard({
   return (
     <Link
       to={url || '/'}
-      className={`block h-full ${bgColor} rounded-lg border ${borderColor} transition-all duration-500 ${hoverBgColor || 'hover:brightness-90'} group`}
+      className={`block h-full ${bgColor} rounded-lg border ${borderColor} transition-all duration-500 ${
+        hoverBgColor || 'hover:brightness-90'
+      } group`}
     >
       <div className="flex flex-col p-6 ipad-landscape:p-5 macbook:p-6 h-[320px] ipad-landscape:h-[280px] macbook:h-[320px]">
         <div className="flex items-start justify-between mb-4">
@@ -27,7 +29,9 @@ function FeatureCard({
               {title}
             </h2>
             <div
-              className={`chinese text-2xl md:text-4xl ipad-landscape:text-3xl macbook:text-4xl font-medium ${chineseTitle.color}`}
+              className={`chinese text-2xl md:text-4xl ipad-landscape:text-3xl macbook:text-4xl font-medium ${
+                chineseTitle.color
+              }`}
             >
               {chineseTitle.text}
             </div>

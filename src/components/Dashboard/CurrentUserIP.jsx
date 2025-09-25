@@ -69,7 +69,7 @@ const CurrentUserIP = () => {
           <div>
             <h3 className="text-sm font-semibold text-blue-900">Your IP Address</h3>
             <div className="animate-pulse">
-              <div className="h-6 bg-blue-200 rounded mt-1 w-32"></div>
+              <div className="h-6 bg-blue-200 rounded mt-1 w-32" />
             </div>
           </div>
           <div className="text-blue-600 text-2xl">🌐</div>

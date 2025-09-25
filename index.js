@@ -127,15 +127,29 @@ app.post('/images', async (req, res) => {
     const enQuery = langFrom === 'en' ? query : translatedQuery;
     const cnQuery = langTo === 'zh-CN' ? translatedQuery : query;
     console.log('translatedQuery', translatedQuery);
-    const results = await Promise.all([
+
+    // Use Promise.allSettled to handle individual failures gracefully
+    const results = await Promise.allSettled([
       getGoogleImages(enQuery),
       getBaiduImages(cnQuery),
     ]);
 
-    const { searchId } = await saveImages({ 
-      query, 
-      google: results[0].slice(0, 9), 
-      baidu: results[1].slice(0, 9), 
+    // Extract results with fallback to empty arrays on failure
+    const googleResults = results[0].status === 'fulfilled' ? results[0].value : [];
+    const baiduResults = results[1].status === 'fulfilled' ? results[1].value : [];
+
+    // Log any failures for debugging
+    if (results[0].status === 'rejected') {
+      console.error('Google image search failed:', results[0].reason);
+    }
+    if (results[1].status === 'rejected') {
+      console.error('Baidu image search failed:', results[1].reason);
+    }
+
+    const { searchId } = await saveImages({
+      query,
+      google: googleResults.slice(0, 9),
+      baidu: baiduResults.slice(0, 9), 
       langTo, 
       langFrom, 
       search_client_name, 
@@ -146,9 +160,18 @@ app.post('/images', async (req, res) => {
     console.log('Search saved with IP:', req.clientIp);
 
     data.searchId = searchId;
-    data.googleResults = results[0];
-    data.baiduResults = results[1];
+    data.googleResults = googleResults;
+    data.baiduResults = baiduResults;
     data.translation = translatedQuery;
+
+    // Add status information if either service failed
+    if (results[0].status === 'rejected' || results[1].status === 'rejected') {
+      data.partialResults = true;
+      data.errors = {
+        google: results[0].status === 'rejected' ? 'Failed to fetch Google images' : null,
+        baidu: results[1].status === 'rejected' ? 'Failed to fetch Baidu images (may be blocked in your region)' : null
+      };
+    }
   } catch (error) {
     console.error('Error processing image search:', error);
     return res.status(400).json({ 

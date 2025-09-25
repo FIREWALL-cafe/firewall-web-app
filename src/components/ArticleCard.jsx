@@ -42,7 +42,9 @@ function ArticleCard({ image, imageHover, title, date, tag, url }) {
       </div>
       {tag && (
         <div
-          className={`absolute top-4 right-4 gap-2 self-start px-2 py-1 text-base font-medium ${tag.color || 'text-red-600'} bg-white rounded shadow-sm`}
+          className={`absolute top-4 right-4 gap-2 self-start px-2 py-1 text-base font-medium ${
+            tag.color || 'text-red-600'
+          } bg-white rounded shadow-sm`}
         >
           {tag.icon && (
             <img

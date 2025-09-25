@@ -90,7 +90,7 @@ const RecentActivity = () => {
   if (loading) {
     return (
       <div className="h-64 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
       </div>
     );
   }
@@ -150,7 +150,7 @@ const RecentActivity = () => {
               </div>
               <div className="flex items-center gap-3 text-xs text-gray-500">
                 <span className="flex items-center gap-1">
-                  <span className="inline-block w-2 h-2 bg-blue-400 rounded-full"></span>
+                  <span className="inline-block w-2 h-2 bg-blue-400 rounded-full" />
                   {search.search_client_name || 'Anonymous'}
                 </span>
                 <span className="flex items-center gap-1">📍 {search.search_location}</span>
@@ -180,7 +180,7 @@ const RecentActivity = () => {
                 )}
                 {parseInt(search.vote_count) > 0 && (
                   <span className="flex items-center gap-1">
-                    <span className="inline-block w-2 h-2 bg-purple-400 rounded-full"></span>
+                    <span className="inline-block w-2 h-2 bg-purple-400 rounded-full" />
                     {search.vote_count} votes
                   </span>
                 )}

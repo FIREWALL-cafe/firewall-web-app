@@ -11,7 +11,9 @@ function SupportCard({
 }) {
   return (
     <div
-      className={`flex flex-col flex-1 shrink justify-center items-center self-stretch px-8 my-auto ${bgColor} rounded aspect-square basis-0 min-h-[400px] min-w-[240px] max-md:px-5 ${borderColor ? `border border-solid ${borderColor}` : ''}`}
+      className={`flex flex-col flex-1 shrink justify-center items-center self-stretch px-8 my-auto ${bgColor} rounded aspect-square basis-0 min-h-[400px] min-w-[240px] max-md:px-5 ${
+        borderColor ? `border border-solid ${borderColor}` : ''
+      }`}
     >
       <div className="flex flex-col flex-1 justify-between w-full">
         <div className="flex flex-col w-full">

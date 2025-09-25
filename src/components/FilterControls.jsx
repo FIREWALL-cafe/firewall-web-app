@@ -24,7 +24,6 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
   // Dynamic search locations from database
   const [searchLocations, setSearchLocations] = useState([]);
 
-
   const vote_categories = [
     'votes_censored',
     'votes_uncensored',

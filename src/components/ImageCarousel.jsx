@@ -175,7 +175,11 @@ function ImageCarousel({ images }) {
             <button
               key={index}
               onClick={() => handleThumbnailClick(index)}
-              className={`relative aspect-square overflow-visible ${currentIndex !== null && currentIndex === index ? 'opacity-60 bg-[#0084CC]' : 'opacity-100'}`}
+              className={`relative aspect-square overflow-visible ${
+                currentIndex !== null && currentIndex === index
+                  ? 'opacity-60 bg-[#0084CC]'
+                  : 'opacity-100'
+              }`}
             >
               <div className="w-full h-full overflow-hidden">
                 <img
@@ -196,7 +200,11 @@ function ImageCarousel({ images }) {
             <button
               key={index}
               onClick={() => handleThumbnailClick(index)}
-              className={`relative aspect-square overflow-visible ${currentIndex !== null && currentIndex === index ? 'opacity-60 bg-red-900' : 'opacity-100'}`}
+              className={`relative aspect-square overflow-visible ${
+                currentIndex !== null && currentIndex === index
+                  ? 'opacity-60 bg-red-900'
+                  : 'opacity-100'
+              }`}
             >
               <div className="w-full h-full overflow-hidden">
                 <img

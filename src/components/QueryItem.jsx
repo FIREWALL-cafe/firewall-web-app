@@ -4,7 +4,6 @@ import VoteIcon from '../assets/icons/how_to_vote.svg';
 import ExpandIcon from './icons/ExpandIcon';
 import { formatLocationName } from '../utils/stringUtils';
 
-
 // Separate the date formatting logic into a custom hook
 const useDateFormat = isDesktop => {
   return timestamp => {
@@ -135,7 +134,9 @@ const QueryItem = ({
                 {englishLang}
               </div>
               <div
-                className={`font-sc-sans ${isEnglish ? 'text-gray-500' : 'text-gray-900'} text-base`}
+                className={`font-sc-sans ${
+                  isEnglish ? 'text-gray-500' : 'text-gray-900'
+                } text-base`}
               >
                 {chineseLang}
               </div>
@@ -168,14 +169,16 @@ const QueryItem = ({
             </div>
 
             <div
-              className={`font-sc-sans truncate ${isEnglish ? 'text-gray-500' : 'text-gray-900'} text-base`}
+              className={`font-sc-sans truncate ${
+                isEnglish ? 'text-gray-500' : 'text-gray-900'
+              } text-base`}
             >
               {chineseLang}
             </div>
 
             <div className="text-right whitespace-nowrap text-base">
               {formatDate(search_timestamp).date}
-              <span className="mx-2"></span>
+              <span className="mx-2" />
               {formatDate(search_timestamp).time}
             </div>
 
@@ -196,7 +199,9 @@ const QueryItem = ({
             </div>
 
             <div
-              className={`font-sc-sans whitespace-nowrap ${isEnglish ? 'text-zinc-400' : ''} truncate`}
+              className={`font-sc-sans whitespace-nowrap ${
+                isEnglish ? 'text-zinc-400' : ''
+              } truncate`}
             >
               {chineseLang}
             </div>
@@ -206,7 +211,7 @@ const QueryItem = ({
             <div className="text-right whitespace-nowrap">
               <span>
                 {formatDate(search_timestamp).date}
-                <span className="mx-4"></span>
+                <span className="mx-4" />
                 {formatDate(search_timestamp).time}
               </span>
             </div>

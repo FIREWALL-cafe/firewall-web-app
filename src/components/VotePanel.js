@@ -75,7 +75,7 @@ const VoteButton = ({ imgSrc, voteId, setVote, isDisabled, setDisabled }) => {
       disabled={isDisabled}
       onClick={() => handleVote(voteId)}
     >
-      <img src={imgSrc} alt={voteMeta[voteId].name}></img>
+      <img src={imgSrc} alt={voteMeta[voteId].name} />
     </button>
   );
 };

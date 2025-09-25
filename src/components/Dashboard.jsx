@@ -36,10 +36,10 @@ const Dashboard = () => {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="animate-pulse">
-          <div className="h-16 bg-gray-300 rounded mb-8"></div>
+          <div className="h-16 bg-gray-300 rounded mb-8" />
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-gray-300 h-24 rounded"></div>
+              <div key={i} className="bg-gray-300 h-24 rounded" />
             ))}
           </div>
         </div>
@@ -81,7 +81,7 @@ const Dashboard = () => {
                     strokeLinejoin="round"
                     strokeWidth="2"
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  ></path>
+                  />
                 </svg>
               </div>
             </div>
@@ -105,7 +105,7 @@ const Dashboard = () => {
                     strokeLinejoin="round"
                     strokeWidth="2"
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  ></path>
+                  />
                 </svg>
               </div>
             </div>
@@ -129,7 +129,7 @@ const Dashboard = () => {
                     strokeLinejoin="round"
                     strokeWidth="2"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
+                  />
                 </svg>
               </div>
             </div>
@@ -153,7 +153,7 @@ const Dashboard = () => {
                     strokeLinejoin="round"
                     strokeWidth="2"
                     d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
-                  ></path>
+                  />
                 </svg>
               </div>
             </div>

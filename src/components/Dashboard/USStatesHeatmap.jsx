@@ -52,7 +52,7 @@ const USStatesHeatmap = ({ onBackClick }) => {
   if (loading) {
     return (
       <div className="h-96 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
       </div>
     );
   }
@@ -143,7 +143,9 @@ const USStatesHeatmap = ({ onBackClick }) => {
                     onMouseEnter={() => {
                       if (hasData) {
                         setTooltipContent(
-                          `${stateName}: ${stateData.search_count} searches (${stateData.percentage}%)`
+                          `${stateName}: ${stateData.search_count} searches (${
+                            stateData.percentage
+                          }%)`
                         );
                       } else {
                         setTooltipContent(`${stateName}: No data`);
@@ -167,7 +169,7 @@ const USStatesHeatmap = ({ onBackClick }) => {
         <div className="text-xs font-semibold mb-2">US Search Activity</div>
         <div className="flex items-center gap-2">
           <div className="text-xs">Low</div>
-          <div className="w-20 h-3 bg-gradient-to-r from-blue-50 to-blue-700 rounded"></div>
+          <div className="w-20 h-3 bg-gradient-to-r from-blue-50 to-blue-700 rounded" />
           <div className="text-xs">High</div>
         </div>
         <div className="text-xs text-gray-500 mt-1">

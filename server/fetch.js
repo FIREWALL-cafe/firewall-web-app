@@ -132,8 +132,8 @@ const getGoogleImagesSerpApi = async (query) => {
 
 /**
  * Fetches images from Baidu based on a provided query string
- * @param {string} query 
- * @returns array of image urls from Baidu 
+ * @param {string} query
+ * @returns array of image urls from Baidu
  */
 const getBaiduImages = async (query) => {
   // const url = `https://image.baidu.com/search/index?tn=baiduimage&word=${encodeURI(query)}`;
@@ -142,6 +142,7 @@ const getBaiduImages = async (query) => {
   const config = {
     cache: 'no-cache',
     mode: 'cors',
+    timeout: 3000, // Add 10 second timeout
     headers: {
       "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
       'Content-Type': 'application/json',
@@ -154,14 +155,84 @@ const getBaiduImages = async (query) => {
   };
 
   console.log('fetching baidu images for', query, json_url);
-  const response = await fetch(json_url, config);
+
   try {
-    const json = await response.json();
-    console.log('json', json.data.map(item => item.thumbURL));
-    return json.data.map(item => item.thumbURL).slice(0, 9) || [];
+    // Create a timeout promise
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Baidu request timeout')), 10000)
+    );
+
+    // Race between fetch and timeout
+    const response = await Promise.race([
+      fetch(json_url, config),
+      timeoutPromise
+    ]);
+
+    if (!response.ok) {
+      throw new Error(`Baidu API returned status ${response.status}`);
+    }
+
+    // Get response as text first to handle potential JSON parsing issues
+    const responseText = await response.text();
+
+    // First, try direct extraction of image URLs which is more reliable
+    try {
+      const urls = [];
+      // Match thumbURL, middleURL, or objURL fields
+      const urlPattern = /"(thumbURL|middleURL|objURL)"\s*:\s*"(https?:\/\/[^"]*)"/g;
+      let match;
+      const seenUrls = new Set(); // Avoid duplicates
+
+      while ((match = urlPattern.exec(responseText)) !== null) {
+        const url = match[2];
+        if (url && !seenUrls.has(url)) {
+          seenUrls.add(url);
+          urls.push(url);
+
+          // Stop after collecting 9 unique URLs
+          if (urls.length >= 9) {
+            break;
+          }
+        }
+      }
+
+      if (urls.length > 0) {
+        console.log(`Successfully extracted ${urls.length} Baidu images`);
+        return urls;
+      }
+    } catch (extractError) {
+      console.error('URL extraction failed:', extractError.message);
+    }
+
+    // Fallback: try to parse as JSON (in case Baidu fixes their API)
+    let json;
+    try {
+      json = JSON.parse(responseText);
+    } catch (parseError) {
+      // Try with some basic cleanup
+      try {
+        const cleanedText = responseText
+          .replace(/^\uFEFF/, '') // Remove BOM
+          .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ''); // Remove most control chars except \t \n \r
+
+        json = JSON.parse(cleanedText);
+      } catch (cleanupParseError) {
+        console.error('Failed to parse Baidu response as JSON');
+        return [];
+      }
+    }
+
+    if (!json || !json.data || !Array.isArray(json.data)) {
+      console.error('Unexpected Baidu response structure');
+      return [];
+    }
+
+    console.log('Successfully fetched', json.data.length, 'Baidu images');
+    return json.data.map(item => item.thumbURL || item.middleURL || item.objURL).filter(Boolean).slice(0, 9) || [];
   } catch (error) {
-    console.log('response', response.data);
-    console.error('Error fetching baidu images:', error);
+    console.error('Error fetching baidu images:', error.message);
+
+    // Return empty array on any error to allow the app to continue functioning
     return [];
   }
 };

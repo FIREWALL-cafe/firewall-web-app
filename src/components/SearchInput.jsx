@@ -121,7 +121,10 @@ function SearchInput({ searchMode }) {
 
               const { googleResults, baiduResults, translation, searchId } = response;
               setSearchId(searchId);
-              setResults({ googleResults: googleResults || [], baiduResults: baiduResults || [] });
+              setResults({
+                googleResults: googleResults || [],
+                baiduResults: baiduResults || [],
+              });
               setTranslation(translation || '');
             }
           } catch (e) {
@@ -360,18 +363,24 @@ function SearchInput({ searchMode }) {
             {isArchive && (
               <button
                 onClick={() => setFilterOpen(!filterOpen)}
-                className={`hidden md:flex cursor-pointer justify-center items-center px-4 py-2 text-red-600 bg-white border border-red-600 hover:bg-red-50 transition-colors duration-200 rounded ${filterOpen ? 'bg-red-50' : ''} iphone:px-3 iphone:py-1.5 iphone:text-sm`}
+                className={`hidden md:flex cursor-pointer justify-center items-center px-4 py-2 text-red-600 bg-white border border-red-600 hover:bg-red-50 transition-colors duration-200 rounded ${
+                  filterOpen ? 'bg-red-50' : ''
+                } iphone:px-3 iphone:py-1.5 iphone:text-sm`}
               >
                 <div className="font-body-02">filters</div>
                 <FilterIcon
-                  className={`ml-2 w-6 h-6 transition-transform duration-200 [filter:invert(19%)_sepia(92%)_saturate(2352%)_hue-rotate(343deg)_brightness(94%)_contrast(97%)] ${filterOpen ? 'rotate-180' : ''}`}
+                  className={`ml-2 w-6 h-6 transition-transform duration-200 [filter:invert(19%)_sepia(92%)_saturate(2352%)_hue-rotate(343deg)_brightness(94%)_contrast(97%)] ${
+                    filterOpen ? 'rotate-180' : ''
+                  }`}
                 />
               </button>
             )}
           </div>
           <div className="flex items-center gap-4 mt-4">
             <span
-              className={`p-1 leading-8 text-medium bg-slate-50 border border-black rounded ${translation ? '' : 'hidden'}`}
+              className={`p-1 leading-8 text-medium bg-slate-50 border border-black rounded ${
+                translation ? '' : 'hidden'
+              }`}
             >
               <span className="font-bold">Translation:</span> {translation}
             </span>
@@ -383,11 +392,15 @@ function SearchInput({ searchMode }) {
             {isArchive && (
               <button
                 onClick={() => setFilterOpen(!filterOpen)}
-                className={`md:hidden flex cursor-pointer justify-center items-center px-4 py-2 text-red-600 bg-white border border-red-600 hover:bg-red-50 transition-colors duration-200 rounded ${filterOpen ? 'bg-red-50' : ''} iphone:px-3 iphone:py-1.5 iphone:text-sm`}
+                className={`md:hidden flex cursor-pointer justify-center items-center px-4 py-2 text-red-600 bg-white border border-red-600 hover:bg-red-50 transition-colors duration-200 rounded ${
+                  filterOpen ? 'bg-red-50' : ''
+                } iphone:px-3 iphone:py-1.5 iphone:text-sm`}
               >
                 <div className="font-body-02">filters</div>
                 <FilterIcon
-                  className={`ml-2 w-6 h-6 transition-transform duration-200 [filter:invert(19%)_sepia(92%)_saturate(2352%)_hue-rotate(343deg)_brightness(94%)_contrast(97%)] ${filterOpen ? 'rotate-180' : ''}`}
+                  className={`ml-2 w-6 h-6 transition-transform duration-200 [filter:invert(19%)_sepia(92%)_saturate(2352%)_hue-rotate(343deg)_brightness(94%)_contrast(97%)] ${
+                    filterOpen ? 'rotate-180' : ''
+                  }`}
                 />
               </button>
             )}

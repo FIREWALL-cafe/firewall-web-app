@@ -108,7 +108,7 @@ const IPGeographicDistribution = () => {
   if (loading) {
     return (
       <div className="h-80 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
       </div>
     );
   }
@@ -160,7 +160,7 @@ const IPGeographicDistribution = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1">
-                      <div className={`w-3 h-3 rounded-full ${getIPTypeColor(item.type)}`}></div>
+                      <div className={`w-3 h-3 rounded-full ${getIPTypeColor(item.type)}`} />
                       <span className="text-sm text-gray-600">{item.count}</span>
                     </div>
                     <span className="text-xs text-gray-500 w-10 text-right">{percentage}%</span>

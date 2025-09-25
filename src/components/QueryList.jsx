@@ -29,7 +29,7 @@ const QueryListHeader = () => {
         <div className="truncate whitespace-nowrap">Query EN</div>
         <div className="font-sc-sans truncate whitespace-nowrap">搜索结果 中文</div>
         <div className="text-right whitespace-nowrap">Date</div>
-        <div></div>
+        <div />
       </div>
     );
   }
@@ -42,7 +42,7 @@ const QueryListHeader = () => {
       <div className="font-sc-sans truncate whitespace-nowrap">搜索结果 中文</div>
       <div className="truncate whitespace-nowrap">Search Location</div>
       <div className="text-right whitespace-nowrap">Date</div>
-      <div></div>
+      <div />
     </div>
   );
 };
