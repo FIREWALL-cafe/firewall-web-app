@@ -116,3 +116,4 @@ design-tokens/
 .claude
 /client/config.js
 /server/config.js
+.env*.local

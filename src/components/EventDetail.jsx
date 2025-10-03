@@ -1,6 +1,7 @@
 import React from 'react';
 import { ReactComponent as ClockIcon } from '../assets/icons/schedule.svg';
 import { ReactComponent as LocationIcon } from '../assets/icons/location_on.svg';
+import ArchiveIcon from '../assets/icons/search.svg';
 
 function EventDetail({ event }) {
   if (!event) {
@@ -61,6 +62,15 @@ function EventDetail({ event }) {
                   </div>
                 </div>
               )}
+
+              <div className="space-y-2">
+                {event.archiveLink && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <img src={ArchiveIcon} alt="Archive" className="w-5 h-5" />
+                    <span className="font-body-02"><a href={event.archiveLink} className="text-red-600 hover:text-red-800">Archive Results</a></span>
+                  </div>
+                )}
+              </div>
 
               <hr className="my-6 border-gray-200" />
 

@@ -89,7 +89,7 @@ const QueryItem = ({
     if (isExpanded && !imageResults.googleResults) {
       loadGallery();
     }
-  }, [isExpanded, loadGallery]);
+  }, [isExpanded, loadGallery, imageResults.googleResults]);
 
   const handleClick = () => {
     if (onToggle) {

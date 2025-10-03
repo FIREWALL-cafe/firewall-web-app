@@ -143,7 +143,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
         setActiveFilters(newActiveFilters);
       }
     }
-  }, [isOpen]);
+  }, [isOpen, countries, searchLocations, startDate, endDate]);
 
   const metaKeyToId = {
     votes_censored: 1,
@@ -200,7 +200,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
     const filterOptions = {
       vote_ids: [],
       years: [],
-      cities: [],
+      search_locations: [],
       us_states: [],
       countries: [],
       start_date: '',
@@ -210,12 +210,14 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
     };
 
     // Reset other dropdowns based on which one changed
+    // IMPORTANT: search_location (cities) and geographic filters are mutually exclusive
     const countriesSelect = form.querySelector('select[name="countries"]');
     const citiesSelect = form.querySelector('select[name="cities"]');
     const usStatesSelect = form.querySelector('select[name="us_states"]');
 
+    // Handle Country selection - clears search_location (cities)
     if (event && event.target && event.target.name === 'countries') {
-      citiesSelect.value = ''; // Reset Source dropdown
+      citiesSelect.value = ''; // Clear search_location - mutually exclusive
       if (usStatesSelect) {
         usStatesSelect.value = ''; // Reset US States dropdown only if it exists
       }
@@ -228,7 +230,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
           ...prev,
           country: country ? country.name : null,
           usState: null,
-          source: null,
+          source: null, // Clear search_location filter
         }));
 
         // If not US, clear states data
@@ -239,45 +241,70 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
         setSelectedCountry('');
         setActiveFilters(prev => ({ ...prev, country: null, usState: null }));
       }
-    } else if (event && event.target && event.target.name === 'cities') {
-      countriesSelect.value = ''; // Reset Country dropdown
+    }
+    // Handle search_location (cities) selection - clears ALL geographic filters
+    else if (event && event.target && event.target.name === 'cities') {
+      // Clear ALL geographic filters - mutually exclusive with search_location
+      countriesSelect.value = '';
       if (usStatesSelect) {
-        usStatesSelect.value = ''; // Reset US States dropdown only if it exists
+        usStatesSelect.value = '';
       }
       setSelectedCountry('');
+
       if (citiesSelect.value) {
-        filterOptions.cities = [citiesSelect.value];
+        // Only allow ONE search_location at a time
+        filterOptions.search_locations = [citiesSelect.value];
+
         // Handle both old location mapping keys and direct search_location values
         const matchedLocation = searchLocations.find(loc => loc.value === citiesSelect.value);
         const sourceLabel = matchedLocation
           ? matchedLocation.label
           : locationMapping[citiesSelect.value] || formatLocationName(citiesSelect.value);
-        setActiveFilters(prev => ({ ...prev, source: sourceLabel, country: null, usState: null }));
+        setActiveFilters(prev => ({
+          ...prev,
+          source: sourceLabel,
+          country: null, // Clear geographic filters
+          usState: null  // Clear geographic filters
+        }));
       } else {
         setActiveFilters(prev => ({ ...prev, source: null }));
       }
-    } else if (event && event.target && event.target.name === 'us_states') {
-      citiesSelect.value = ''; // Reset Source dropdown
-      // Don't reset country since US states depend on US being selected
+    }
+    // Handle US State selection - clears search_location (cities)
+    else if (event && event.target && event.target.name === 'us_states') {
+      citiesSelect.value = ''; // Clear search_location - mutually exclusive
+
       if (usStatesSelect && usStatesSelect.value) {
         filterOptions.us_states = [usStatesSelect.value];
         filterOptions.countries = ['US']; // Ensure US is selected
-        setActiveFilters(prev => ({ ...prev, usState: usStatesSelect.value, source: null }));
+        setActiveFilters(prev => ({
+          ...prev,
+          usState: usStatesSelect.value,
+          source: null // Clear search_location filter
+        }));
       } else {
         setActiveFilters(prev => ({ ...prev, usState: null }));
       }
     }
 
     // Get current values from all form fields if no specific event triggered this
+    // Ensure search_location and geographic filters remain mutually exclusive
     if (!event || !event.target) {
-      if (countriesSelect && countriesSelect.value) {
-        filterOptions.countries = [countriesSelect.value];
-      }
+      // Check if search_location (cities) is selected
       if (citiesSelect && citiesSelect.value) {
-        filterOptions.cities = [citiesSelect.value];
-      }
-      if (usStatesSelect && usStatesSelect.value) {
-        filterOptions.us_states = [usStatesSelect.value];
+        // If search_location is selected, only use that (ignore geographic filters)
+        filterOptions.search_locations = [citiesSelect.value];
+        // Clear geographic filters to ensure mutual exclusivity
+        filterOptions.countries = [];
+        filterOptions.us_states = [];
+      } else {
+        // If no search_location, then geographic filters can be used
+        if (countriesSelect && countriesSelect.value) {
+          filterOptions.countries = [countriesSelect.value];
+        }
+        if (usStatesSelect && usStatesSelect.value) {
+          filterOptions.us_states = [usStatesSelect.value];
+        }
       }
 
       // Include current date values in filter options
@@ -358,7 +385,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
         {
           vote_ids: [],
           years: [],
-          cities: [],
+          search_locations: [],
           us_states: [],
           countries: [],
           start_date: '',

@@ -7,10 +7,12 @@ export default async function handler(req, res) {
   const urlPath = req.url.replace(/^\/api\//, '');
 
   // Get backend API URL from environment variable or use default
-  const backendUrl = process.env.BACKEND_API_URL || 'https://api.firewallcafe.com/';
+  const backendUrl = process.env.BACKEND_API_URL;
 
   // Construct full URL for the backend request
-  const targetUrl = new URL(urlPath, backendUrl).toString();
+  // Handle both with and without trailing slash in backendUrl
+  const baseUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
+  const targetUrl = `${baseUrl}/${urlPath}`;
 
   console.log(`Proxying ${req.method} request to: ${targetUrl}`);
 

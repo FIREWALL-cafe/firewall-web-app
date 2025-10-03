@@ -4,6 +4,7 @@ export const eventsData = {
       'FIREWALL Pop-up with "Inside China\'s Surveillance State", a Lecture by Megha Rajagopalan!',
     exhibition: 'Feb. 26, 2020, 5:00 PM - 10:00 PM',
     lecture: 'Feb. 26, 2020, 6:30 PM - 8:00 PM',
+    archiveLink: '/archive?search_locations=china_surveillance_marist',
     location: {
       name: 'Fusco Recital Hall, Murray Student Center, Marist College',
       address: ['3399 North Rd', 'Poughkeepsie, NY 12601'],
@@ -81,6 +82,7 @@ export const eventsData = {
   'marymount-manhattan-digital-media-society-class-field-trip': {
     title: 'Marymount Manhattan "Digital Media & Society" Class Field Trip',
     date: 'Feb. 29, 2016, 8-9:30 PM',
+    archiveLink: '/archive?search_locations=digital_media_chinatown',
     location: {
       name: 'Chinatown Soup',
       address: ['16B Orchard Street', 'NYC, 10002'],
@@ -127,6 +129,7 @@ export const eventsData = {
   'oslo-freedom-forum-2022-taiwan-interactive-expo': {
     title: 'Oslo Freedom Forum 2022 Taiwan Interactive Expo',
     date: 'Nov. 3, 2022',
+    archiveLink: '/archive?search_locations=oslo_freedom_taiwan',
     location: {
       name: 'Grand Hyatt Taipei',
       address: ['No.2, Songshou Rd, Xinyi District', 'Taipei City, Taiwan 110'],
@@ -183,6 +186,7 @@ export const eventsData = {
   'reactions-to-the-great-chinese-firewall': {
     title: 'Re(actions) to the Great Chinese Firewall',
     date: 'Jan. 16, 2020, 6:00 PM',
+    archiveLink: '/archive?search_locations=chinese_firewall_vbko',
     location: {
       name: 'VBKÖ – Vereinigung bildender Künstlerinnen Österreichs (Austrian Association of Women Artists)',
       address: ['Maysedergasse 2 (4th floor)', '1010 Vienna'],
@@ -221,6 +225,7 @@ export const eventsData = {
   'firewall-featured-on-bbc-the-real-story': {
     title: 'FIREWALL Featured on BBC "The Real Story"',
     date: 'Nov. 1, 2019',
+    archiveLink: '/archive?search_locations=bbc_real_story_russia',
     description: [
       "FIREWALL founder, Joyce Yu-Jean Lee was interviewed by James Coomarasamy of BBC Sounds in: The Real Story: Russia's New Internet Firewall. The interview segment begins at 35:06 in the podcast link below!",
     ],
@@ -242,6 +247,7 @@ export const eventsData = {
   'apex-for-youth-after-school-field-trip': {
     title: 'Apex for Youth After-School Field Trip',
     date: 'Feb. 25 & Mar. 3, 2016, 4-6 PM',
+    archiveLink: '/archive?search_locations=apex_youth_after_school',
     location: {
       name: 'Chinatown Soup',
       address: ['16B Orchard Street, NYC, 10002'],
@@ -288,6 +294,7 @@ export const eventsData = {
   'creative-hacktivism-roundtable': {
     title: 'Creative Hacktivism Roundtable',
     date: 'Feb. 26, 2016, 7:30 PM',
+    archiveLink: '/archive?search_locations=creative_hacktivism_roundtable',
     location: {
       name: 'Orbital',
       address: ['155 Rivington Street, NYC 10002'],
@@ -329,6 +336,7 @@ export const eventsData = {
   'proxy-pals-trial-by-firewall': {
     title: 'Proxy Pals with uProxy',
     date: 'Feb. 18, 2016, 7:30 PM',
+    archiveLink: '/archive?search_locations=proxy_pals_trial_by_firewall',
     location: {
       name: 'Orbital',
       address: ['155 Rivington Street, NYC 10002'],
@@ -365,6 +373,7 @@ export const eventsData = {
   'networked-feminism-in-china': {
     title: 'Networked Feminism in China',
     date: 'Feb. 19, 2016, 7:30 PM',
+    archiveLink: '/archive?search_locations=networked_feminism_in_china',
     location: {
       name: 'Orbital (Panel Discussion)',
       address: ['155 Rivington Street', 'NYC, 10002'],
@@ -431,6 +440,7 @@ export const eventsData = {
   'firewall-pop-up-group-show-in-rvcc': {
     title: 'FIREWALL Pop-up Group Show in RVCC',
     exhibition: 'Aug. 31 - Sep. 30, 2022',
+    archiveLink: '/archive?search_locations=rvcc_group_show',
     location: {
       name: 'Raritan Valley Community College Art Gallery',
       address: ['118 Lamington Road', 'Branchburg, NJ 08876'],
@@ -477,6 +487,7 @@ export const eventsData = {
   'oslo-freedom-forum-2021-miami-interactive-expo': {
     title: '2021 Oslo Freedom Forum Miami',
     date: 'Oct. 4, 2021',
+    archiveLink: '/archive?search_locations=oslo_freedom_miami',
     location: {
       name: 'Miami, FL',
     },
@@ -513,6 +524,7 @@ export const eventsData = {
     exhibition: 'Jan. 24 - Feb. 24, 2020',
     opening: 'Jan. 24, 2020, 6-8 PM',
     hours: 'Mon 2-5 PM, Tues 3-7 PM',
+    archiveLink: '/archive?search_locations=redirect_at_ramp_gallery',
     location: {
       name: 'RAMP Gallery',
       address: ['821 Riverside Drive', 'Asheville, NC'],
@@ -569,6 +581,7 @@ export const eventsData = {
     exhibition: 'Jan. 10 - Feb. 1, 2020',
     opening: 'Jan. 10, 2020, 7 PM',
     hours: 'Fri 2-6 PM, Sat 11 AM-4 PM',
+    archiveLink: '/archive?search_locations=search_for_feminism_vbko',
     location: {
       name: 'VBKÖ – Vereinigung bildender Künstlerinnen Österreichs (Austrian Association of Women Artists)',
       address: ['Maysedergasse 2 (4th floor)', '1010 Vienna'],
@@ -632,6 +645,7 @@ export const eventsData = {
   'new-media-caucus-border-control-symposium': {
     title: 'New Media Caucus "Border Control" Symposium',
     date: 'Sep. 21, 2019, 10:45 AM to 12:15 PM',
+    archiveLink: '/archive?search_locations=border_control_symposium',
     location: {
       name: 'Univ. of Michigan Penny Stamps Gallery',
       address: [
@@ -678,6 +692,7 @@ export const eventsData = {
   hknotfound: {
     title: 'Hong Kong "Not Found" Exhibition',
     date: 'Dec. 12-13, 2015',
+    archiveLink: '/archive?search_locations=hong_kong_not_found',
     location: {
       name: 'Connecting Space',
       address: ['G/F, 18-20 Fort Street', 'North Point, Hong Kong'],
@@ -707,6 +722,7 @@ export const eventsData = {
   'off-2018': {
     title: '10th Anniversary 2018 Oslo Freedom Forum',
     date: 'May 28, 2018, 11 AM-5:30 PM',
+    archiveLink: '/archive?search_locations=oslo_freedom_forum_2018',
     location: {
       name: 'Sentralen',
       address: ['Oslo, Norway'],
@@ -760,6 +776,7 @@ export const eventsData = {
   'off-nyc-2017': {
     title: '2017 Oslo Freedom Forum New York Interactive Expo',
     date: 'Sep. 19, 2017, 9 AM-5 PM',
+    archiveLink: '/archive?search_locations=oslo_freedom_forum_nyc',
     location: {
       name: 'Alice Tully Hall',
       address: ['Lincoln Center', 'NYC'],
@@ -795,6 +812,7 @@ export const eventsData = {
   off2017: {
     title: '2017 Oslo Freedom Forum Pop-Up',
     date: 'May 20-24, 2017',
+    archiveLink: '/archive?search_locations=oslo_freedom_forum_2017',
     location: {
       name: 'Spikersuppa Square',
       address: ['Oslo, Norway'],
@@ -849,6 +867,7 @@ export const eventsData = {
   'search-for-serendipity-in-austria': {
     title: '"Search for... Serendipity" in Austria',
     exhibition: 'Dec. 3-31, 2016',
+    archiveLink: '/archive?search_locations=search_for_serendipity',
     location: {
       name: 'REDpoint',
       address: ['WeinerStr. 1300', 'St. Pölten, Austria'],
@@ -894,6 +913,7 @@ export const eventsData = {
     title: 'INAUGURAL New York 2016 Pop-up!',
     exhibition: 'Feb. 8 - Mar. 6, 2016',
     reception: 'Feb. 21, 2016, 6–9 PM',
+    archiveLink: '/archive?search_locations=inaugural_new_york_pop_up',
     location: {
       name: 'Chinatown Soup',
       address: ['16B Orchard Street', 'NYC, 10002'],
