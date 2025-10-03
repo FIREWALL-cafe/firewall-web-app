@@ -144,7 +144,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
         setActiveFilters(newActiveFilters);
       }
     }
-  }, [isOpen]);
+  }, [isOpen, countries, searchLocations, startDate, endDate]);
 
   const metaKeyToId = {
     votes_censored: 1,
@@ -201,7 +201,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
     const filterOptions = {
       vote_ids: [],
       years: [],
-      cities: [],
+      search_locations: [],
       us_states: [],
       countries: [],
       start_date: '',
@@ -254,8 +254,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
 
       if (citiesSelect.value) {
         // Only allow ONE search_location at a time
-        filterOptions.cities = [citiesSelect.value];
-        filterOptions.search_locations = [citiesSelect.value]; // Use search_locations parameter
+        filterOptions.search_locations = [citiesSelect.value];
 
         // Handle both old location mapping keys and direct search_location values
         const matchedLocation = searchLocations.find(loc => loc.value === citiesSelect.value);
@@ -295,7 +294,6 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
       // Check if search_location (cities) is selected
       if (citiesSelect && citiesSelect.value) {
         // If search_location is selected, only use that (ignore geographic filters)
-        filterOptions.cities = [citiesSelect.value];
         filterOptions.search_locations = [citiesSelect.value];
         // Clear geographic filters to ensure mutual exclusivity
         filterOptions.countries = [];
@@ -388,8 +386,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
         {
           vote_ids: [],
           years: [],
-          cities: [],
-          search_locations: [], // Also reset search_locations
+          search_locations: [],
           us_states: [],
           countries: [],
           start_date: '',

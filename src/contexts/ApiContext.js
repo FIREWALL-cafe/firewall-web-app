@@ -11,13 +11,22 @@ const defaultConfig = {
 
 const searchArchive = async options => {
   try {
-    const queryParams = options.query
-      ? { query: encodeURIComponent(options.query.trim()) }
-      : { ...options };
+    const queryParams = { ...options };
 
-    const url = `/searches?${querystring.stringify(queryParams)}`;
+    // Encode query parameter if present
+    if (queryParams.query) {
+      queryParams.query = encodeURIComponent(queryParams.query.trim());
+    }
 
-    const response = await fetch(url, defaultConfig);
+    // Use /searches/filter endpoint when filters are present, otherwise use /searches
+    const hasFilters = queryParams.vote_ids || queryParams.search_locations ||
+                      queryParams.us_states || queryParams.countries ||
+                      queryParams.years || queryParams.start_date || queryParams.end_date;
+
+    const endpoint = hasFilters ? '/searches/filter' : '/searches';
+    const url = `${endpoint}?${querystring.stringify(queryParams)}`;
+
+    const response = await fetch(url, { method: 'GET', headers: defaultConfig.headers });
 
     const results = await response.json();
     return results;
