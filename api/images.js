@@ -70,6 +70,16 @@ async function getBaiduImages(query) {
   } catch (error) {
     console.warn('Baidu image search failed:', error.message);
 
+    // If it's a timeout/abort error, return error info along with empty results
+    if (error.name === 'AbortError' || error.message.includes('aborted')) {
+      return {
+        images: [],
+        timeout: true,
+        url: url,
+        error: 'Baidu request timeout'
+      };
+    }
+
     // Return empty array as fallback instead of throwing
     // This allows Google results to still be processed and saved
     return [];
@@ -203,13 +213,34 @@ export default async function handler(req, res) {
     ]);
 
     const finalGoogleResults = googleResults.status === 'fulfilled' ? googleResults.value : [];
-    const finalBaiduResults = baiduResults.status === 'fulfilled' ? baiduResults.value : [];
+    let finalBaiduResults = [];
+    let baiduTimeoutInfo = null;
+
+    if (baiduResults.status === 'fulfilled') {
+      const baiduResponse = baiduResults.value;
+
+      // Check if it's a timeout response object or regular array
+      if (baiduResponse && baiduResponse.timeout) {
+        finalBaiduResults = baiduResponse.images || [];
+        baiduTimeoutInfo = {
+          url: baiduResponse.url,
+          error: baiduResponse.error
+        };
+      } else if (Array.isArray(baiduResponse)) {
+        finalBaiduResults = baiduResponse;
+      }
+    }
 
     if (googleResults.status === 'rejected') {
       console.error('Google search failed:', googleResults.reason);
     }
     if (baiduResults.status === 'rejected') {
       console.error('Baidu search failed:', baiduResults.reason);
+    }
+
+    // Log timeout URL for debugging
+    if (baiduTimeoutInfo) {
+      console.warn('Baidu search timed out. URL:', baiduTimeoutInfo.url);
     }
 
     console.log('Search results - Google:', finalGoogleResults.length, 'Baidu:', finalBaiduResults.length);
