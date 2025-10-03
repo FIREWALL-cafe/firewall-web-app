@@ -85,8 +85,20 @@ function SearchInput({ searchMode }) {
   useEffect(() => {
     // Update the input field when query params change and perform search
     const urlQuery = searchParams.get('q');
-    if (urlQuery) {
-      setQuery(urlQuery);
+    const urlSearchLocations = searchParams.get('search_locations');
+    const urlCountries = searchParams.get('countries');
+    const urlUsStates = searchParams.get('us_states');
+    const urlStartDate = searchParams.get('start_date');
+    const urlEndDate = searchParams.get('end_date');
+
+    // Check if any URL filters are present
+    const hasUrlFilters = urlSearchLocations || urlCountries || urlUsStates || urlStartDate || urlEndDate;
+
+    if (urlQuery || (isArchive && hasUrlFilters)) {
+      if (urlQuery) {
+        setQuery(urlQuery);
+      }
+
       // Always perform search when URL query changes - inline to avoid dependency issues
       if (!searchInProgress.current) {
         searchInProgress.current = true;
@@ -98,7 +110,36 @@ function SearchInput({ searchMode }) {
               setarchiveResults({ total: 0, page: 1, page_size: 10, data: [] });
               setFilteredResults({ total: 0, page: 1, page_size: 10, data: [] });
 
-              const results = await searchArchive({ query: urlQuery.trim() });
+              // Build filter params from URL
+              const filterParams = {
+                ...(urlQuery ? { query: urlQuery.trim() } : {}),
+                page: 1,
+                page_size: 10,
+              };
+
+              // Add URL filters if present
+              if (urlSearchLocations) {
+                filterParams.search_locations = [urlSearchLocations];
+                setCurrentFilters(prev => ({ ...prev, search_locations: [urlSearchLocations] }));
+              }
+              if (urlCountries) {
+                filterParams.countries = [urlCountries];
+                setCurrentFilters(prev => ({ ...prev, countries: [urlCountries] }));
+              }
+              if (urlUsStates) {
+                filterParams.us_states = [urlUsStates];
+                setCurrentFilters(prev => ({ ...prev, us_states: [urlUsStates] }));
+              }
+              if (urlStartDate) {
+                filterParams.start_date = urlStartDate;
+                setCurrentFilters(prev => ({ ...prev, start_date: urlStartDate }));
+              }
+              if (urlEndDate) {
+                filterParams.end_date = urlEndDate;
+                setCurrentFilters(prev => ({ ...prev, end_date: urlEndDate }));
+              }
+
+              const results = await searchArchive(filterParams);
 
               if (results.error) {
                 throw new Error(results.error);
