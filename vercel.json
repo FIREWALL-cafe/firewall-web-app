@@ -26,6 +26,10 @@
       "destination": "/api/search-images"
     },
     {
+      "source": "/searches/filter",
+      "destination": "/api/searches"
+    },
+    {
       "source": "/searches",
       "destination": "/api/searches"
     },

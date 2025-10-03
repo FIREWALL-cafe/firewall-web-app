@@ -151,8 +151,7 @@ app.post('/images', async (req, res) => {
   res.json(data);
 });
 
-app.post('/searches', async (req, res) => {
-
+const handleSearchRequest = async (req, res) => {
   const { query, page, page_size, ...otherFilters } = req.query;
 
   if (req.query.cities) {
@@ -163,22 +162,22 @@ app.post('/searches', async (req, res) => {
   if (req.query.search_locations) {
     otherFilters.search_locations = req.query.search_locations;
   }
-  
+
   // Pass through us_states parameter for geographic filtering
   if (req.query.us_states) {
     otherFilters.us_states = req.query.us_states;
   }
-  
+
   // Pass through countries parameter for geographic filtering
   if (req.query.countries) {
     otherFilters.countries = req.query.countries;
   }
-  
+
   // Pass through date parameters for filtering
   if (req.query.start_date) {
     otherFilters.start_date = req.query.start_date;
   }
-  
+
   if (req.query.end_date) {
     otherFilters.end_date = req.query.end_date;
   }
@@ -198,18 +197,21 @@ app.post('/searches', async (req, res) => {
       data = await getSearchesFilter({ ...otherFilters, ...paginationParams });
     }
 
-    
+
     res.json(data);
   } catch (error) {
     console.error('Error in /searches endpoint:', error);
     console.error('Error stack:', error.stack);
-    res.status(400).json({ 
+    res.status(400).json({
       error: error.message || 'Failed to process search request',
       details: error.toString(),
       stack: error.stack
     });
   }
-});
+};
+
+app.post('/searches', handleSearchRequest);
+app.get('/searches/filter', handleSearchRequest);
 
 app.post('/vote', async (req, res) => {
   

@@ -116,16 +116,6 @@ async function translateText(query, langFrom, langTo) {
 
 async function saveSearchResults({ query, google, baidu, langTo, langFrom, search_client_name, search_ip_address, translation }) {
   console.log('Saving search results for:', query);
-  console.log('Save payload:', {
-    query,
-    google_count: google.length,
-    baidu_count: baidu.length,
-    langTo,
-    langFrom,
-    search_client_name,
-    search_ip_address,
-    translation
-  });
 
   const backendUrl = process.env.BACKEND_API_URL;
   console.log('Backend URL for save:', backendUrl);
@@ -148,8 +138,6 @@ async function saveSearchResults({ query, google, baidu, langTo, langFrom, searc
     baidu_images: baidu.slice(0, 9)
   };
 
-  console.log('Sending imageData:', JSON.stringify(imageData, null, 2));
-
   const response = await fetch(`${backendUrl}saveSearchAndImages`, {
     method: 'POST',
     headers: {
@@ -157,13 +145,9 @@ async function saveSearchResults({ query, google, baidu, langTo, langFrom, searc
     },
     body: JSON.stringify(imageData)
   });
-
   console.log('Save response status:', response.status);
-  console.log('Save response headers:', Object.fromEntries(response.headers.entries()));
 
   const result = await response.json();
-  console.log('Save response data:', result);
-  
   return { searchId: result.searchId };
 }
 
