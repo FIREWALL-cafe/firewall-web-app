@@ -20,13 +20,17 @@ async function getGoogleImagesSerper(query) {
   });
 
   const data = await response.json();
+  console.log('Serper.dev response received, status:', response.status);
 
   // Extract image URLs from Serper response
   const images = data.images || [];
-  return images
+  const results = images
     .filter(img => img && img.imageUrl) // Filter out invalid images
     .slice(0, 9) // Limit to 9 images
     .map(img => img.imageUrl);
+
+  console.log(`Successfully fetched ${results.length} Google images`);
+  return results;
 }
 
 async function getBaiduImages(query) {
@@ -205,12 +209,15 @@ export default async function handler(req, res) {
 
     const enQuery = langFrom === 'en' ? query : translatedQuery;
     const cnQuery = langTo === 'zh-CN' ? translatedQuery : query;
+    console.log('Search queries - English:', enQuery, 'Chinese:', cnQuery);
 
     // 3. Search both engines in parallel with fallback handling
+    console.log('Starting parallel search for Google and Baidu...');
     const [googleResults, baiduResults] = await Promise.allSettled([
       getGoogleImagesSerper(enQuery),
       getBaiduImages(cnQuery),
     ]);
+    console.log('Parallel search completed');
 
     const finalGoogleResults = googleResults.status === 'fulfilled' ? googleResults.value : [];
     let finalBaiduResults = [];
@@ -281,11 +288,19 @@ export default async function handler(req, res) {
       searchId,
       googleResults: finalGoogleResults,
       baiduResults: processedBaiduResults,
-      translation: translatedQuery
+      translation: translatedQuery,
+      ...(baiduTimeoutInfo ? { baiduTimeout: baiduTimeoutInfo } : {})
     };
 
     const resultCount = finalGoogleResults.length + processedBaiduResults.length;
     console.log(`Search completed successfully, ${finalGoogleResults.length} Google + ${processedBaiduResults.length} Baidu = ${resultCount} total results`);
+    console.log('Returning response:', JSON.stringify({
+      searchId: response.searchId,
+      googleCount: response.googleResults.length,
+      baiduCount: response.baiduResults.length,
+      hasTranslation: !!response.translation,
+      hasBaiduTimeout: !!response.baiduTimeout
+    }));
     res.status(200).json(response);
 
   } catch (error) {

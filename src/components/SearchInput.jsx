@@ -149,6 +149,7 @@ function SearchInput({ searchMode }) {
               setarchiveResults(results);
               setFilteredResults(results);
             } else {
+              console.log('Calling searchImages API for query:', urlQuery.trim());
               const response = await searchImages({
                 body: JSON.stringify({
                   query: urlQuery.trim(),
@@ -156,17 +157,29 @@ function SearchInput({ searchMode }) {
                 })
               });
 
+              console.log('searchImages response received:', {
+                hasError: !!response.error,
+                hasGoogleResults: !!response.googleResults,
+                hasBaiduResults: !!response.baiduResults,
+                googleCount: response.googleResults?.length,
+                baiduCount: response.baiduResults?.length,
+                hasSearchId: !!response.searchId,
+                hasTranslation: !!response.translation
+              });
+
               if (response.error) {
                 throw new Error(response.error);
               }
 
               const { googleResults, baiduResults, translation, searchId } = response;
+              console.log('Setting results - Google:', googleResults?.length, 'Baidu:', baiduResults?.length);
               setSearchId(searchId);
               setResults({
                 googleResults: googleResults || [],
                 baiduResults: baiduResults || [],
               });
               setTranslation(translation || '');
+              console.log('Results set successfully');
             }
           } catch (e) {
             console.error('Search error:', e);

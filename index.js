@@ -248,7 +248,6 @@ const handleSearchRequest = async (req, res) => {
       data = await getSearchesFilter({ ...otherFilters, ...paginationParams });
     }
 
-
     res.json(data);
   } catch (error) {
     console.error('Error in /searches endpoint:', error);
