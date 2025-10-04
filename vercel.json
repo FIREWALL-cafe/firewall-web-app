@@ -2,7 +2,6 @@
   "framework": "create-react-app",
   "buildCommand": "yarn build",
   "outputDirectory": "build",
-  "devCommand": "yarn start:client",
   "installCommand": "yarn install",
   "regions": [
     "iad1"
