@@ -42,6 +42,16 @@ const searchImages = async options => {
 
     const results = await response.json();
 
+    // Handle 404 - No images found
+    if (response.status === 404 || results.error === 'No images found') {
+      return {
+        error: results.error || 'No images found',
+        message: results.message,
+        query: results.query,
+        translation: results.translation
+      };
+    }
+
     // Log Baidu timeout URL to browser console for debugging
     if (results.baiduTimeout) {
       console.error('Baidu search timeout detected. URL:', results.baiduTimeout.url);

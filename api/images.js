@@ -19,8 +19,14 @@ async function getGoogleImagesSerper(query) {
     })
   });
 
-  const data = await response.json();
   console.log('Serper.dev response received, status:', response.status);
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    console.error('Serper.dev error response:', data);
+    throw new Error(`Serper.dev API returned ${response.status}: ${JSON.stringify(data)}`);
+  }
 
   // Extract image URLs from Serper response
   const images = data.images || [];
@@ -251,6 +257,17 @@ export default async function handler(req, res) {
     }
 
     console.log('Search results - Google:', finalGoogleResults.length, 'Baidu:', finalBaiduResults.length);
+
+    // Check if we have any results at all
+    if (finalGoogleResults.length === 0 && finalBaiduResults.length === 0) {
+      console.warn('No images found for query:', query);
+      return res.status(404).json({
+        error: 'No images found',
+        message: `No images found for "${query}"`,
+        query: query,
+        translation: translatedQuery
+      });
+    }
 
     // Don't create placeholder objects - just use the empty array
     // The backend will handle missing Baidu results

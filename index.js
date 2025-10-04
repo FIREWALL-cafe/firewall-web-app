@@ -160,15 +160,26 @@ app.post('/images', async (req, res) => {
       console.error('Baidu search timed out. URL:', baiduTimeoutInfo.url);
     }
 
+    // Check if we have any results at all
+    if (googleResults.length === 0 && baiduResults.length === 0) {
+      console.warn('No images found for query:', query);
+      return res.status(404).json({
+        error: 'No images found',
+        message: `No images found for "${query}"`,
+        query: query,
+        translation: translatedQuery
+      });
+    }
+
     const { searchId } = await saveImages({
       query,
       google: googleResults.slice(0, 9),
-      baidu: baiduResults.slice(0, 9), 
-      langTo, 
-      langFrom, 
-      search_client_name, 
+      baidu: baiduResults.slice(0, 9),
+      langTo,
+      langFrom,
+      search_client_name,
       search_ip_address: req.clientIp,  // Add IP tracking
-      translation: translatedQuery 
+      translation: translatedQuery
     });
     
 

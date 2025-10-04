@@ -168,6 +168,15 @@ function SearchInput({ searchMode }) {
               });
 
               if (response.error) {
+                // Handle "No images found" error specially
+                if (response.error === 'No images found') {
+                  setResults({ googleResults: [], baiduResults: [] });
+                  setError(response.message || `No images found for "${urlQuery}"`);
+                  setTranslation(response.translation || '');
+                  setLoading(false);
+                  searchInProgress.current = false;
+                  return;
+                }
                 throw new Error(response.error);
               }
 
