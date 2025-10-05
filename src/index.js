@@ -17,8 +17,6 @@ import ShowEvent from './components/ShowEvent';
 import Partners from './components/Partners';
 import Contributors from './components/Contributors';
 import Dashboard from './components/Dashboard';
-import SearchInputDemo from './components/SearchInputDemo';
-import SearchDemo from './components/SearchDemo';
 import WhyDidThisHappen from './components/WhyDidThisHappen';
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -91,14 +89,6 @@ const router = createBrowserRouter([
       {
         path: 'dashboard',
         element: <Dashboard />,
-      },
-      {
-        path: 'search-demo',
-        element: <SearchInputDemo />,
-      },
-      {
-        path: 'search-comparison',
-        element: <SearchDemo />,
       },
     ],
   },
