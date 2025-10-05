@@ -18,8 +18,11 @@ export default async function handler(req, res) {
   console.log('Fetching images for search ID:', searchId);
 
   try {
-    // Make request to backend
-    const url = `${backendUrl}images/search_id/${searchId}`;
+    // Remove trailing slash to avoid double slashes
+    const baseUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
+
+    // Make request to backend using query parameter format
+    const url = `${baseUrl}/images/by-search-id?search_id=${searchId}`;
     console.log('Backend URL:', url);
 
     const response = await fetch(url, {

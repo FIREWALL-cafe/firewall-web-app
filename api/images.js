@@ -140,35 +140,62 @@ async function saveSearchResults({ query, google, baidu, langTo, langFrom, searc
   const backendUrl = process.env.BACKEND_API_URL;
   console.log('Backend URL for save:', backendUrl);
 
-  const imageData = {
+  // Step 1: Create search record
+  const searchData = {
     timestamp: Date.now(),
     location: process.env.LOCATION,
     search_client_name: search_client_name,
     search_ip_address: search_ip_address,
-    secret: process.env.API_SECRET,
     search_engine: 'google',
     search: query,
     translation,
     lang_from: langFrom,
-    lang_to: langTo,
-    lang_confidence: '1.0',
-    lang_alternate: null,
-    lang_name: langFrom === 'en' ? 'English' : langFrom,
-    google_images: google.slice(0, 9),
-    baidu_images: baidu.slice(0, 9)
+    search_term_translation_language_code: langTo,
+    search_term_initial_language_confidence: '1.0',
+    search_term_initial_language_alternate_code: null,
   };
 
-  const response = await fetch(`${backendUrl}saveSearchAndImages`, {
+  const createResponse = await fetch(`${backendUrl}/create-search`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'x-api-secret': process.env.API_SECRET,
+    },
+    body: JSON.stringify(searchData)
+  });
+  console.log('Create search response status:', createResponse.status);
+
+  if (!createResponse.ok) {
+    const errorText = await createResponse.text();
+    throw new Error(`Failed to create search: ${createResponse.status} ${errorText}`);
+  }
+
+  const createResult = await createResponse.json();
+  const searchId = createResult.searchId;
+  console.log('Search created with ID:', searchId);
+
+  // Step 2: Process images
+  const imageData = {
+    searchId,
+    google_images: google.slice(0, 9),
+    baidu_images: baidu.slice(0, 9),
+  };
+
+  const processResponse = await fetch(`${backendUrl}/process-images`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-secret': process.env.API_SECRET,
     },
     body: JSON.stringify(imageData)
   });
-  console.log('Save response status:', response.status);
+  console.log('Process images response status:', processResponse.status);
 
-  const result = await response.json();
-  return { searchId: result.searchId };
+  if (!processResponse.ok) {
+    console.warn('Image processing failed, but search was created with ID:', searchId);
+  }
+
+  return { searchId };
 }
 
 // Main handler function

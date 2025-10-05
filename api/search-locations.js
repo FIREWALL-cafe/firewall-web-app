@@ -3,10 +3,12 @@
 
 export default async function handler(req, res) {
   const backendUrl = process.env.BACKEND_API_URL;
+  // Remove trailing slash to avoid double slashes
+  const baseUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
 
   if (req.method === 'GET') {
     try {
-      const url = `${backendUrl}search-locations`;
+      const url = `${baseUrl}/searches/search-locations`;
 
       const response = await fetch(url, {
         method: 'GET',

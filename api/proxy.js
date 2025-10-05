@@ -4,10 +4,24 @@
 export default async function handler(req, res) {
   // Extract the API path from the URL
   // Remove /api/ prefix to get the actual endpoint path
-  const urlPath = req.url.replace(/^\/api\//, '');
+  // Also handle Vercel's automatic ?path= query parameter from rewrites
+  let urlPath = req.url.replace(/^\/api\//, '');
+
+  // Check if there's a ?path= query parameter from Vercel rewrite
+  const pathMatch = urlPath.match(/\?path=([^&]+)/);
+  if (pathMatch) {
+    // Use the path from the query parameter and preserve any other query params
+    const decodedPath = decodeURIComponent(pathMatch[1]);
+    const otherParams = urlPath.replace(/[?&]path=[^&]+/, '');
+    urlPath = decodedPath + (otherParams.startsWith('?') || otherParams.startsWith('&') ? otherParams.replace(/^&/, '?') : '');
+  }
 
   // Get backend API URL from environment variable or use default
   const backendUrl = process.env.BACKEND_API_URL;
+
+  // Debug logging
+  console.log('Environment BACKEND_API_URL:', backendUrl);
+  console.log('All env vars:', Object.keys(process.env).filter(k => k.includes('BACKEND') || k.includes('API')));
 
   // Construct full URL for the backend request
   // Handle both with and without trailing slash in backendUrl

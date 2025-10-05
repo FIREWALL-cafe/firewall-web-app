@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       });
 
       const endpoint = query ? 'searches/terms' : 'searches/filter';
-      const url = `${backendUrl}${endpoint}?${params.toString()}`;
+      const url = `${backendUrl}/${endpoint}?${params.toString()}`;
       console.log('Search URL:', url);
       const response = await fetch(url, {
         method: 'GET',

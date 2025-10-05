@@ -36,7 +36,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
   useEffect(() => {
     const fetchCountriesData = async () => {
       try {
-        const response = await fetch('/api/countries');
+        const response = await fetch('/api/analytics/countries');
         if (response.ok) {
           const data = await response.json();
           // Filter out entries without country codes and format for dropdown

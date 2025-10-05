@@ -12,7 +12,7 @@ import QuestionIcon from './icons/QuestionIcon';
 import BrokenImagePadding from '../assets/icons/broken-image-placeholder_padding.svg';
 import CensoredBrokenImage from '../assets/icons/censored-image-placeholder_padding.svg';
 
-function ImageCarousel({ images }) {
+function ImageCarousel({ images, searchId }) {
   const [currentIndex, setCurrentIndex] = useState(null); // Start with no selection
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
@@ -53,7 +53,13 @@ function ImageCarousel({ images }) {
   }));
 
   return (
-    <div className="w-full max-w-screen-xl mx-auto">
+    <div className="w-full max-w-screen-xl mx-auto relative">
+      {/* Search ID in top left corner */}
+      {searchId && (
+        <div className="absolute top-2 left-2 z-10 bg-black/60 text-white px-2 py-1 rounded text-xs font-mono">
+          ID: {searchId}
+        </div>
+      )}
       {currentIndex !== null && (
         <div className="flex flex-col md:flex-row">
           {/* Headers */}
