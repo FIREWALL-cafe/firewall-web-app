@@ -19,9 +19,13 @@ export default async function handler(req, res) {
   // Get backend API URL from environment variable or use default
   const backendUrl = process.env.BACKEND_API_URL;
 
-  // Debug logging
-  console.log('Environment BACKEND_API_URL:', backendUrl);
-  console.log('All env vars:', Object.keys(process.env).filter(k => k.includes('BACKEND') || k.includes('API')));
+  if (!backendUrl) {
+    console.error('BACKEND_API_URL environment variable is not set');
+    return res.status(500).json({
+      error: 'Backend API URL not configured',
+      message: 'BACKEND_API_URL environment variable is missing'
+    });
+  }
 
   // Construct full URL for the backend request
   // Handle both with and without trailing slash in backendUrl
@@ -52,6 +56,13 @@ export default async function handler(req, res) {
 
     // Make the request to the backend
     const response = await fetch(targetUrl, options);
+
+    console.log('Backend response status:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Backend error response:', errorText.substring(0, 200));
+    }
 
     // Get the response data
     const data = await response.text();

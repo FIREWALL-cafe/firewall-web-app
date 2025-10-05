@@ -13,10 +13,6 @@
   },
   "rewrites": [
     {
-      "source": "/images",
-      "destination": "/api/images"
-    },
-    {
       "source": "/searches/search-locations",
       "destination": "/api/search-locations"
     },

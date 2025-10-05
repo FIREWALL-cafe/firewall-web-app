@@ -38,7 +38,7 @@ const searchArchive = async options => {
 
 const searchImages = async options => {
   try {
-    const response = await fetch('/images', { ...defaultConfig, ...options });
+    const response = await fetch('/api/images', { ...defaultConfig, ...options });
 
     const results = await response.json();
 

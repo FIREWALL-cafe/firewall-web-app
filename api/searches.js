@@ -4,6 +4,16 @@
 export default async function handler(req, res) {
   const backendUrl = process.env.BACKEND_API_URL;
 
+  if (!backendUrl) {
+    console.error('BACKEND_API_URL environment variable is not set');
+    return res.status(500).json({
+      error: 'Backend API URL not configured',
+      message: 'BACKEND_API_URL environment variable is missing'
+    });
+  }
+
+  const baseUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
+
   // Handle both GET and POST (app uses POST, backend expects GET)
   if (req.method === 'GET' || req.method === 'POST') {
     try {
@@ -25,14 +35,23 @@ export default async function handler(req, res) {
       });
 
       const endpoint = query ? 'searches/terms' : 'searches/filter';
-      const url = `${backendUrl}/${endpoint}?${params.toString()}`;
-      console.log('Search URL:', url);
+      const url = `${baseUrl}/${endpoint}?${params.toString()}`;
+      console.log('Fetching searches from:', url);
+
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
       });
+
+      console.log('Backend response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Backend error response:', errorText);
+        throw new Error(`Backend responded with status: ${response.status}`);
+      }
 
       const data = await response.json();
 

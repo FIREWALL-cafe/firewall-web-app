@@ -3,12 +3,22 @@
 
 export default async function handler(req, res) {
   const backendUrl = process.env.BACKEND_API_URL;
+
+  if (!backendUrl) {
+    console.error('BACKEND_API_URL environment variable is not set');
+    return res.status(500).json({
+      error: 'Backend API URL not configured',
+      message: 'BACKEND_API_URL environment variable is missing'
+    });
+  }
+
   // Remove trailing slash to avoid double slashes
   const baseUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
 
   if (req.method === 'GET') {
     try {
       const url = `${baseUrl}/searches/search-locations`;
+      console.log('Fetching search locations from:', url);
 
       const response = await fetch(url, {
         method: 'GET',
@@ -17,8 +27,12 @@ export default async function handler(req, res) {
         },
       });
 
+      console.log('Backend response status:', response.status);
+
       if (!response.ok) {
-        throw new Error(`Backend responded with status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Backend error response:', errorText);
+        throw new Error(`Backend responded with status: ${response.status} - ${errorText.substring(0, 100)}`);
       }
 
       const data = await response.json();
