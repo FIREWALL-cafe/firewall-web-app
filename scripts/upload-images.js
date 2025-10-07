@@ -1,13 +1,16 @@
-const AWS = require('aws-sdk');
+const { S3Client, PutObjectCommand, HeadObjectCommand } = require('@aws-sdk/client-s3');
 const fs = require('fs');
 const path = require('path');
 const cliProgress = require('cli-progress');
 
-// Configure AWS SDK for Digital Ocean Spaces
-const s3 = new AWS.S3({
+// Configure AWS SDK v3 for Digital Ocean Spaces
+const s3Client = new S3Client({
   endpoint: 'https://nyc3.digitaloceanspaces.com',
-  accessKeyId: process.env.SPACES_KEY,
-  secretAccessKey: process.env.SPACES_SECRET
+  region: 'us-east-1', // Required but not used by DO Spaces
+  credentials: {
+    accessKeyId: process.env.SPACES_KEY,
+    secretAccessKey: process.env.SPACES_SECRET
+  }
 });
 
 const bucketName = 'firewall-cafe-space';
@@ -181,13 +184,14 @@ function checkFileExists(filePath) {
 
 async function checkImageExists(imageName) {
   try {
-    await s3.headObject({
+    const command = new HeadObjectCommand({
       Bucket: bucketName,
       Key: `images/${imageName}`
-    }).promise();
+    });
+    await s3Client.send(command);
     return true;
   } catch (error) {
-    if (error.code === 'NotFound') {
+    if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
       return false;
     }
     throw error;
@@ -235,10 +239,12 @@ async function uploadImage(imageName, dryRun = false, skipExisting = true, progr
       ContentType: contentType
     };
 
-    const data = await s3.upload(params).promise();
-    console.log(`\nSuccessfully uploaded ${imageName} to ${data.Location}`);
+    const command = new PutObjectCommand(params);
+    await s3Client.send(command);
+    const location = `https://${bucketName}.nyc3.digitaloceanspaces.com/images/${imageName}`;
+    console.log(`\nSuccessfully uploaded ${imageName} to ${location}`);
     if (progressBar) progressBar.increment();
-    return data.Location;
+    return location;
   } catch (error) {
     console.error(`\nError uploading ${imageName}:`, error);
     if (progressBar) progressBar.increment();
