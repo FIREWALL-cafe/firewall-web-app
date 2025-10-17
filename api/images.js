@@ -1,7 +1,7 @@
 // Vercel Function to handle image search requests
 // Implements Google and Baidu search directly without Express server dependency
 
-import { ProxyAgent } from 'undici';
+import { configureFetchWithProxy } from './lib/proxy.js';
 
 // Helper functions for search providers
 async function getGoogleImagesSerper(query) {
@@ -62,35 +62,8 @@ async function getBaiduImages(query) {
       }
     };
 
-    // Add Bright Data proxy configuration if credentials are available
-    if (process.env.BRIGHTDATA_USERNAME && process.env.BRIGHTDATA_PASSWORD) {
-      try {
-        const proxyHost = process.env.BRIGHTDATA_PROXY_HOST || 'brd.superproxy.io';
-        const proxyPort = process.env.BRIGHTDATA_PROXY_PORT || '33335';
-
-        // URL-encode credentials to handle special characters
-        const username = encodeURIComponent(process.env.BRIGHTDATA_USERNAME);
-        const password = encodeURIComponent(process.env.BRIGHTDATA_PASSWORD);
-        const proxyUrl = `http://${username}:${password}@${proxyHost}:${proxyPort}`;
-
-        console.log(`Using Bright Data proxy: ${proxyHost}:${proxyPort}`);
-
-        // Create proxy agent for fetch using undici's ProxyAgent
-        // Configure to accept self-signed certificates from proxy
-        const agent = new ProxyAgent({
-          uri: proxyUrl,
-          requestTls: {
-            rejectUnauthorized: false
-          }
-        });
-        fetchOptions.dispatcher = agent;
-        console.log('Proxy agent configured, starting fetch...');
-      } catch (proxyError) {
-        console.warn('Failed to configure proxy, falling back to direct connection:', proxyError.message);
-      }
-    } else {
-      console.log('Bright Data credentials not found, attempting direct connection');
-    }
+    // Add Bright Data proxy configuration
+    configureFetchWithProxy(fetchOptions);
 
     console.log('Initiating fetch to Baidu...');
     const response = await fetch(url, fetchOptions);

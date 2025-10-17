@@ -1,5 +1,5 @@
 // Test endpoint to confirm Baidu connectivity in Vercel environment
-import { ProxyAgent } from 'undici';
+import { configureFetchWithProxy } from './lib/proxy.js';
 
 export default async function handler(req, res) {
   const testQuery = '测试';
@@ -25,38 +25,11 @@ export default async function handler(req, res) {
       }
     };
 
-    // Add Bright Data proxy configuration if credentials are available
-    let usingProxy = false;
-    if (process.env.BRIGHTDATA_USERNAME && process.env.BRIGHTDATA_PASSWORD) {
-      try {
-        const proxyHost = process.env.BRIGHTDATA_PROXY_HOST || 'brd.superproxy.io';
-        const proxyPort = process.env.BRIGHTDATA_PROXY_PORT || '33335';
-
-        // URL-encode credentials to handle special characters
-        const username = encodeURIComponent(process.env.BRIGHTDATA_USERNAME);
-        const password = encodeURIComponent(process.env.BRIGHTDATA_PASSWORD);
-        const proxyUrl = `http://${username}:${password}@${proxyHost}:${proxyPort}`;
-
-        console.log(`Testing with Bright Data proxy: ${proxyHost}:${proxyPort}`);
-        const proxyStartTime = Date.now();
-
-        // Configure to accept self-signed certificates from proxy
-        const agent = new ProxyAgent({
-          uri: proxyUrl,
-          requestTls: {
-            rejectUnauthorized: false
-          }
-        });
-        fetchOptions.dispatcher = agent;
-        usingProxy = true;
-
-        console.log(`Proxy agent configured in ${Date.now() - proxyStartTime}ms`);
-      } catch (proxyError) {
-        console.warn('Failed to configure proxy, using direct connection:', proxyError.message);
-      }
-    } else {
-      console.log('Testing without proxy (direct connection)');
-    }
+    // Add Bright Data proxy configuration
+    const proxyStartTime = Date.now();
+    const usingProxy = configureFetchWithProxy(fetchOptions);
+    const proxyConfigTime = Date.now() - proxyStartTime;
+    console.log(`Proxy configuration completed in ${proxyConfigTime}ms`);
 
     console.log('Initiating fetch to Baidu...');
     const fetchStartTime = Date.now();
