@@ -1,4 +1,6 @@
 // Test endpoint to confirm Baidu connectivity in Vercel environment
+import { ProxyAgent } from 'undici';
+
 export default async function handler(req, res) {
   const testQuery = '测试';
   const url = `https://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&fp=result&word=${encodeURI(testQuery)}&pn=0&rn=5`;
@@ -12,7 +14,8 @@ export default async function handler(req, res) {
 
     const startTime = Date.now();
 
-    const response = await fetch(url, {
+    // Configure fetch options
+    const fetchOptions = {
       signal: controller.signal,
       headers: {
         "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
@@ -20,7 +23,39 @@ export default async function handler(req, res) {
         'User-Agent': 'Mozilla/5.0 (Linux; Android 10; HD1913) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.105 Mobile Safari/537.36 EdgA/46.1.2.5140',
         'Cookie': 'BAIDUID=DA3AF7E580B9999700832FE88F5B01DA:FG=1; BAIDUID_BFESS=DA3AF7E580B9999700832FE88F5B01DA:FG=1; H_WISE_SIDS=62325_62842_62967_62999;'
       }
-    });
+    };
+
+    // Add Bright Data proxy configuration if credentials are available
+    let usingProxy = false;
+    if (process.env.BRIGHTDATA_USERNAME && process.env.BRIGHTDATA_PASSWORD) {
+      try {
+        const proxyHost = process.env.BRIGHTDATA_PROXY_HOST || 'brd.superproxy.io';
+        const proxyPort = process.env.BRIGHTDATA_PROXY_PORT || '33335';
+
+        // URL-encode credentials to handle special characters
+        const username = encodeURIComponent(process.env.BRIGHTDATA_USERNAME);
+        const password = encodeURIComponent(process.env.BRIGHTDATA_PASSWORD);
+        const proxyUrl = `http://${username}:${password}@${proxyHost}:${proxyPort}`;
+
+        console.log(`Testing with Bright Data proxy: ${proxyHost}:${proxyPort}`);
+
+        // Configure to accept self-signed certificates from proxy
+        const agent = new ProxyAgent({
+          uri: proxyUrl,
+          requestTls: {
+            rejectUnauthorized: false
+          }
+        });
+        fetchOptions.dispatcher = agent;
+        usingProxy = true;
+      } catch (proxyError) {
+        console.warn('Failed to configure proxy, using direct connection:', proxyError.message);
+      }
+    } else {
+      console.log('Testing without proxy (direct connection)');
+    }
+
+    const response = await fetch(url, fetchOptions);
 
     clearTimeout(timeoutId);
     const responseTime = Date.now() - startTime;
@@ -55,6 +90,7 @@ export default async function handler(req, res) {
       message: `Successfully connected to Baidu and retrieved ${images.length} images`,
       responseTime: responseTime,
       environment: process.env.VERCEL_ENV || 'development',
+      usingProxy: usingProxy,
       imageCount: images.length,
       sampleImages: images.slice(0, 2).map(img => ({
         imageUrl: img.thumbURL,

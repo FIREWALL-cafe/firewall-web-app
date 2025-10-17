@@ -76,7 +76,13 @@ async function getBaiduImages(query) {
         console.log(`Using Bright Data proxy: ${proxyHost}:${proxyPort}`);
 
         // Create proxy agent for fetch using undici's ProxyAgent
-        const agent = new ProxyAgent(proxyUrl);
+        // Configure to accept self-signed certificates from proxy
+        const agent = new ProxyAgent({
+          uri: proxyUrl,
+          requestTls: {
+            rejectUnauthorized: false
+          }
+        });
         fetchOptions.dispatcher = agent;
       } catch (proxyError) {
         console.warn('Failed to configure proxy, falling back to direct connection:', proxyError.message);
@@ -106,7 +112,7 @@ async function getBaiduImages(query) {
     return results;
 
   } catch (error) {
-    console.warn('Baidu image search failed:', error.message);
+    console.warn('Baidu image search failed:', error);
 
     // If it's a timeout/abort error, return error info along with empty results
     if (error.name === 'AbortError' || error.message.includes('aborted')) {
