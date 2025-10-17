@@ -23,6 +23,8 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
+    "@sanity/client": "^7.12.0",
+    "@sanity/image-url": "^1.2.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -40,6 +42,7 @@
     "react-tooltip": "^5.28.0",
     "serpapi": "^2.1.0",
     "typed.js": "^2.1.0",
+    "undici": "^7.16.0",
     "yet-another-react-lightbox": "^3.21.8"
   },
   "devDependencies": {
