@@ -38,6 +38,7 @@ export default async function handler(req, res) {
         const proxyUrl = `http://${username}:${password}@${proxyHost}:${proxyPort}`;
 
         console.log(`Testing with Bright Data proxy: ${proxyHost}:${proxyPort}`);
+        const proxyStartTime = Date.now();
 
         // Configure to accept self-signed certificates from proxy
         const agent = new ProxyAgent({
@@ -48,6 +49,8 @@ export default async function handler(req, res) {
         });
         fetchOptions.dispatcher = agent;
         usingProxy = true;
+
+        console.log(`Proxy agent configured in ${Date.now() - proxyStartTime}ms`);
       } catch (proxyError) {
         console.warn('Failed to configure proxy, using direct connection:', proxyError.message);
       }
@@ -55,12 +58,16 @@ export default async function handler(req, res) {
       console.log('Testing without proxy (direct connection)');
     }
 
+    console.log('Initiating fetch to Baidu...');
+    const fetchStartTime = Date.now();
     const response = await fetch(url, fetchOptions);
+    const fetchTime = Date.now() - fetchStartTime;
 
     clearTimeout(timeoutId);
     const responseTime = Date.now() - startTime;
 
-    console.log(`Baidu response received in ${responseTime}ms`);
+    console.log(`Fetch completed in ${fetchTime}ms`);
+    console.log(`Total response time: ${responseTime}ms`);
     console.log('Response status:', response.status);
     console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
@@ -68,8 +75,11 @@ export default async function handler(req, res) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
+    console.log('Reading response body...');
+    const bodyStartTime = Date.now();
     const text = await response.text();
-    console.log('Response length:', text.length);
+    const bodyTime = Date.now() - bodyStartTime;
+    console.log(`Response body read in ${bodyTime}ms, length: ${text.length}`);
 
     // Try to parse as JSON
     let data;
@@ -84,11 +94,20 @@ export default async function handler(req, res) {
 
     const images = data.data || [];
     console.log(`Successfully fetched ${images.length} Baidu images`);
+    console.log(`\n=== TIMING BREAKDOWN ===`);
+    console.log(`Proxy setup: ${usingProxy ? 'enabled' : 'disabled'}`);
+    console.log(`Fetch time: ${fetchTime}ms`);
+    console.log(`Body read time: ${bodyTime}ms`);
+    console.log(`Total time: ${responseTime}ms`);
 
     res.status(200).json({
       success: true,
       message: `Successfully connected to Baidu and retrieved ${images.length} images`,
-      responseTime: responseTime,
+      timing: {
+        total: responseTime,
+        fetch: fetchTime,
+        bodyRead: bodyTime,
+      },
       environment: process.env.VERCEL_ENV || 'development',
       usingProxy: usingProxy,
       imageCount: images.length,

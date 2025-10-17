@@ -49,7 +49,7 @@ async function getBaiduImages(query) {
   try {
     // Create an AbortController for timeout handling
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout (increased for proxy)
+    const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout (Vercel function has 30s max)
 
     // Configure fetch options
     const fetchOptions = {
@@ -84,6 +84,7 @@ async function getBaiduImages(query) {
           }
         });
         fetchOptions.dispatcher = agent;
+        console.log('Proxy agent configured, starting fetch...');
       } catch (proxyError) {
         console.warn('Failed to configure proxy, falling back to direct connection:', proxyError.message);
       }
@@ -91,7 +92,9 @@ async function getBaiduImages(query) {
       console.log('Bright Data credentials not found, attempting direct connection');
     }
 
+    console.log('Initiating fetch to Baidu...');
     const response = await fetch(url, fetchOptions);
+    console.log('Baidu fetch completed, status:', response.status);
 
     clearTimeout(timeoutId);
 
@@ -99,7 +102,9 @@ async function getBaiduImages(query) {
       throw new Error(`Baidu API returned ${response.status}: ${response.statusText}`);
     }
 
+    console.log('Reading response body...');
     const text = await response.text();
+    console.log('Response body length:', text.length);
     const data = JSON.parse(text);
     const images = data.data || [];
 
@@ -112,7 +117,10 @@ async function getBaiduImages(query) {
     return results;
 
   } catch (error) {
-    console.warn('Baidu image search failed:', error);
+    console.error('Baidu image search failed:', error);
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
 
     // If it's a timeout/abort error, return error info along with empty results
     if (error.name === 'AbortError' || error.message.includes('aborted')) {

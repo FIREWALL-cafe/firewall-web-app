@@ -9,9 +9,19 @@
   "functions": {
     "api/proxy.js": {
       "maxDuration": 30
+    },
+    "api/images.js": {
+      "maxDuration": 30
+    },
+    "api/test-baidu.js": {
+      "maxDuration": 30
     }
   },
   "rewrites": [
+    {
+      "source": "/images",
+      "destination": "/api/images"
+    },
     {
       "source": "/searches/search-locations",
       "destination": "/api/search-locations"
