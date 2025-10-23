@@ -58,12 +58,12 @@ function EventsSanity() {
             {events.map((event) => (
               <EventCard
                 key={event._id}
-                slug={event.slug.current}
+                link={`/events/${event.slug.current}`}
                 title={event.title}
                 date={event.date}
-                location={event.location}
-                images={event.images}
-                archiveLink={event.archiveLink}
+                location={event.location?.name || event.location}
+                image={event.images?.[0]}
+                imageHover={event.images?.[1] || event.images?.[0]}
               />
             ))}
           </div>
