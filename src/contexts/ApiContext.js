@@ -40,10 +40,20 @@ const searchImages = async options => {
   try {
     const response = await fetch('/api/images', { ...defaultConfig, ...options });
 
+    // Handle 404 - No images found
+    if (response.status === 404) {
+      return {
+        error: 'No images found',
+        message: 'No images found for this search',
+        query: '',
+        translation: ''
+      };
+    }
+
     const results = await response.json();
 
-    // Handle 404 - No images found
-    if (response.status === 404 || results.error === 'No images found') {
+    // Handle error responses
+    if (results.error === 'No images found') {
       return {
         error: results.error || 'No images found',
         message: results.message,

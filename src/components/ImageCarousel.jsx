@@ -3,6 +3,8 @@ import { Tooltip } from 'react-tooltip';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 import 'yet-another-react-lightbox/plugins/thumbnails.css';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 import googleLogo from '../assets/icons/Google-logo_long.svg';
 import baiduLogo from '../assets/icons/baidu_logo_long.svg';
@@ -12,12 +14,12 @@ import QuestionIcon from './icons/QuestionIcon';
 import BrokenImagePadding from '../assets/icons/broken-image-placeholder_padding.svg';
 import CensoredBrokenImage from '../assets/icons/censored-image-placeholder_padding.svg';
 
-function ImageCarousel({ images, searchId }) {
+function ImageCarousel({ images, searchId, isLoading = false }) {
   const [currentIndex, setCurrentIndex] = useState(null); // Start with no selection
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   const handleOnError = (e, isBaidu = false) => {
-    if (isBaidu && images.baiduResults.length === 0) {
+    if (isBaidu && images?.baiduResults?.length === 0) {
       e.target.src = CensoredBrokenImage;
     } else {
       e.target.src = BrokenImagePadding;
@@ -46,7 +48,7 @@ function ImageCarousel({ images, searchId }) {
   };
 
   // Create slides array for the lightbox with pairs of images
-  const slides = images.googleResults.map((googleImage, index) => ({
+  const slides = images?.googleResults?.map((googleImage, index) => ({
     google: googleImage,
     baidu: images.baiduResults[index],
     alt: `Image Pair ${index + 1}`,
@@ -108,22 +110,30 @@ function ImageCarousel({ images, searchId }) {
               id="google-carousel"
               className="relative justify-center items-center h-[320px] hidden ipad-portrait:flex"
             >
-              <div className="absolute left-0 h-full w-[60px] flex justify-center items-center">
-                <button
-                  onClick={goToPrevious}
-                  className="h-full w-full flex justify-center items-center"
-                  aria-label="Previous image"
-                >
-                  <img src={CarouselLeft} alt="Previous" className="w-12 h-12" />
-                </button>
-              </div>
+              {!isLoading && (
+                <div className="absolute left-0 h-full w-[60px] flex justify-center items-center">
+                  <button
+                    onClick={goToPrevious}
+                    className="h-full w-full flex justify-center items-center"
+                    aria-label="Previous image"
+                  >
+                    <img src={CarouselLeft} alt="Previous" className="w-12 h-12" />
+                  </button>
+                </div>
+              )}
               <div className="flex-1 h-full flex justify-center items-center pl-[60px]">
-                <img
-                  src={images.googleResults[currentIndex]}
-                  className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
-                  onError={handleOnError}
-                  alt={`Google search result ${currentIndex + 1}`}
-                />
+                {isLoading ? (
+                  <Skeleton height={320} width="80%" />
+                ) : (
+                  images?.googleResults?.[currentIndex] && (
+                    <img
+                      src={images.googleResults[currentIndex]}
+                      className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
+                      onError={handleOnError}
+                      alt={`Google search result ${currentIndex + 1}`}
+                    />
+                  )
+                )}
               </div>
             </div>
           </div>
@@ -149,22 +159,30 @@ function ImageCarousel({ images, searchId }) {
               className="relative justify-center items-center pl-8 h-[320px] hidden ipad-portrait:flex"
             >
               <div className="flex-1 h-full flex justify-center items-center pr-[60px]">
-                <img
-                  src={images.baiduResults[currentIndex]}
-                  className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
-                  onError={e => handleOnError(e, true)}
-                  alt={`Baidu search result ${currentIndex + 1}`}
-                />
+                {isLoading ? (
+                  <Skeleton height={320} width="80%" />
+                ) : (
+                  images?.baiduResults?.[currentIndex] && (
+                    <img
+                      src={images.baiduResults[currentIndex]}
+                      className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
+                      onError={e => handleOnError(e, true)}
+                      alt={`Baidu search result ${currentIndex + 1}`}
+                    />
+                  )
+                )}
               </div>
-              <div className="absolute right-0 h-full w-[60px] flex justify-center items-center">
-                <button
-                  onClick={goToNext}
-                  className="h-full w-full flex justify-center items-center"
-                  aria-label="Next image"
-                >
-                  <img src={CarouselRight} alt="Next" className="w-12 h-12" />
-                </button>
-              </div>
+              {!isLoading && (
+                <div className="absolute right-0 h-full w-[60px] flex justify-center items-center">
+                  <button
+                    onClick={goToNext}
+                    className="h-full w-full flex justify-center items-center"
+                    aria-label="Next image"
+                  >
+                    <img src={CarouselRight} alt="Next" className="w-12 h-12" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -173,54 +191,70 @@ function ImageCarousel({ images, searchId }) {
       {/* Thumbnails */}
       <div className="flex flex-row">
         <div className="w-1/2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 border-r border-red-300">
-          {images.googleResults.map((image, index) => (
-            <button
-              key={index}
-              onClick={() => handleThumbnailClick(index)}
-              className={`relative aspect-square overflow-visible ${
-                currentIndex !== null && currentIndex === index
-                  ? 'opacity-60 bg-[#0084CC]'
-                  : 'opacity-100'
-              }`}
-            >
-              <div className="w-full h-full overflow-hidden">
-                <img
-                  src={image}
-                  className="w-full h-full object-cover"
-                  onError={handleOnError}
-                  alt={`Google thumbnail ${index + 1}`}
-                />
-              </div>
-              {currentIndex !== null && currentIndex === index && (
-                <div className="absolute inset-[-4px] border border-blue-600 rounded-[6px] bg-blue-300/30 pointer-events-none" />
-              )}
-            </button>
-          ))}
+          {isLoading
+            ? Array(9)
+                .fill(0)
+                .map((_, index) => (
+                  <div key={index} className="relative aspect-square overflow-hidden">
+                    <Skeleton height="100%" width="100%" />
+                  </div>
+                ))
+            : images?.googleResults?.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleThumbnailClick(index)}
+                  className={`relative aspect-square overflow-visible ${
+                    currentIndex !== null && currentIndex === index
+                      ? 'opacity-60 bg-[#0084CC]'
+                      : 'opacity-100'
+                  }`}
+                >
+                  <div className="w-full h-full overflow-hidden">
+                    <img
+                      src={image}
+                      className="w-full h-full object-cover"
+                      onError={handleOnError}
+                      alt={`Google thumbnail ${index + 1}`}
+                    />
+                  </div>
+                  {currentIndex !== null && currentIndex === index && (
+                    <div className="absolute inset-[-4px] border border-blue-600 rounded-[6px] bg-blue-300/30 pointer-events-none" />
+                  )}
+                </button>
+              ))}
         </div>
         <div className="w-1/2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 bg-neutral-100">
-          {images.baiduResults.map((image, index) => (
-            <button
-              key={index}
-              onClick={() => handleThumbnailClick(index)}
-              className={`relative aspect-square overflow-visible ${
-                currentIndex !== null && currentIndex === index
-                  ? 'opacity-60 bg-red-900'
-                  : 'opacity-100'
-              }`}
-            >
-              <div className="w-full h-full overflow-hidden">
-                <img
-                  src={image}
-                  className="w-full h-full object-cover"
-                  onError={e => handleOnError(e, true)}
-                  alt={`Baidu thumbnail ${index + 1}`}
-                />
-              </div>
-              {currentIndex !== null && currentIndex === index && (
-                <div className="absolute inset-[-4px] border border-red-600 rounded-[6px] bg-red-300/30 pointer-events-none" />
-              )}
-            </button>
-          ))}
+          {isLoading
+            ? Array(9)
+                .fill(0)
+                .map((_, index) => (
+                  <div key={index} className="relative aspect-square overflow-hidden">
+                    <Skeleton height="100%" width="100%" />
+                  </div>
+                ))
+            : images?.baiduResults?.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleThumbnailClick(index)}
+                  className={`relative aspect-square overflow-visible ${
+                    currentIndex !== null && currentIndex === index
+                      ? 'opacity-60 bg-red-900'
+                      : 'opacity-100'
+                  }`}
+                >
+                  <div className="w-full h-full overflow-hidden">
+                    <img
+                      src={image}
+                      className="w-full h-full object-cover"
+                      onError={e => handleOnError(e, true)}
+                      alt={`Baidu thumbnail ${index + 1}`}
+                    />
+                  </div>
+                  {currentIndex !== null && currentIndex === index && (
+                    <div className="absolute inset-[-4px] border border-red-600 rounded-[6px] bg-red-300/30 pointer-events-none" />
+                  )}
+                </button>
+              ))}
         </div>
       </div>
 

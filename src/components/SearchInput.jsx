@@ -472,8 +472,13 @@ function SearchInput({ searchMode }) {
         {isArchive && (
           <FilterControls onUpdate={applyFilters} isOpen={filterOpen} isLoading={isLoading} />
         )}
-        {currentSearchId && !isArchive && imageResults?.googleResults.length > 0 && (
-          <SearchCompare images={imageResults} query={query} searchId={currentSearchId} />
+        {!isArchive && (isLoading || (currentSearchId && imageResults?.googleResults.length > 0)) && (
+          <SearchCompare
+            images={imageResults || { googleResults: [], baiduResults: [] }}
+            query={query}
+            searchId={currentSearchId || ''}
+            isLoading={isLoading}
+          />
         )}
       </div>
       {/* Default most recent archive results */}
