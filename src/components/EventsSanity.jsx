@@ -62,8 +62,8 @@ function EventsSanity() {
                 title={event.title}
                 date={event.date}
                 location={event.location?.name || event.location}
-                image={event.images?.[0]}
-                imageHover={event.images?.[1] || event.images?.[0]}
+                image={event.images?.[0]?.src || event.images?.[0]}
+                imageHover={event.images?.[1]?.src || event.images?.[0]?.src || event.images?.[0]}
               />
             ))}
           </div>
