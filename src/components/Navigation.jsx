@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import MenuLink from './MenuLink';
 import SubscribeForm from './SubscribeForm';
+import LanguageSwitcher from './LanguageSwitcher';
 import Drawer from 'react-modern-drawer';
 import { useMediaQuery } from 'react-responsive';
 import 'react-modern-drawer/dist/index.css';
@@ -73,8 +74,9 @@ function Navigation() {
               )}
             </Link>
           </div>
-          <div className="flex relative">
-            <button onClick={toggleDrawer} className="flex items-center justify-end w-full h-16">
+          <div className="flex items-center gap-4 relative">
+            <LanguageSwitcher />
+            <button onClick={toggleDrawer} className="flex items-center justify-end h-16">
               <img src={NavMenu} alt="Menu" className="object-contain self-stretch my-auto" />
             </button>
             <Drawer
@@ -102,13 +104,16 @@ function Navigation() {
                       )}
                     </Link>
                   </div>
-                  <button
-                    className="w-10 h-10 flex items-center justify-center"
-                    aria-label="Close"
-                    onClick={toggleDrawer}
-                  >
-                    <img src={Close} alt="" className="w-6 h-6 object-contain" />
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <LanguageSwitcher />
+                    <button
+                      className="w-10 h-10 flex items-center justify-center"
+                      aria-label="Close"
+                      onClick={toggleDrawer}
+                    >
+                      <img src={Close} alt="" className="w-6 h-6 object-contain" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Search Bar */}

@@ -1,72 +1,99 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { getLocalizedPartners, getPartners } from '../lib/sanity';
+import { useLanguage } from '../context/LanguageContext';
 
+/**
+ * Partners component powered by Sanity CMS with localization support
+ * Falls back to non-localized partners if localized schema is empty
+ */
 function Partners() {
-  const partners = [
-    {
-      name: 'Franklin Furnace Fund',
-      url: 'http://www.franklinfurnace.org/',
-      description:
-        '(FFF) presents, preserves, interprets, proselytizes and advocates on behalf of avant-garde art, especially vulnerable, ephemeral, unpopular forms.',
-    },
-    {
-      name: 'Asian Women Giving Circle',
-      url: 'http://www.asianwomengivingcircle.org/',
-      description:
-        '(AWGC) is the first and largest giving circle in the nation led by Asian American women funding the arts as a strategy for social change.',
-    },
-    {
-      name: 'Lower Manhattan Cultural Council',
-      url: 'http://lmcc.net/',
-      description:
-        '(LMCC) empowers artists by providing them with networks, resources, and support, to create vibrant, sustainable communities in Lower Manhattan and beyond.',
-    },
-    {
-      name: 'New York City Department of Cultural Affairs in partnership with the City Council',
-      url: 'https://www.nyc.gov/dcla',
-      description:
-        "(DCLA) is dedicated to supporting and strengthening New York City's vibrant cultural life and to ensure adequate public funding for non-profit cultural organizations.",
-    },
-    {
-      name: 'Great Fire',
-      url: 'http://www.greatfire.org/',
-      description:
-        'An open source browser extension that lets users share their route to the Internet with each other.',
-    },
-    {
-      name: 'uProxy',
-      url: 'https://www.uproxy.org/',
-      description:
-        'An open source browser extension that lets users share their route to the Internet with each other.',
-    },
-    {
-      name: 'Oslo Freedom Forum',
-      url: 'https://oslofreedomforum.com/',
-      description:
-        'Annual conference where human rights advocates, artists, tech entrepreneurs, and world leaders meet to brainstorm ways to expand freedom across the globe.',
-    },
-    {
-      name: 'Human Rights Foundation',
-      url: 'https://www.hrf.org/',
-      description:
-        'A nonpartisan nonprofit organization that promotes and protects human rights globally, with a focus on closed societies.',
-    },
-  ];
+  const { language } = useLanguage();
+  const [partners, setPartners] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchPartners() {
+      try {
+        setLoading(true);
+
+        // Fetch both localized and regular partners in parallel
+        const [localizedData, regularData] = await Promise.all([
+          getLocalizedPartners(language),
+          getPartners(),
+        ]);
+
+        let allPartners;
+
+        if (language === 'zh') {
+          // For Chinese, only show localized partners
+          allPartners = localizedData || [];
+          console.log(`Chinese view: showing ${allPartners.length} localized partners only`);
+        } else {
+          // For English, show localized partners + non-localized partners (which are assumed to be English)
+          const localizedIds = new Set(
+            (localizedData || []).map(partner => partner._id)
+          );
+
+          // Filter out regular partners that have been localized
+          const nonLocalizedPartners = (regularData || []).filter(
+            partner => !localizedIds.has(partner._id)
+          );
+
+          // Combine localized partners with non-localized partners
+          allPartners = [...(localizedData || []), ...nonLocalizedPartners];
+
+          console.log(`English view: ${localizedData?.length || 0} localized + ${nonLocalizedPartners.length} non-localized = ${allPartners.length} total`);
+        }
+
+        setPartners(allPartners);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch partners:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPartners();
+  }, [language]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-xl">{language === 'en' ? 'Loading partners...' : '加载合作伙伴中...'}</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-xl text-red-600">
+          {language === 'en' ? `Error loading partners: ${error}` : `加载合作伙伴时出错: ${error}`}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <section className="flex overflow-hidden justify-center items-start pb-16 w-full bg-white max-md:pb-24 max-md:max-w-full">
       <div className="flex flex-wrap flex-1 shrink gap-10 justify-center w-full basis-0 min-w-[240px] max-md:max-w-full">
         <div className="flex flex-col flex-1 shrink my-auto text-2xl basis-0 min-w-[240px] max-md:max-w-full">
           <h1 className="mt-10 md:text-[56px] text-3xl font-medium leading-[58px] text-black max-md:text-4xl max-md:leading-[54px]">
-            Partners
+            {language === 'en' ? 'Partners' : '合作伙伴'}
           </h1>
 
           <p className="mt-6 text-xl text-gray-600">
-            Special thanks for the support of these gracious partners.
+            {language === 'en'
+              ? 'Special thanks for the support of these gracious partners.'
+              : '特别感谢这些慷慨合作伙伴的支持。'}
           </p>
 
           <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-            {partners.map((partner, index) => (
-              <div key={index} className="flex flex-col p-6 bg-gray-50 rounded-lg">
+            {partners.map((partner) => (
+              <div key={partner._id} className="flex flex-col p-6 bg-gray-50 rounded-lg">
                 <h3 className="text-2xl font-medium mb-3">
                   <a
                     href={partner.url}

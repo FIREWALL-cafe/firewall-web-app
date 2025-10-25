@@ -7,19 +7,20 @@ import Home from './components/Home';
 import About from './components/About';
 import Contact from './components/Contact';
 import Experts from './components/Experts';
-import Events from './components/EventsSanity';
+import Events from './components/Events';
 import Press from './components/Press';
 import Search from './components/Search';
 import Support from './components/Support';
 import SearchArchive from './components/SearchArchive';
 import LanYu from './components/LanYu';
 import ShowEvent from './components/ShowEvent';
-import Partners from './components/PartnersSanity';
+import Partners from './components/Partners';
 import Contributors from './components/Contributors';
 import Dashboard from './components/Dashboard';
 import WhyDidThisHappen from './components/WhyDidThisHappen';
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { LanguageProvider } from './context/LanguageContext';
 
 import Layout from './routes/layout';
 import ErrorPage from './error-page';
@@ -97,6 +98,8 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <LanguageProvider>
+      <RouterProvider router={router} />
+    </LanguageProvider>
   </React.StrictMode>
 );

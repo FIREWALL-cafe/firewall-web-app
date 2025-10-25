@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext, useCallback } from 'react';
-import ApiContext from '../contexts/ApiContext';
+import ApiContext from '../context/ApiContext';
 import GeographicInsightsWithMap from './Dashboard/GeographicInsightsWithMap';
 import SearchAnalytics from './Dashboard/SearchAnalytics';
 import VoteAnalytics from './Dashboard/VoteAnalytics';

@@ -4,7 +4,7 @@ import { Tooltip } from 'react-tooltip';
 import QueryList from './QueryList';
 import useCookie from '../useCookie';
 import FilterControls from './FilterControls';
-import ApiContext from '../contexts/ApiContext';
+import ApiContext from '../context/ApiContext';
 import QuestionIcon from './icons/QuestionIcon';
 
 import GoogleLogoBlue from '../assets/icons/google-logo_blue.svg';

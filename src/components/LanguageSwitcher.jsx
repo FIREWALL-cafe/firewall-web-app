@@ -6,7 +6,6 @@ function LanguageSwitcher() {
 
   return (
     <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg">
-      <span className="text-sm text-gray-600">Language:</span>
       <div className="flex gap-1">
         {Object.entries(LANGUAGES).map(([_key, lang]) => (
           <button
