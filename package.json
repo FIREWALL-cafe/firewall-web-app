@@ -11,7 +11,7 @@
     "deploy": "node scripts/deploy.js",
     "rollback": "node scripts/rollback.js",
     "build": "react-scripts build",
-    "dev": "react-scripts start",
+    "dev": "vercel dev",
     "test": "react-scripts test",
     "test:ci": "react-scripts test --watchAll=false",
     "test:minimal": "react-scripts test --watchAll=false --testPathPattern=minimal",
