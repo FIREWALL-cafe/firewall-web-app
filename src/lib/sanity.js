@@ -122,3 +122,22 @@ export async function getLocalizedPartners(lang = 'en') {
     { lang }
   )
 }
+
+// Navigation settings (singleton)
+export async function getNavigationSettings(lang = 'en') {
+  return client.fetch(
+    `*[_type == "navigationSettings"][0] {
+      menuItems[] {
+        id,
+        path,
+        "label": ${localizeField('label', lang)},
+        icon,
+        visible
+      },
+      "searchPlaceholder": ${localizeField('searchPlaceholder', lang)},
+      "newsletterTitle": ${localizeField('newsletterTitle', lang)},
+      "newsletterSubtitle": ${localizeField('newsletterSubtitle', lang)}
+    }`,
+    { lang }
+  )
+}

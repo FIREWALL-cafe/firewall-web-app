@@ -4,6 +4,7 @@ import partner from './partner'
 import {localeString, localeText, localeBlockContent} from './localeTypes'
 import eventLocalized from './eventLocalized'
 import partnerLocalized from './partnerLocalized'
+import navigationSettings from './navigationSettings'
 
 export const schemaTypes = [
   // Locale types (must be registered first)
@@ -16,7 +17,10 @@ export const schemaTypes = [
   pressArticle,
   partner,
 
-  // Localized schemas (proof of concept)
+  // Localized schemas
   eventLocalized,
   partnerLocalized,
+
+  // Settings/Singletons
+  navigationSettings,
 ]
