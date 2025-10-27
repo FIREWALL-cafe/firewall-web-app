@@ -15,7 +15,7 @@ async function getGoogleImagesSerper(query) {
     },
     body: JSON.stringify({
       q: query,
-      num: 10,
+      num: 9,
       gl: 'us',
       hl: 'en'
     })
@@ -44,7 +44,7 @@ async function getGoogleImagesSerper(query) {
 async function getBaiduImages(query) {
   console.log('Fetching Baidu images for:', query);
 
-  const url = `https://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&fp=result&word=${encodeURI(query)}&pn=0&rn=30`;
+  const url = `https://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&fp=result&word=${encodeURI(query)}&pn=0&rn=9`;
 
   try {
     // Create an AbortController for timeout handling
