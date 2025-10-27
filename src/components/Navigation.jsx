@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import MenuLink from './MenuLink';
 import SubscribeForm from './SubscribeForm';
 import LanguageSwitcher from './LanguageSwitcher';
 import Drawer from 'react-modern-drawer';
 import { useMediaQuery } from 'react-responsive';
+import { useLanguage } from '../context/LanguageContext';
+import { getNavigationSettings } from '../lib/sanity';
 import 'react-modern-drawer/dist/index.css';
 
 import logo from '../assets/icons/logo_name.svg';
@@ -20,7 +22,19 @@ import AboutIcon from '../assets/icons/logo_only.svg';
 import SupportIcon from '../assets/icons/support.png';
 import ContactIcon from '../assets/icons/envelope.svg';
 
-const menuLinks = [
+// Icon mapping for Sanity CMS
+const ICON_MAP = {
+  Archive: ArchiveIcon,
+  Commentary: CommentaryIcon,
+  Events: EventsIcon,
+  Press: PressIcon,
+  About: AboutIcon,
+  Support: SupportIcon,
+  Contact: ContactIcon,
+};
+
+// Default fallback menu items
+const DEFAULT_MENU_LINKS = [
   { to: '/archive', title: 'Query Archive', icon: ArchiveIcon },
   { to: '/editorial', title: 'Expert Commentary', icon: CommentaryIcon },
   { to: '/events', title: 'Events', icon: EventsIcon },
@@ -31,13 +45,53 @@ const menuLinks = [
 ];
 
 function Navigation() {
+  const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [menuLinks, setMenuLinks] = useState(DEFAULT_MENU_LINKS);
+  const [searchPlaceholder, setSearchPlaceholder] = useState('Search Google + Baidu');
+  const [newsletterTitle, setNewsletterTitle] = useState('Subscribe to our newsletter');
+  const [newsletterSubtitle, setNewsletterSubtitle] = useState('保持联系');
+  const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
   const location = useLocation();
   const isIphone = useMediaQuery({ maxWidth: 420 });
   const isVerySmallScreen = useMediaQuery({ maxWidth: 320 });
   const isContactPage = location.pathname === '/contact';
+
+  // Fetch navigation settings from Sanity CMS
+  useEffect(() => {
+    async function loadNavigationSettings() {
+      try {
+        setLoading(true);
+        const settings = await getNavigationSettings(language);
+
+        if (settings && settings.menuItems) {
+          // Transform Sanity data to component format
+          const items = settings.menuItems
+            .filter(item => item.visible !== false)
+            .map(item => ({
+              to: item.path,
+              title: item.label,
+              icon: ICON_MAP[item.icon] || AboutIcon,
+            }));
+
+          setMenuLinks(items);
+          setSearchPlaceholder(settings.searchPlaceholder || 'Search Google + Baidu');
+          setNewsletterTitle(settings.newsletterTitle || 'Subscribe to our newsletter');
+          setNewsletterSubtitle(settings.newsletterSubtitle || '保持联系');
+        }
+      } catch (error) {
+        console.error('Failed to load navigation settings:', error);
+        // Fallback to default menu links already set in state
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadNavigationSettings();
+  }, [language]);
 
   const toggleDrawer = () => {
     setIsOpen(prevState => !prevState);
@@ -124,7 +178,7 @@ function Navigation() {
                       value={searchQuery}
                       onChange={e => setSearchQuery(e.target.value)}
                       onKeyDown={handleSearchKeyDown}
-                      placeholder="Search Google + Baidu"
+                      placeholder={searchPlaceholder}
                       className="w-full px-4 py-3 border-b-2 border-gray-300 bg-transparent text-gray-600 placeholder-gray-400 focus:outline-none focus:border-red-600"
                     />
                     <button
@@ -159,9 +213,11 @@ function Navigation() {
                 <div className="px-6 pb-8">
                   <div className="mb-6">
                     <div className="text-lg font-medium text-black">
-                      Subscribe to our newsletter
+                      {newsletterTitle}
                     </div>
-                    <div className="text-lg font-medium text-red-500">保持联系</div>
+                    {newsletterSubtitle && (
+                      <div className="text-lg font-medium text-red-500">{newsletterSubtitle}</div>
+                    )}
                   </div>
                   <SubscribeForm
                     inputClassName="flex-1 px-4 py-3 border border-gray-300 rounded-l bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:border-red-600"
