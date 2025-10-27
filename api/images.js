@@ -1,7 +1,7 @@
 // Vercel Function to handle image search requests
 // Implements Google and Baidu search directly without Express server dependency
 
-import { fetchWithProxy } from './lib/proxy.js';
+import { fetchWithFallback } from './lib/proxy.js';
 
 // Helper functions for search providers
 async function getGoogleImagesSerper(query) {
@@ -47,13 +47,9 @@ async function getBaiduImages(query) {
   const url = `https://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&fp=result&word=${encodeURI(query)}&pn=0&rn=9`;
 
   try {
-    // Create an AbortController for timeout handling
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout (Vercel function has 30s max)
-
     // Configure fetch options with realistic browser headers
+    // Note: fetchWithFallback handles timeouts internally (2s direct, 18s proxy)
     const fetchOptions = {
-      signal: controller.signal,
       headers: {
         'Accept': 'application/json, text/javascript, */*; q=0.01',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
@@ -68,12 +64,10 @@ async function getBaiduImages(query) {
       }
     };
 
-    console.log('Initiating fetch to Baidu...');
-    // Use fetchWithProxy which handles proxy setup internally with undici
-    const response = await fetchWithProxy(url, fetchOptions);
+    console.log('Initiating fetch to Baidu (direct first, fallback to proxy)...');
+    // Use fetchWithFallback which tries direct first, then proxy
+    const response = await fetchWithFallback(url, fetchOptions);
     console.log('Baidu fetch completed, status:', response.status);
-
-    clearTimeout(timeoutId);
 
     // Check for Bright Data proxy errors (even on 200 responses)
     const brdErrorCode = response.headers.get('x-brd-err-code');
@@ -128,12 +122,12 @@ async function getBaiduImages(query) {
 
     // If it's a timeout/abort error, return error info along with empty results
     if (error.name === 'AbortError' || error.message.includes('aborted')) {
-      console.warn('Baidu request timed out after 20 seconds');
+      console.warn('Baidu request timed out (tried direct + proxy fallback)');
       return {
         images: [],
         timeout: true,
         url: url,
-        error: 'Baidu request timeout'
+        error: 'Baidu request timeout after fallback attempts'
       };
     }
 

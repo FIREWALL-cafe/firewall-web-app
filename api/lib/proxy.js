@@ -40,6 +40,60 @@ export function createBrightDataProxyAgent() {
 }
 
 /**
+ * Attempts direct connection first, falls back to proxy on failure
+ * Uses 2-second timeout for direct, 18-second for proxy
+ * @param {string} url - URL to fetch
+ * @param {Object} options - Fetch options (excluding signal)
+ * @returns {Promise<Response>} Fetch response
+ */
+export async function fetchWithFallback(url, options = {}) {
+  // Attempt 1: Direct connection with 2-second timeout
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+    console.log('✓ Direct connection successful');
+    return response;
+  } catch (directError) {
+    // Log fallback event
+    console.warn('⚠ Direct connection failed, falling back to proxy');
+    console.warn('  Direct error:', directError.name, '-', directError.message);
+
+    // Attempt 2: Proxy connection with 18-second timeout
+    const agent = createBrightDataProxyAgent();
+    if (!agent) {
+      console.error('  No proxy available, cannot retry');
+      throw directError;
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 18000);
+
+      const response = await undiciFetch(url, {
+        ...options,
+        signal: controller.signal,
+        dispatcher: agent
+      });
+
+      clearTimeout(timeoutId);
+      console.log('✓ Proxy connection successful (fallback)');
+      return response;
+    } catch (proxyError) {
+      console.error('✗ Both direct and proxy connections failed');
+      console.error('  Proxy error:', proxyError.name, '-', proxyError.message);
+      throw proxyError;
+    }
+  }
+}
+
+/**
  * Performs a fetch request with Bright Data proxy if available
  * Uses undici's fetch with dispatcher support instead of global fetch
  * @param {string} url - URL to fetch

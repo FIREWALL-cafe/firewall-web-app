@@ -1,5 +1,5 @@
 // Test endpoint to confirm proxy connectivity and Baidu access
-import { fetchWithProxy } from './lib/proxy.js';
+import { fetchWithProxy, fetchWithFallback } from './lib/proxy.js';
 
 export default async function handler(req, res) {
   const testType = req.query.type || 'baidu'; // 'proxy' or 'baidu'
@@ -55,22 +55,18 @@ export default async function handler(req, res) {
     }
   }
 
-  // Test 2: Baidu image search
+  // Test 2: Baidu image search with fallback
   const testQuery = req.query.q || '测试';
   const url = `https://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&fp=result&word=${encodeURI(testQuery)}&pn=0&rn=5`;
 
   console.log('Testing Baidu connection to:', url);
 
   try {
-    // Test 1: Basic fetch with timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-
     const startTime = Date.now();
 
     // Configure fetch options
+    // Note: fetchWithFallback handles timeouts internally (2s direct, 18s proxy)
     const fetchOptions = {
-      signal: controller.signal,
       headers: {
         "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
         'Content-Type': 'application/json',
@@ -79,15 +75,11 @@ export default async function handler(req, res) {
       }
     };
 
-    console.log('Initiating fetch to Baidu...');
+    console.log('Initiating fetch to Baidu (direct first, fallback to proxy)...');
     const fetchStartTime = Date.now();
-    // Use fetchWithProxy which handles proxy setup internally
-    const response = await fetchWithProxy(url, fetchOptions);
+    // Use fetchWithFallback which tries direct first, then proxy
+    const response = await fetchWithFallback(url, fetchOptions);
     const fetchTime = Date.now() - fetchStartTime;
-    // Determine if proxy was used based on environment variables
-    const usingProxy = !!(process.env.BRIGHTDATA_USERNAME && process.env.BRIGHTDATA_PASSWORD);
-
-    clearTimeout(timeoutId);
     const responseTime = Date.now() - startTime;
 
     console.log(`Fetch completed in ${fetchTime}ms`);
@@ -110,6 +102,7 @@ export default async function handler(req, res) {
       return res.status(200).json({
         success: false,
         message: 'Bright Data proxy error detected',
+        strategy: 'direct-first-with-proxy-fallback',
         brightDataError: {
           code: brdErrorCode,
           message: brdErrorMsg,
@@ -120,7 +113,7 @@ export default async function handler(req, res) {
           fetch: fetchTime,
         },
         environment: process.env.VERCEL_ENV || 'development',
-        usingProxy: usingProxy
+        proxyAvailable: !!(process.env.BRIGHTDATA_USERNAME && process.env.BRIGHTDATA_PASSWORD)
       });
     }
 
@@ -148,21 +141,23 @@ export default async function handler(req, res) {
     const images = data.data || [];
     console.log(`Successfully fetched ${images.length} Baidu images`);
     console.log(`\n=== TIMING BREAKDOWN ===`);
-    console.log(`Proxy setup: ${usingProxy ? 'enabled' : 'disabled'}`);
+    console.log(`Strategy: Direct first (2s timeout), fallback to proxy (18s timeout)`);
     console.log(`Fetch time: ${fetchTime}ms`);
     console.log(`Body read time: ${bodyTime}ms`);
     console.log(`Total time: ${responseTime}ms`);
+    console.log(`Note: Check logs above for whether direct succeeded or fell back to proxy`);
 
     res.status(200).json({
       success: true,
       message: `Successfully connected to Baidu and retrieved ${images.length} images`,
+      strategy: 'direct-first-with-proxy-fallback',
       timing: {
         total: responseTime,
         fetch: fetchTime,
         bodyRead: bodyTime,
       },
       environment: process.env.VERCEL_ENV || 'development',
-      usingProxy: usingProxy,
+      proxyAvailable: !!(process.env.BRIGHTDATA_USERNAME && process.env.BRIGHTDATA_PASSWORD),
       imageCount: images.length,
       sampleImages: images.slice(0, 2).map(img => ({
         imageUrl: img.thumbURL,
