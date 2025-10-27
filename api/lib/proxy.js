@@ -1,7 +1,7 @@
 // Bright Data proxy configuration utilities
 // Provides proxy agent setup for requests that need geographic routing
 
-import { ProxyAgent } from 'undici';
+import { ProxyAgent, fetch as undiciFetch } from 'undici';
 
 /**
  * Creates a ProxyAgent configured for Bright Data proxy service
@@ -40,6 +40,31 @@ export function createBrightDataProxyAgent() {
 }
 
 /**
+ * Performs a fetch request with Bright Data proxy if available
+ * Uses undici's fetch with dispatcher support instead of global fetch
+ * @param {string} url - URL to fetch
+ * @param {Object} options - Fetch options
+ * @returns {Promise<Response>} Fetch response
+ */
+export async function fetchWithProxy(url, options = {}) {
+  const agent = createBrightDataProxyAgent();
+
+  if (agent) {
+    console.log('Using Bright Data proxy for fetch request');
+    // Use undici's fetch which supports the dispatcher property
+    return undiciFetch(url, {
+      ...options,
+      dispatcher: agent
+    });
+  }
+
+  console.log('No proxy configured, using direct connection');
+  // Fall back to global fetch for direct connection
+  return fetch(url, options);
+}
+
+/**
+ * @deprecated Use fetchWithProxy instead
  * Adds Bright Data proxy configuration to fetch options
  * @param {Object} fetchOptions - Fetch options object to modify
  * @returns {boolean} True if proxy was configured, false otherwise

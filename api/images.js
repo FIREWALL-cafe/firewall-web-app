@@ -1,7 +1,7 @@
 // Vercel Function to handle image search requests
 // Implements Google and Baidu search directly without Express server dependency
 
-import { configureFetchWithProxy } from './lib/proxy.js';
+import { fetchWithProxy } from './lib/proxy.js';
 
 // Helper functions for search providers
 async function getGoogleImagesSerper(query) {
@@ -68,11 +68,9 @@ async function getBaiduImages(query) {
       }
     };
 
-    // Add Bright Data proxy configuration
-    configureFetchWithProxy(fetchOptions);
-
     console.log('Initiating fetch to Baidu...');
-    const response = await fetch(url, fetchOptions);
+    // Use fetchWithProxy which handles proxy setup internally with undici
+    const response = await fetchWithProxy(url, fetchOptions);
     console.log('Baidu fetch completed, status:', response.status);
 
     clearTimeout(timeoutId);

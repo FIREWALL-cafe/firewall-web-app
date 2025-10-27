@@ -1,5 +1,5 @@
 // Test endpoint to confirm Baidu connectivity in Vercel environment
-import { configureFetchWithProxy } from './lib/proxy.js';
+import { fetchWithProxy } from './lib/proxy.js';
 
 export default async function handler(req, res) {
   const testQuery = '测试';
@@ -25,16 +25,13 @@ export default async function handler(req, res) {
       }
     };
 
-    // Add Bright Data proxy configuration
-    const proxyStartTime = Date.now();
-    const usingProxy = configureFetchWithProxy(fetchOptions);
-    const proxyConfigTime = Date.now() - proxyStartTime;
-    console.log(`Proxy configuration completed in ${proxyConfigTime}ms`);
-
     console.log('Initiating fetch to Baidu...');
     const fetchStartTime = Date.now();
-    const response = await fetch(url, fetchOptions);
+    // Use fetchWithProxy which handles proxy setup internally
+    const response = await fetchWithProxy(url, fetchOptions);
     const fetchTime = Date.now() - fetchStartTime;
+    // Determine if proxy was used based on environment variables
+    const usingProxy = !!(process.env.BRIGHTDATA_USERNAME && process.env.BRIGHTDATA_PASSWORD);
 
     clearTimeout(timeoutId);
     const responseTime = Date.now() - startTime;
