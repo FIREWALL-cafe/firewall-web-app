@@ -1,6 +1,7 @@
 {
   "framework": "create-react-app",
   "buildCommand": "yarn build",
+  "devCommand": "react-scripts start",
   "outputDirectory": "build",
   "installCommand": "yarn install",
   "regions": [
