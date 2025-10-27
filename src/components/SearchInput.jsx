@@ -18,8 +18,9 @@ import SearchCompare from './SearchCompare';
 import Spinner from '../assets/spinner.svg';
 
 function SearchInput({ searchMode }) {
-  const { searchImages, searchArchive } = useContext(ApiContext);
+  const { translateQuery, searchImages, searchArchive } = useContext(ApiContext);
   const [isLoading, setLoading] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
   const [imageResults, setImageResults] = useState({});
   const [archiveResults, setarchiveResults] = useState({
     total: 0,
@@ -149,12 +150,42 @@ function SearchInput({ searchMode }) {
               setarchiveResults(results);
               setFilteredResults(results);
             } else {
-              console.log('Calling searchImages API for query:', urlQuery.trim());
+              // Stage 1: Get translation
+              console.log('Stage 1: Translating query:', urlQuery.trim());
+              setIsTranslating(true);
+
+              let translationResult;
+              try {
+                translationResult = await translateQuery(urlQuery.trim());
+                console.log('Translation received:', translationResult);
+                setTranslation(translationResult.translation || '');
+              } catch (translationError) {
+                console.warn('Translation failed:', translationError);
+                // Continue with search even if translation fails
+                setTranslation('');
+              } finally {
+                setIsTranslating(false);
+              }
+
+              // Stage 2: Search for images (show skeletons during this phase)
+              console.log('Stage 2: Searching for images');
+              setLoading(true);
+
+              // Pass translation data to avoid duplicate translation
+              const searchBody = {
+                query: urlQuery.trim(),
+                search_client_name: username,
+              };
+
+              // If we got translation, pass it along to skip re-translating
+              if (translationResult) {
+                searchBody.translation = translationResult.translation;
+                searchBody.langFrom = translationResult.langFrom;
+                searchBody.langTo = translationResult.langTo;
+              }
+
               const response = await searchImages({
-                body: JSON.stringify({
-                  query: urlQuery.trim(),
-                  search_client_name: username,
-                })
+                body: JSON.stringify(searchBody)
               });
 
               console.log('searchImages response received:', {
@@ -172,7 +203,7 @@ function SearchInput({ searchMode }) {
                 if (response.error === 'No images found') {
                   setResults({ googleResults: [], baiduResults: [] });
                   setError(response.message || `No images found for "${urlQuery}"`);
-                  setTranslation(response.translation || '');
+                  setTranslation(response.translation || translationResult?.translation || '');
                   setLoading(false);
                   searchInProgress.current = false;
                   return;
@@ -187,7 +218,8 @@ function SearchInput({ searchMode }) {
                 googleResults: googleResults || [],
                 baiduResults: baiduResults || [],
               });
-              setTranslation(translation || '');
+              // Use translation from response if available, otherwise use the one we got earlier
+              setTranslation(translation || translationResult?.translation || '');
               console.log('Results set successfully');
             }
           } catch (e) {
@@ -218,6 +250,7 @@ function SearchInput({ searchMode }) {
     searchParams,
     isArchive,
     location.pathname,
+    translateQuery,
     searchArchive,
     searchImages,
     username,
@@ -405,18 +438,18 @@ function SearchInput({ searchMode }) {
                 type="text"
                 onChange={e => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
-                disabled={!!isLoading}
+                disabled={isLoading || isTranslating}
                 className="flex-1 px-4 font-body-02 border-none h-[56px] text-neutral-600 focus:text-black placeholder:text-neutral-600 focus:ring-0 focus:outline-none iphone:text-lg"
                 aria-label="Search query"
               />
               <div className="flex items-center bg-white">
                 <button
                   onClick={handleSubmit}
-                  disabled={!!isLoading}
+                  disabled={isLoading || isTranslating}
                   className="flex items-center justify-center w-14 h-[56px] bg-white hover:bg-gray-50 transition-colors iphone:w-12"
                 >
                   <img
-                    src={isLoading ? Spinner : displaySearchIcon}
+                    src={(isLoading || isTranslating) ? Spinner : displaySearchIcon}
                     alt="Search icon"
                     className="w-6 h-6 object-contain aspect-square min-w-[28px] min-h-[28px] iphone:w-5 iphone:h-5"
                   />
@@ -440,13 +473,17 @@ function SearchInput({ searchMode }) {
             )}
           </div>
           <div className="flex items-center gap-4 mt-4">
-            <span
-              className={`p-1 leading-8 text-medium bg-slate-50 border border-black rounded ${
-                translation ? '' : 'hidden'
-              }`}
-            >
-              <span className="font-bold">Translation:</span> {translation}
-            </span>
+            {isTranslating && (
+              <span className="p-1 leading-8 text-medium bg-blue-50 border border-blue-600 rounded text-blue-600 flex items-center gap-2">
+                <img src={Spinner} alt="Translating" className="w-4 h-4" />
+                <span className="font-bold">Translating...</span>
+              </span>
+            )}
+            {!isTranslating && translation && (
+              <span className="p-1 leading-8 text-medium bg-slate-50 border border-black rounded">
+                <span className="font-bold">Translation:</span> {translation}
+              </span>
+            )}
             {error && (
               <span className="p-1 leading-8 text-medium bg-red-50 border border-red-600 rounded text-red-600">
                 <span className="font-bold">Error:</span> {error}

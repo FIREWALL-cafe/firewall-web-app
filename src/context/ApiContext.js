@@ -36,6 +36,25 @@ const searchArchive = async options => {
   }
 };
 
+const translateQuery = async query => {
+  try {
+    const response = await fetch('/api/translate', {
+      ...defaultConfig,
+      body: JSON.stringify({ query })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Translation failed with status ${response.status}`);
+    }
+
+    const results = await response.json();
+    return results;
+  } catch (error) {
+    // Handle error silently
+    throw error;
+  }
+};
+
 const searchImages = async options => {
   try {
     const response = await fetch('/api/images', { ...defaultConfig, ...options });
@@ -92,6 +111,7 @@ const getDashboard = async () => {
 };
 
 const ApiContext = createContext({
+  translateQuery,
   searchImages,
   searchArchive,
   getDashboard,

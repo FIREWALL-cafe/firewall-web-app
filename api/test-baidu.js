@@ -1,8 +1,62 @@
-// Test endpoint to confirm Baidu connectivity in Vercel environment
+// Test endpoint to confirm proxy connectivity and Baidu access
 import { fetchWithProxy } from './lib/proxy.js';
 
 export default async function handler(req, res) {
-  const testQuery = '测试';
+  const testType = req.query.type || 'baidu'; // 'proxy' or 'baidu'
+
+  // Test 1: Bright Data proxy connectivity (recommended by Bright Data docs)
+  if (testType === 'proxy') {
+    console.log('Testing Bright Data proxy connectivity...');
+    const proxyTestUrl = 'https://geo.brdtest.com/welcome.txt';
+
+    try {
+      const response = await fetchWithProxy(proxyTestUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      });
+
+      console.log('Proxy test response status:', response.status);
+
+      // Check for Bright Data error headers
+      const brdErrorCode = response.headers.get('x-brd-err-code');
+      const brdErrorMsg = response.headers.get('x-brd-err-msg');
+      const proxyStatus = response.headers.get('Proxy-Status');
+
+      const text = await response.text();
+      const headers = Object.fromEntries(response.headers.entries());
+
+      console.log('Response headers:', headers);
+      console.log('Response text:', text);
+
+      return res.status(200).json({
+        success: !brdErrorCode,
+        testType: 'proxy',
+        proxyConfigured: !!process.env.BRIGHTDATA_USERNAME,
+        responseStatus: response.status,
+        responseText: text,
+        brightDataError: brdErrorCode ? {
+          code: brdErrorCode,
+          message: brdErrorMsg,
+          proxyStatus: proxyStatus
+        } : null,
+        headers
+      });
+    } catch (error) {
+      console.error('Proxy test failed:', error);
+      return res.status(500).json({
+        success: false,
+        testType: 'proxy',
+        error: error.message,
+        errorName: error.name,
+        errorCode: error.code,
+        errorCause: error.cause
+      });
+    }
+  }
+
+  // Test 2: Baidu image search
+  const testQuery = req.query.q || '测试';
   const url = `https://image.baidu.com/search/acjson?tn=resultjson_com&ipn=rj&fp=result&word=${encodeURI(testQuery)}&pn=0&rn=5`;
 
   console.log('Testing Baidu connection to:', url);
@@ -40,6 +94,35 @@ export default async function handler(req, res) {
     console.log(`Total response time: ${responseTime}ms`);
     console.log('Response status:', response.status);
     console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+    // Check for Bright Data proxy errors (even on 200 responses)
+    const brdErrorCode = response.headers.get('x-brd-err-code');
+    const brdErrorMsg = response.headers.get('x-brd-err-msg');
+    const proxyStatus = response.headers.get('Proxy-Status');
+
+    if (brdErrorCode || proxyStatus) {
+      console.warn('========== BRIGHT DATA PROXY ERROR ==========');
+      console.warn('BrightData Error Code:', brdErrorCode);
+      console.warn('BrightData Error Message:', brdErrorMsg);
+      console.warn('Proxy-Status Header:', proxyStatus);
+      console.warn('============================================');
+
+      return res.status(200).json({
+        success: false,
+        message: 'Bright Data proxy error detected',
+        brightDataError: {
+          code: brdErrorCode,
+          message: brdErrorMsg,
+          proxyStatus: proxyStatus
+        },
+        timing: {
+          total: responseTime,
+          fetch: fetchTime,
+        },
+        environment: process.env.VERCEL_ENV || 'development',
+        usingProxy: usingProxy
+      });
+    }
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);

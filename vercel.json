@@ -14,6 +14,9 @@
     "api/images.js": {
       "maxDuration": 30
     },
+    "api/translate.js": {
+      "maxDuration": 10
+    },
     "api/test-baidu.js": {
       "maxDuration": 30
     }

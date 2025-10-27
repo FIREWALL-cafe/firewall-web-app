@@ -75,6 +75,28 @@ async function getBaiduImages(query) {
 
     clearTimeout(timeoutId);
 
+    // Check for Bright Data proxy errors (even on 200 responses)
+    const brdErrorCode = response.headers.get('x-brd-err-code');
+    const brdErrorMsg = response.headers.get('x-brd-err-msg');
+    const proxyStatus = response.headers.get('Proxy-Status');
+
+    if (brdErrorCode || proxyStatus) {
+      console.warn('========== BRIGHT DATA PROXY ERROR ==========');
+      console.warn('BrightData Error Code:', brdErrorCode);
+      console.warn('BrightData Error Message:', brdErrorMsg);
+      console.warn('Proxy-Status Header:', proxyStatus);
+      console.warn('============================================');
+
+      // Return empty results with error info
+      return {
+        images: [],
+        proxyError: true,
+        errorCode: brdErrorCode,
+        errorMessage: brdErrorMsg,
+        proxyStatus: proxyStatus
+      };
+    }
+
     if (!response.ok) {
       throw new Error(`Baidu API returned ${response.status}: ${response.statusText}`);
     }
@@ -94,19 +116,30 @@ async function getBaiduImages(query) {
     return results;
 
   } catch (error) {
-    console.error('Baidu image search failed:', error);
+    console.error('========== BAIDU SEARCH ERROR ==========');
     console.error('Error name:', error.name);
     console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    console.error('Error cause:', error.cause);
+    console.error('Request URL:', url);
+    console.error('Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
     console.error('Error stack:', error.stack);
+    console.error('========================================');
 
     // If it's a timeout/abort error, return error info along with empty results
     if (error.name === 'AbortError' || error.message.includes('aborted')) {
+      console.warn('Baidu request timed out after 20 seconds');
       return {
         images: [],
         timeout: true,
         url: url,
         error: 'Baidu request timeout'
       };
+    }
+
+    // Check if it's a network/proxy error
+    if (error.cause && error.cause.code === 'ECONNRESET') {
+      console.warn('Baidu proxy connection failed (ECONNRESET) - this may indicate proxy credentials are not configured');
     }
 
     // Return empty array as fallback instead of throwing
@@ -225,7 +258,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { query, search_client_name } = req.body;
+    const { query, search_client_name, translation, langFrom: providedLangFrom, langTo: providedLangTo } = req.body;
 
     if (!query || query.trim() === '') {
       throw new Error('Search query is required');
@@ -233,30 +266,38 @@ export default async function handler(req, res) {
 
     console.log('Processing search for:', query);
 
-    // 1. Detect language using the same API as local
-    let langFrom, langTo;
-    try {
-      const detectedLang = await detectLanguage(query);
-      langFrom = detectedLang.language === 'zh-CN' ? 'zh-CN' : 'en';
-      langTo = langFrom === 'en' ? 'zh-CN' : 'en';
-      console.log('Language detection successful:', detectedLang.language, '->', langFrom, 'to', langTo);
-    } catch (error) {
-      console.warn('Language detection failed, using fallback:', error.message);
-      // Fallback to regex detection like before
-      langFrom = /[\u4e00-\u9fff]/.test(query) ? 'zh-CN' : 'en';
-      langTo = langFrom === 'en' ? 'zh-CN' : 'en';
-      console.log('Fallback language detection:', langFrom, 'to', langTo);
-    }
+    let langFrom, langTo, translatedQuery;
 
-    // 2. Translate query
-    let translatedQuery;
-    try {
-      translatedQuery = await translateText(query, langFrom, langTo);
-      console.log('Translation successful:', query, '->', translatedQuery);
-    } catch (error) {
-      console.warn('Translation failed, using fallback:', error.message);
-      // Fallback to mock translation if translation service fails
-      translatedQuery = langFrom === 'en' ? '测试' : 'test';
+    // Check if translation was already provided (from separate /api/translate call)
+    if (translation && providedLangFrom && providedLangTo) {
+      console.log('Using pre-translated query:', translation);
+      langFrom = providedLangFrom;
+      langTo = providedLangTo;
+      translatedQuery = translation;
+    } else {
+      // 1. Detect language using the same API as local
+      try {
+        const detectedLang = await detectLanguage(query);
+        langFrom = detectedLang.language === 'zh-CN' ? 'zh-CN' : 'en';
+        langTo = langFrom === 'en' ? 'zh-CN' : 'en';
+        console.log('Language detection successful:', detectedLang.language, '->', langFrom, 'to', langTo);
+      } catch (error) {
+        console.warn('Language detection failed, using fallback:', error.message);
+        // Fallback to regex detection like before
+        langFrom = /[\u4e00-\u9fff]/.test(query) ? 'zh-CN' : 'en';
+        langTo = langFrom === 'en' ? 'zh-CN' : 'en';
+        console.log('Fallback language detection:', langFrom, 'to', langTo);
+      }
+
+      // 2. Translate query
+      try {
+        translatedQuery = await translateText(query, langFrom, langTo);
+        console.log('Translation successful:', query, '->', translatedQuery);
+      } catch (error) {
+        console.warn('Translation failed, using fallback:', error.message);
+        // Fallback to mock translation if translation service fails
+        translatedQuery = langFrom === 'en' ? '测试' : 'test';
+      }
     }
 
     const enQuery = langFrom === 'en' ? query : translatedQuery;
