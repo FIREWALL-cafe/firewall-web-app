@@ -159,16 +159,18 @@ function SearchInput({ searchMode }) {
                 translationResult = await translateQuery(urlQuery.trim());
                 console.log('Translation received:', translationResult);
                 setTranslation(translationResult.translation || '');
+
+                // Small delay to ensure translation UI is visible before moving to loading state
+                await new Promise(resolve => setTimeout(resolve, 300));
               } catch (translationError) {
                 console.warn('Translation failed:', translationError);
                 // Continue with search even if translation fails
                 setTranslation('');
-              } finally {
-                setIsTranslating(false);
               }
 
               // Stage 2: Search for images (show skeletons during this phase)
               console.log('Stage 2: Searching for images');
+              setIsTranslating(false);
               setLoading(true);
 
               // Pass translation data to avoid duplicate translation
@@ -473,14 +475,19 @@ function SearchInput({ searchMode }) {
             )}
           </div>
           <div className="flex items-center gap-4 mt-4">
-            {isTranslating && (
+            {isTranslating && !translation && (
               <span className="p-1 leading-8 text-medium bg-blue-50 border border-blue-600 rounded text-blue-600 flex items-center gap-2">
                 <img src={Spinner} alt="Translating" className="w-4 h-4" />
                 <span className="font-bold">Translating...</span>
               </span>
             )}
-            {!isTranslating && translation && (
-              <span className="p-1 leading-8 text-medium bg-slate-50 border border-black rounded">
+            {translation && (
+              <span className={`p-1 leading-8 text-medium rounded flex items-center gap-2 ${
+                isTranslating
+                  ? 'bg-blue-50 border border-blue-600 text-blue-600'
+                  : 'bg-slate-50 border border-black'
+              }`}>
+                {isTranslating && <img src={Spinner} alt="Loading" className="w-4 h-4" />}
                 <span className="font-bold">Translation:</span> {translation}
               </span>
             )}
