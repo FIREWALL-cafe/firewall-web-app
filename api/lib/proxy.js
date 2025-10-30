@@ -28,8 +28,8 @@ export function createBrightDataProxyAgent() {
     const agent = new ProxyAgent({
       uri: proxyUrl,
       requestTls: {
-        rejectUnauthorized: false
-      }
+        rejectUnauthorized: false,
+      },
     });
 
     return agent;
@@ -41,20 +41,20 @@ export function createBrightDataProxyAgent() {
 
 /**
  * Attempts direct connection first, falls back to proxy on failure
- * Uses 2-second timeout for direct, 18-second for proxy
+ * Uses 500ms timeout for direct, 12-second for proxy
  * @param {string} url - URL to fetch
  * @param {Object} options - Fetch options (excluding signal)
  * @returns {Promise<Response>} Fetch response
  */
 export async function fetchWithFallback(url, options = {}) {
-  // Attempt 1: Direct connection with 2-second timeout
+  // Attempt 1: Direct connection with 500ms timeout
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2000);
+    const timeoutId = setTimeout(() => controller.abort(), 500);
 
     const response = await fetch(url, {
       ...options,
-      signal: controller.signal
+      signal: controller.signal,
     });
 
     clearTimeout(timeoutId);
@@ -65,7 +65,7 @@ export async function fetchWithFallback(url, options = {}) {
     console.warn('⚠ Direct connection failed, falling back to proxy');
     console.warn('  Direct error:', directError.name, '-', directError.message);
 
-    // Attempt 2: Proxy connection with 18-second timeout
+    // Attempt 2: Proxy connection with 12-second timeout
     const agent = createBrightDataProxyAgent();
     if (!agent) {
       console.error('  No proxy available, cannot retry');
@@ -74,12 +74,12 @@ export async function fetchWithFallback(url, options = {}) {
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 18000);
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
 
       const response = await undiciFetch(url, {
         ...options,
         signal: controller.signal,
-        dispatcher: agent
+        dispatcher: agent,
       });
 
       clearTimeout(timeoutId);
@@ -108,7 +108,7 @@ export async function fetchWithProxy(url, options = {}) {
     // Use undici's fetch which supports the dispatcher property
     return undiciFetch(url, {
       ...options,
-      dispatcher: agent
+      dispatcher: agent,
     });
   }
 
