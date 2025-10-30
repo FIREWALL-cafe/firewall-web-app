@@ -2,6 +2,7 @@
 // Implements Google and Baidu search directly without Express server dependency
 
 import { fetchWithFallback } from './lib/proxy.js';
+import { waitUntil } from '@vercel/functions';
 
 // Helper functions for search providers
 async function getGoogleImagesSerper(query) {
@@ -11,14 +12,14 @@ async function getGoogleImagesSerper(query) {
     method: 'POST',
     headers: {
       'X-API-KEY': process.env.SERPER_API_KEY,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       q: query,
       num: 9,
       gl: 'us',
-      hl: 'en'
-    })
+      hl: 'en',
+    }),
   });
 
   console.log('Serper.dev response received, status:', response.status);
@@ -51,17 +52,18 @@ async function getBaiduImages(query) {
     // Note: fetchWithFallback handles timeouts internally (2s direct, 18s proxy)
     const fetchOptions = {
       headers: {
-        'Accept': 'application/json, text/javascript, */*; q=0.01',
+        Accept: 'application/json, text/javascript, */*; q=0.01',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
         'Accept-Encoding': 'gzip, deflate, br',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'Referer': 'https://image.baidu.com/',
-        'Origin': 'https://image.baidu.com',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        Referer: 'https://image.baidu.com/',
+        Origin: 'https://image.baidu.com',
         'Sec-Fetch-Dest': 'empty',
         'Sec-Fetch-Mode': 'cors',
         'Sec-Fetch-Site': 'same-origin',
-        'X-Requested-With': 'XMLHttpRequest'
-      }
+        'X-Requested-With': 'XMLHttpRequest',
+      },
     };
 
     console.log('Initiating fetch to Baidu (direct first, fallback to proxy)...');
@@ -87,7 +89,7 @@ async function getBaiduImages(query) {
         proxyError: true,
         errorCode: brdErrorCode,
         errorMessage: brdErrorMsg,
-        proxyStatus: proxyStatus
+        proxyStatus: proxyStatus,
       };
     }
 
@@ -108,7 +110,6 @@ async function getBaiduImages(query) {
 
     console.log(`Successfully fetched ${results.length} Baidu images`);
     return results;
-
   } catch (error) {
     console.error('========== BAIDU SEARCH ERROR ==========');
     console.error('Error name:', error.name);
@@ -116,7 +117,10 @@ async function getBaiduImages(query) {
     console.error('Error code:', error.code);
     console.error('Error cause:', error.cause);
     console.error('Request URL:', url);
-    console.error('Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+    console.error(
+      'Full error object:',
+      JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
+    );
     console.error('Error stack:', error.stack);
     console.error('========================================');
 
@@ -127,13 +131,15 @@ async function getBaiduImages(query) {
         images: [],
         timeout: true,
         url: url,
-        error: 'Baidu request timeout after fallback attempts'
+        error: 'Baidu request timeout after fallback attempts',
       };
     }
 
     // Check if it's a network/proxy error
     if (error.cause && error.cause.code === 'ECONNRESET') {
-      console.warn('Baidu proxy connection failed (ECONNRESET) - this may indicate proxy credentials are not configured');
+      console.warn(
+        'Baidu proxy connection failed (ECONNRESET) - this may indicate proxy credentials are not configured'
+      );
     }
 
     // Return empty array as fallback instead of throwing
@@ -169,7 +175,7 @@ async function translateText(query, langFrom, langTo) {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: body
+    body: body,
   });
 
   console.log('Translation response status:', response.status);
@@ -180,13 +186,21 @@ async function translateText(query, langFrom, langTo) {
   return data.translated;
 }
 
-async function saveSearchResults({ query, google, baidu, langTo, langFrom, search_client_name, search_ip_address, translation }) {
-  console.log('Saving search results for:', query);
+/**
+ * Creates search record in database (fast, synchronous)
+ * Returns searchId immediately
+ */
+async function createSearchRecord({
+  query,
+  langTo,
+  langFrom,
+  search_client_name,
+  search_ip_address,
+  translation,
+}) {
+  console.log('Creating search record for:', query);
 
   const backendUrl = process.env.BACKEND_API_URL;
-  console.log('Backend URL for save:', backendUrl);
-
-  // Step 1: Create search record
   const searchData = {
     timestamp: Date.now(),
     location: process.env.LOCATION,
@@ -207,8 +221,9 @@ async function saveSearchResults({ query, google, baidu, langTo, langFrom, searc
       'Content-Type': 'application/json',
       'x-api-secret': process.env.API_SECRET,
     },
-    body: JSON.stringify(searchData)
+    body: JSON.stringify(searchData),
   });
+
   console.log('Create search response status:', createResponse.status);
 
   if (!createResponse.ok) {
@@ -217,31 +232,46 @@ async function saveSearchResults({ query, google, baidu, langTo, langFrom, searc
   }
 
   const createResult = await createResponse.json();
-  const searchId = createResult.searchId;
-  console.log('Search created with ID:', searchId);
+  console.log('Search created with ID:', createResult.searchId);
 
-  // Step 2: Process images
+  return createResult.searchId;
+}
+
+/**
+ * Processes images asynchronously (slow, background)
+ * Should be called with waitUntil() to not block response
+ */
+async function processImagesAsync({ searchId, google, baidu }) {
+  console.log('Processing images for search ID:', searchId);
+
+  const backendUrl = process.env.BACKEND_API_URL;
   const imageData = {
     searchId,
     google_images: google.slice(0, 9),
     baidu_images: baidu.slice(0, 9),
   };
 
-  const processResponse = await fetch(`${backendUrl}/process-images`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-secret': process.env.API_SECRET,
-    },
-    body: JSON.stringify(imageData)
-  });
-  console.log('Process images response status:', processResponse.status);
+  try {
+    const processResponse = await fetch(`${backendUrl}/process-images`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-secret': process.env.API_SECRET,
+      },
+      body: JSON.stringify(imageData),
+    });
 
-  if (!processResponse.ok) {
-    console.warn('Image processing failed, but search was created with ID:', searchId);
+    console.log('Process images response status:', processResponse.status);
+
+    if (!processResponse.ok) {
+      console.warn('Image processing failed for search ID:', searchId);
+    } else {
+      console.log('Successfully processed images for search ID:', searchId);
+    }
+  } catch (error) {
+    console.error('Error processing images for search ID:', searchId, error);
+    // Don't throw - this is background processing
   }
-
-  return { searchId };
 }
 
 // Main handler function
@@ -252,7 +282,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { query, search_client_name, translation, langFrom: providedLangFrom, langTo: providedLangTo } = req.body;
+    const {
+      query,
+      search_client_name,
+      translation,
+      langFrom: providedLangFrom,
+      langTo: providedLangTo,
+    } = req.body;
 
     if (!query || query.trim() === '') {
       throw new Error('Search query is required');
@@ -274,7 +310,14 @@ export default async function handler(req, res) {
         const detectedLang = await detectLanguage(query);
         langFrom = detectedLang.language === 'zh-CN' ? 'zh-CN' : 'en';
         langTo = langFrom === 'en' ? 'zh-CN' : 'en';
-        console.log('Language detection successful:', detectedLang.language, '->', langFrom, 'to', langTo);
+        console.log(
+          'Language detection successful:',
+          detectedLang.language,
+          '->',
+          langFrom,
+          'to',
+          langTo
+        );
       } catch (error) {
         console.warn('Language detection failed, using fallback:', error.message);
         // Fallback to regex detection like before
@@ -318,7 +361,7 @@ export default async function handler(req, res) {
         finalBaiduResults = baiduResponse.images || [];
         baiduTimeoutInfo = {
           url: baiduResponse.url,
-          error: baiduResponse.error
+          error: baiduResponse.error,
         };
       } else if (Array.isArray(baiduResponse)) {
         finalBaiduResults = baiduResponse;
@@ -337,7 +380,12 @@ export default async function handler(req, res) {
       console.warn('Baidu search timed out. URL:', baiduTimeoutInfo.url);
     }
 
-    console.log('Search results - Google:', finalGoogleResults.length, 'Baidu:', finalBaiduResults.length);
+    console.log(
+      'Search results - Google:',
+      finalGoogleResults.length,
+      'Baidu:',
+      finalBaiduResults.length
+    );
 
     // Check if we have any results at all
     if (finalGoogleResults.length === 0 && finalBaiduResults.length === 0) {
@@ -346,7 +394,7 @@ export default async function handler(req, res) {
         error: 'No images found',
         message: `No images found for "${query}"`,
         query: query,
-        translation: translatedQuery
+        translation: translatedQuery,
       });
     }
 
@@ -355,57 +403,80 @@ export default async function handler(req, res) {
     let processedBaiduResults = finalBaiduResults;
 
     // 4. Extract client IP (Vercel provides this in headers)
-    const clientIp = req.headers['x-forwarded-for'] ||
-                     req.headers['x-real-ip'] ||
-                     req.connection?.remoteAddress ||
-                     '127.0.0.1';
+    const clientIp =
+      req.headers['x-forwarded-for'] ||
+      req.headers['x-real-ip'] ||
+      req.connection?.remoteAddress ||
+      '127.0.0.1';
 
-    // 5. Save results to database (with fallback)
+    // 5. Create search record (fast - wait for this)
     let searchId = null;
     try {
-      const saveResult = await saveSearchResults({
+      searchId = await createSearchRecord({
         query,
-        google: finalGoogleResults,
-        baidu: processedBaiduResults,
         langTo,
         langFrom,
         search_client_name,
         search_ip_address: clientIp,
-        translation: translatedQuery
+        translation: translatedQuery,
       });
-      searchId = saveResult.searchId;
-      console.log('Search saved with ID:', searchId, 'and IP:', clientIp);
+      console.log('Search created with ID:', searchId, 'and IP:', clientIp);
+
+      // 5b. Process images in background (don't wait)
+      // Check if waitUntil is available (production) or fallback (dev)
+      if (typeof waitUntil === 'function') {
+        waitUntil(
+          processImagesAsync({
+            searchId,
+            google: finalGoogleResults,
+            baidu: processedBaiduResults,
+          })
+        );
+        console.log('Image processing queued for background execution');
+      } else {
+        // In dev/local, just fire and forget
+        processImagesAsync({
+          searchId,
+          google: finalGoogleResults,
+          baidu: processedBaiduResults,
+        }).catch(err => console.error('Background image processing failed:', err));
+        console.log('Image processing started (dev mode, no waitUntil available)');
+      }
     } catch (saveError) {
-      console.warn('Failed to save search results:', saveError.message);
+      console.warn('Failed to create search record:', saveError.message);
       console.log('Continuing with search results despite save failure');
-      // Continue without searchId - still return results to user
+      // Note: if createSearchRecord fails, we don't queue image processing
     }
 
-    // 6. Return results (always return results, even if save failed)
+    // 6. Return results immediately (don't wait for image processing)
     const response = {
       searchId,
       googleResults: finalGoogleResults,
       baiduResults: processedBaiduResults,
       translation: translatedQuery,
-      ...(baiduTimeoutInfo ? { baiduTimeout: baiduTimeoutInfo } : {})
+      ...(baiduTimeoutInfo ? { baiduTimeout: baiduTimeoutInfo } : {}),
     };
 
     const resultCount = finalGoogleResults.length + processedBaiduResults.length;
-    console.log(`Search completed successfully, ${finalGoogleResults.length} Google + ${processedBaiduResults.length} Baidu = ${resultCount} total results`);
-    console.log('Returning response:', JSON.stringify({
-      searchId: response.searchId,
-      googleCount: response.googleResults.length,
-      baiduCount: response.baiduResults.length,
-      hasTranslation: !!response.translation,
-      hasBaiduTimeout: !!response.baiduTimeout
-    }));
+    console.log(
+      `Search completed successfully, ${finalGoogleResults.length} Google + ${processedBaiduResults.length} Baidu = ${resultCount} total results`
+    );
+    console.log(
+      'Returning response:',
+      JSON.stringify({
+        searchId: response.searchId,
+        googleCount: response.googleResults.length,
+        baiduCount: response.baiduResults.length,
+        hasTranslation: !!response.translation,
+        hasBaiduTimeout: !!response.baiduTimeout,
+      })
+    );
     res.status(200).json(response);
-
   } catch (error) {
     console.error('Image search error:', error);
     res.status(400).json({
       error: error.message || 'Failed to process search request',
-      details: error.toString()
+      details: error.toString(),
     });
   }
 }
