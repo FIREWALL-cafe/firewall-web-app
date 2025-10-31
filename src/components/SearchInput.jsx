@@ -16,11 +16,14 @@ import Archive from '../assets/icons/Archive.png';
 import FilterIcon from './FilterIcon';
 import SearchCompare from './SearchCompare';
 import Spinner from '../assets/spinner.svg';
+import SearchProgressIndicator from './SearchProgressIndicator';
 
 function SearchInput({ searchMode }) {
   const { translateQuery, searchImages, searchArchive } = useContext(ApiContext);
   const [isLoading, setLoading] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
+  const [searchStage, setSearchStage] = useState(null); // Track current search stage
+  const [estimatedTime, setEstimatedTime] = useState(null); // Estimated time remaining
   const [imageResults, setImageResults] = useState({});
   const [archiveResults, setarchiveResults] = useState({
     total: 0,
@@ -93,7 +96,8 @@ function SearchInput({ searchMode }) {
     const urlEndDate = searchParams.get('end_date');
 
     // Check if any URL filters are present
-    const hasUrlFilters = urlSearchLocations || urlCountries || urlUsStates || urlStartDate || urlEndDate;
+    const hasUrlFilters =
+      urlSearchLocations || urlCountries || urlUsStates || urlStartDate || urlEndDate;
 
     if (urlQuery || (isArchive && hasUrlFilters)) {
       if (urlQuery) {
@@ -153,6 +157,8 @@ function SearchInput({ searchMode }) {
               // Stage 1: Get translation
               console.log('Stage 1: Translating query:', urlQuery.trim());
               setIsTranslating(true);
+              setSearchStage('translating');
+              setEstimatedTime(8);
 
               let translationResult;
               try {
@@ -171,6 +177,8 @@ function SearchInput({ searchMode }) {
               // Stage 2: Search for images (show skeletons during this phase)
               console.log('Stage 2: Searching for images');
               setIsTranslating(false);
+              setSearchStage('searching-google');
+              setEstimatedTime(6);
               setLoading(true);
 
               // Pass translation data to avoid duplicate translation
@@ -186,8 +194,12 @@ function SearchInput({ searchMode }) {
                 searchBody.langTo = translationResult.langTo;
               }
 
+              // Update stage to indicate both searches are happening
+              setSearchStage('searching-baidu');
+              setEstimatedTime(4);
+
               const response = await searchImages({
-                body: JSON.stringify(searchBody)
+                body: JSON.stringify(searchBody),
               });
 
               console.log('searchImages response received:', {
@@ -197,8 +209,12 @@ function SearchInput({ searchMode }) {
                 googleCount: response.googleResults?.length,
                 baiduCount: response.baiduResults?.length,
                 hasSearchId: !!response.searchId,
-                hasTranslation: !!response.translation
+                hasTranslation: !!response.translation,
               });
+
+              // Stage 3: Processing results
+              setSearchStage('saving');
+              setEstimatedTime(1);
 
               if (response.error) {
                 // Handle "No images found" error specially
@@ -207,6 +223,8 @@ function SearchInput({ searchMode }) {
                   setError(response.message || `No images found for "${urlQuery}"`);
                   setTranslation(response.translation || translationResult?.translation || '');
                   setLoading(false);
+                  setSearchStage('complete');
+                  setEstimatedTime(null);
                   searchInProgress.current = false;
                   return;
                 }
@@ -214,7 +232,12 @@ function SearchInput({ searchMode }) {
               }
 
               const { googleResults, baiduResults, translation, searchId } = response;
-              console.log('Setting results - Google:', googleResults?.length, 'Baidu:', baiduResults?.length);
+              console.log(
+                'Setting results - Google:',
+                googleResults?.length,
+                'Baidu:',
+                baiduResults?.length
+              );
               setSearchId(searchId);
               setResults({
                 googleResults: googleResults || [],
@@ -223,6 +246,10 @@ function SearchInput({ searchMode }) {
               // Use translation from response if available, otherwise use the one we got earlier
               setTranslation(translation || translationResult?.translation || '');
               console.log('Results set successfully');
+
+              // Complete
+              setSearchStage('complete');
+              setEstimatedTime(null);
             }
           } catch (e) {
             console.error('Search error:', e);
@@ -238,6 +265,8 @@ function SearchInput({ searchMode }) {
             }
           } finally {
             setLoading(false);
+            setSearchStage(null);
+            setEstimatedTime(null);
             searchInProgress.current = false;
           }
         };
@@ -362,7 +391,7 @@ function SearchInput({ searchMode }) {
                 className={`
                   relative z-10
                   flex items-center gap-2 px-8 md:py-3 py-2
-                  rounded-t border-t border-l border-r border-solid border-red-600 
+                  rounded-t border-t border-l border-r border-solid border-red-600
                   cursor-pointer
                   bg-slate-100 border-b-0 mb-[-2px]
                   iphone:px-4
@@ -451,7 +480,7 @@ function SearchInput({ searchMode }) {
                   className="flex items-center justify-center w-14 h-[56px] bg-white hover:bg-gray-50 transition-colors iphone:w-12"
                 >
                   <img
-                    src={(isLoading || isTranslating) ? Spinner : displaySearchIcon}
+                    src={isLoading || isTranslating ? Spinner : displaySearchIcon}
                     alt="Search icon"
                     className="w-6 h-6 object-contain aspect-square min-w-[28px] min-h-[28px] iphone:w-5 iphone:h-5"
                   />
@@ -474,6 +503,12 @@ function SearchInput({ searchMode }) {
               </button>
             )}
           </div>
+
+          {/* Progress Indicator for Search Stages */}
+          {!isArchive && searchStage && searchStage !== 'complete' && (
+            <SearchProgressIndicator stage={searchStage} estimatedTimeRemaining={estimatedTime} />
+          )}
+
           <div className="flex items-center gap-4 mt-4">
             {isTranslating && !translation && (
               <span className="p-1 leading-8 text-medium bg-blue-50 border border-blue-600 rounded text-blue-600 flex items-center gap-2">
@@ -482,11 +517,13 @@ function SearchInput({ searchMode }) {
               </span>
             )}
             {translation && (
-              <span className={`p-1 leading-8 text-medium rounded flex items-center gap-2 ${
-                isTranslating
-                  ? 'bg-blue-50 border border-blue-600 text-blue-600'
-                  : 'bg-slate-50 border border-black'
-              }`}>
+              <span
+                className={`p-1 leading-8 text-medium rounded flex items-center gap-2 ${
+                  isTranslating
+                    ? 'bg-blue-50 border border-blue-600 text-blue-600'
+                    : 'bg-slate-50 border border-black'
+                }`}
+              >
                 {isTranslating && <img src={Spinner} alt="Loading" className="w-4 h-4" />}
                 <span className="font-bold">Translation:</span> {translation}
               </span>
@@ -516,14 +553,15 @@ function SearchInput({ searchMode }) {
         {isArchive && (
           <FilterControls onUpdate={applyFilters} isOpen={filterOpen} isLoading={isLoading} />
         )}
-        {!isArchive && (isLoading || (currentSearchId && imageResults?.googleResults.length > 0)) && (
-          <SearchCompare
-            images={imageResults || { googleResults: [], baiduResults: [] }}
-            query={query}
-            searchId={currentSearchId || ''}
-            isLoading={isLoading}
-          />
-        )}
+        {!isArchive &&
+          (isLoading || (currentSearchId && imageResults?.googleResults.length > 0)) && (
+            <SearchCompare
+              images={imageResults || { googleResults: [], baiduResults: [] }}
+              query={query}
+              searchId={currentSearchId || ''}
+              isLoading={isLoading}
+            />
+          )}
       </div>
       {/* Default most recent archive results */}
       {currentSearchId && isArchive && (
