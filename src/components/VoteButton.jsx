@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
+import { getVoteStrings } from '../lib/sanity';
+import { getDefault } from '../constants/uiDefaults';
 
 import VisibilityOff from '../assets/icons/visibility_off.svg';
 import Visibility from '../assets/icons/visibility.svg';
@@ -9,8 +12,8 @@ import VoteIcon from '../assets/icons/how_to_vote.svg';
 
 /**
  * Wordpress vote endpoint
- * 
-* endpoint: https://firewallcafe.com/wp-admin/admin-ajax.php
+ *
+ * endpoint: https://firewallcafe.com/wp-admin/admin-ajax.php
 action: fwc_post_vote
 meta_key: votes_uncensored
 post_id: 310504
@@ -18,8 +21,34 @@ security: 83376c1e81
 */
 
 function VoteButton({ voteCategory, voteHandler, disabled, shouldReset, totalVotes }) {
+  const { language } = useLanguage();
   const [isSelected, setSelected] = useState(false);
   const [isDisabled, setDisabled] = useState(disabled);
+  const [voteLabels, setVoteLabels] = useState({});
+
+  // Fetch vote strings from Sanity on mount and language change
+  useEffect(() => {
+    async function loadVoteStrings() {
+      try {
+        const strings = await getVoteStrings(language);
+        setVoteLabels(strings);
+      } catch (error) {
+        console.error('Failed to load vote strings:', error);
+        // Language-aware fallback
+        setVoteLabels({
+          voteButtonCensored: getDefault('vote', 'voteButtonCensored', language),
+          voteButtonUncensored: getDefault('vote', 'voteButtonUncensored', language),
+          voteButtonBadTranslation: getDefault('vote', 'voteButtonBadTranslation', language),
+          voteButtonGoodTranslation: getDefault('vote', 'voteButtonGoodTranslation', language),
+          voteButtonLostInTranslation: getDefault('vote', 'voteButtonLostInTranslation', language),
+          voteButtonNsfw: getDefault('vote', 'voteButtonNsfw', language),
+          voteButtonWtf: getDefault('vote', 'voteButtonWtf', language),
+        });
+      }
+    }
+
+    loadVoteStrings();
+  }, [language]);
 
   // Reset state when shouldReset changes
   useEffect(() => {
@@ -32,6 +61,7 @@ function VoteButton({ voteCategory, voteHandler, disabled, shouldReset, totalVot
     }
   }, [shouldReset, voteCategory]);
 
+  // PRESERVE backend ID mapping (1-7) - DO NOT CHANGE
   const metaKeyToId = {
     votes_censored: 1,
     votes_uncensored: 2,
@@ -42,40 +72,41 @@ function VoteButton({ voteCategory, voteHandler, disabled, shouldReset, totalVot
     votes_nsfw: 7,
   };
 
+  // ONLY replace .name values with Sanity strings
   const voteMeta = {
     votes_censored: {
       id: metaKeyToId['votes_censored'],
-      name: 'Censored',
+      name: voteLabels.voteButtonCensored || 'Censored',
       img: VisibilityOff,
     },
     votes_uncensored: {
       id: metaKeyToId['votes_uncensored'],
-      name: 'Uncensored',
+      name: voteLabels.voteButtonUncensored || 'Uncensored',
       img: Visibility,
     },
     votes_bad_translation: {
       id: metaKeyToId['votes_bad_translation'],
-      name: 'Bad Translation',
+      name: voteLabels.voteButtonBadTranslation || 'Bad Translation',
       img: ThumbDown,
     },
     votes_good_translation: {
       id: metaKeyToId['votes_good_translation'],
-      name: 'Good Translation',
+      name: voteLabels.voteButtonGoodTranslation || 'Good Translation',
       img: ThumbUp,
     },
     votes_lost_in_translation: {
       id: metaKeyToId['votes_lost_in_translation'],
-      name: 'Lost in Translation',
+      name: voteLabels.voteButtonLostInTranslation || 'Lost in Translation',
       img: LostInTranslation,
     },
     votes_nsfw: {
       id: metaKeyToId['votes_nsfw'],
-      name: 'NSFW',
+      name: voteLabels.voteButtonNsfw || 'NSFW',
       img: 'https://firewallcafe.com/wp-content/themes/fwc/img/vote-buttons-nsfw.svg',
     },
     votes_bad_result: {
       id: metaKeyToId['votes_bad_result'],
-      name: 'WTF',
+      name: voteLabels.voteButtonWtf || 'WTF',
       img: 'https://firewallcafe.com/wp-content/themes/fwc/img/vote-buttons-bad-result.svg',
     },
   };

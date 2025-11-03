@@ -1,14 +1,51 @@
 import { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
+import { getTermsStrings } from '../lib/sanity';
+import { getDefault } from '../constants/uiDefaults';
 import Modal from './Modal';
 import useCookie from '../useCookie';
 
 export default function TermsAndConditions() {
+  const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [hasRejected, setHasRejected] = useState(false);
   const [showUsernameInput, setShowUsernameInput] = useState(false);
   const [username, setUsername] = useState('');
   const [usernameError, setUsernameError] = useState('');
   const [, setUsernameCookie] = useCookie('username');
+  const [termsStrings, setTermsStrings] = useState({});
+
+  // Fetch terms strings from Sanity on mount and language change
+  useEffect(() => {
+    async function loadTermsStrings() {
+      try {
+        const strings = await getTermsStrings(language);
+        setTermsStrings(strings);
+      } catch (error) {
+        console.error('Failed to load terms strings:', error);
+        // Language-aware fallback
+        setTermsStrings({
+          modalTitle: getDefault('terms', 'modalTitle', language),
+          buttonAccept: getDefault('terms', 'buttonAccept', language),
+          buttonReject: getDefault('terms', 'buttonReject', language),
+          buttonAccessFirewall: getDefault('terms', 'buttonAccessFirewall', language),
+          errorMustAccept: getDefault('terms', 'errorMustAccept', language),
+          errorUsernameTooLong: getDefault('terms', 'errorUsernameTooLong', language),
+          errorUsernameInvalidChars: getDefault('terms', 'errorUsernameInvalidChars', language),
+          usernamePrompt: getDefault('terms', 'usernamePrompt', language),
+          usernamePlaceholder: getDefault('terms', 'usernamePlaceholder', language),
+          termsParagraph1Bold: getDefault('terms', 'termsParagraph1Bold', language),
+          termsParagraph1: getDefault('terms', 'termsParagraph1', language),
+          termsParagraph2Bold: getDefault('terms', 'termsParagraph2Bold', language),
+          termsParagraph2: getDefault('terms', 'termsParagraph2', language),
+          termsParagraph3: getDefault('terms', 'termsParagraph3', language),
+          termsParagraph4: getDefault('terms', 'termsParagraph4', language),
+        });
+      }
+    }
+
+    loadTermsStrings();
+  }, [language]);
 
   useEffect(() => {
     // Check if user has seen the terms before
@@ -41,11 +78,11 @@ export default function TermsAndConditions() {
 
   const validateUsername = value => {
     if (value.length > 30) {
-      setUsernameError('Username must be 30 characters or less');
+      setUsernameError(termsStrings.errorUsernameTooLong || getDefault('terms', 'errorUsernameTooLong', language));
       return false;
     }
     if (value.length > 0 && !/^\w+$/.test(value)) {
-      setUsernameError('Username can only contain letters, numbers, and underscores');
+      setUsernameError(termsStrings.errorUsernameInvalidChars || getDefault('terms', 'errorUsernameInvalidChars', language));
       return false;
     }
     setUsernameError('');
@@ -86,9 +123,12 @@ export default function TermsAndConditions() {
       open={isOpen}
       onClose={handleReject}
       onUpdate={showUsernameInput ? handleAccessFirewall : handleAccept}
-      updateButtonText={showUsernameInput ? 'Access Firewall' : 'Accept'}
-      clearButtonText="Reject"
-      title="Terms"
+      updateButtonText={showUsernameInput
+        ? (termsStrings.buttonAccessFirewall || getDefault('terms', 'buttonAccessFirewall', language))
+        : (termsStrings.buttonAccept || getDefault('terms', 'buttonAccept', language))
+      }
+      clearButtonText={termsStrings.buttonReject || getDefault('terms', 'buttonReject', language)}
+      title={termsStrings.modalTitle || getDefault('terms', 'modalTitle', language)}
       allowOutsideClick={false}
       showCloseButton={false}
     >
@@ -96,19 +136,21 @@ export default function TermsAndConditions() {
         {hasRejected && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded my-4">
             <p className="font-bold">
-              In order to access FIREWALL CAFE, you must accept the terms to continue.
+              {termsStrings.errorMustAccept || getDefault('terms', 'errorMustAccept', language)}
             </p>
           </div>
         )}
         <div className="prose">
           {showUsernameInput ? (
             <div className="mb-4">
-              <p className="text-sm mb-4">Enter an optional username for your FIREWALL session:</p>
+              <p className="text-sm mb-4">
+                {termsStrings.usernamePrompt || getDefault('terms', 'usernamePrompt', language)}
+              </p>
               <input
                 type="text"
                 value={username}
                 onChange={handleUsernameChange}
-                placeholder="Username (optional)"
+                placeholder={termsStrings.usernamePlaceholder || getDefault('terms', 'usernamePlaceholder', language)}
                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   usernameError ? 'border-red-500' : 'border-gray-300'
                 }`}
@@ -120,34 +162,24 @@ export default function TermsAndConditions() {
             <>
               <p className="text-sm mb-4">
                 <span className="font-bold">
-                  Your participation in FIREWALL provides your consent.
-                </span>
-                Please review the following terms and conditions, before your FIREWALL Search
-                Session.
+                  {termsStrings.termsParagraph1Bold || getDefault('terms', 'termsParagraph1Bold', language)}
+                </span>{' '}
+                {termsStrings.termsParagraph1 || getDefault('terms', 'termsParagraph1', language)}
               </p>
 
               <p className="text-sm mb-4">
                 <span className="font-bold">
-                  FIREWALL does not monitor or review the content of your Search Session.
-                </span>
-                Opinions expressed or material appearing on your searches are not necessarily shared
-                or endorsed by FIREWALL, and we should not be regarded as the publisher of such
-                opinions or material. Please be aware that we are not responsible for the privacy
-                practices, or content, of these sites.
+                  {termsStrings.termsParagraph2Bold || getDefault('terms', 'termsParagraph2Bold', language)}
+                </span>{' '}
+                {termsStrings.termsParagraph2 || getDefault('terms', 'termsParagraph2', language)}
               </p>
 
               <p className="text-sm mb-4">
-                We encourage our users to be aware when they search to read the privacy statements
-                of these sites. You should evaluate the security and trustworthiness of any other
-                site connected to this site or accessed through this site yourself, before
-                disclosing any personal information to them.
+                {termsStrings.termsParagraph3 || getDefault('terms', 'termsParagraph3', language)}
               </p>
+
               <p className="text-sm mb-4">
-                FIREWALL will not accept any responsibility for any loss or damage in whatever
-                manner, howsoever caused, resulting from your Search Session, nor any disclosure to
-                third parties of personal information. We record all IP addresses for all
-                transactions, investigate and prosecute all credit card frauds to the fullest extent
-                of the International law.
+                {termsStrings.termsParagraph4 || getDefault('terms', 'termsParagraph4', language)}
               </p>
             </>
           )}

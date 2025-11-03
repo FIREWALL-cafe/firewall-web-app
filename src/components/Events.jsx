@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { getLocalizedEvents, getEvents } from '../lib/sanity';
+import { getEvents } from '../lib/sanity';
 import { useLanguage } from '../context/LanguageContext';
 import EventCard from './EventCard';
 
 /**
- * Events component powered by Sanity CMS with localization support
- * Falls back to non-localized events if localized schema is empty
+ * Events component powered by Sanity CMS
  */
 function Events() {
   const { language } = useLanguage();
@@ -17,37 +16,8 @@ function Events() {
     async function fetchEvents() {
       try {
         setLoading(true);
-
-        // Fetch both localized and regular events in parallel
-        const [localizedData, regularData] = await Promise.all([
-          getLocalizedEvents(language),
-          getEvents(),
-        ]);
-
-        let allEvents;
-
-        if (language === 'zh') {
-          // For Chinese, only show localized events
-          allEvents = localizedData || [];
-          console.log(`Chinese view: showing ${allEvents.length} localized events only`);
-        } else {
-          // For English, show localized events + non-localized events (which are assumed to be English)
-          const localizedSlugs = new Set(
-            (localizedData || []).map(event => event.slug?.current || event.slug)
-          );
-
-          // Filter out regular events that have been localized
-          const nonLocalizedEvents = (regularData || []).filter(
-            event => !localizedSlugs.has(event.slug?.current || event.slug)
-          );
-
-          // Combine localized events with non-localized events
-          allEvents = [...(localizedData || []), ...nonLocalizedEvents];
-
-          console.log(`English view: ${localizedData?.length || 0} localized + ${nonLocalizedEvents.length} non-localized = ${allEvents.length} total`);
-        }
-
-        setEvents(allEvents);
+        const data = await getEvents();
+        setEvents(data || []);
         setError(null);
       } catch (err) {
         console.error('Failed to fetch events:', err);

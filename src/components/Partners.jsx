@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { getLocalizedPartners, getPartners } from '../lib/sanity';
+import { getPartners } from '../lib/sanity';
 import { useLanguage } from '../context/LanguageContext';
 
 /**
- * Partners component powered by Sanity CMS with localization support
- * Falls back to non-localized partners if localized schema is empty
+ * Partners component powered by Sanity CMS
  */
 function Partners() {
   const { language } = useLanguage();
@@ -16,37 +15,8 @@ function Partners() {
     async function fetchPartners() {
       try {
         setLoading(true);
-
-        // Fetch both localized and regular partners in parallel
-        const [localizedData, regularData] = await Promise.all([
-          getLocalizedPartners(language),
-          getPartners(),
-        ]);
-
-        let allPartners;
-
-        if (language === 'zh') {
-          // For Chinese, only show localized partners
-          allPartners = localizedData || [];
-          console.log(`Chinese view: showing ${allPartners.length} localized partners only`);
-        } else {
-          // For English, show localized partners + non-localized partners (which are assumed to be English)
-          const localizedIds = new Set(
-            (localizedData || []).map(partner => partner._id)
-          );
-
-          // Filter out regular partners that have been localized
-          const nonLocalizedPartners = (regularData || []).filter(
-            partner => !localizedIds.has(partner._id)
-          );
-
-          // Combine localized partners with non-localized partners
-          allPartners = [...(localizedData || []), ...nonLocalizedPartners];
-
-          console.log(`English view: ${localizedData?.length || 0} localized + ${nonLocalizedPartners.length} non-localized = ${allPartners.length} total`);
-        }
-
-        setPartners(allPartners);
+        const data = await getPartners();
+        setPartners(data || []);
         setError(null);
       } catch (err) {
         console.error('Failed to fetch partners:', err);

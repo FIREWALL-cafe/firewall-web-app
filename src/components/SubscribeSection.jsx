@@ -1,11 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import SubscribeForm from './SubscribeForm';
+import { useLanguage } from '../context/LanguageContext';
+import { getHomepageStrings } from '../lib/sanity';
+import { getDefault } from '../constants/uiDefaults';
 
 function SubscribeSection({ title }) {
   const location = useLocation();
+  const { language } = useLanguage();
+  const [uiStrings, setUiStrings] = useState({});
+  const [loading, setLoading] = useState(true);
   const isContactPage = location.pathname === '/contact';
-  const subscriptionTitle = title || 'Stay connected';
+
+  useEffect(() => {
+    async function loadStrings() {
+      try {
+        setLoading(true);
+        const strings = await getHomepageStrings(language);
+        setUiStrings(strings);
+      } catch (error) {
+        console.error('Failed to load homepage strings:', error);
+        // Language-aware fallback
+        setUiStrings({
+          newsletterHeading: getDefault('homepage', 'newsletterHeading', language),
+          newsletterSubheading: getDefault('homepage', 'newsletterSubheading', language),
+          newsletterEmailPlaceholder: getDefault('homepage', 'newsletterEmailPlaceholder', language),
+          newsletterSubscribeButton: getDefault('homepage', 'newsletterSubscribeButton', language),
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadStrings();
+  }, [language]);
+
+  const subscriptionTitle = title || uiStrings.newsletterHeading || getDefault('homepage', 'newsletterHeading', language);
 
   return (
     <div
@@ -36,17 +65,10 @@ function SubscribeSection({ title }) {
                       >
                         {subscriptionTitle}
                       </h2>
-                      <div
-                        className={`font-display-04 font-bitmap-song ${
-                          isContactPage ? 'text-red-500' : 'text-red-600'
-                        }`}
-                      >
-                        保持联系
-                      </div>
                       <div className="mc-field-group space-y-2">
                         <span className="block mt-6 mb-8 font-body-02">
-                          Get updates about upcoming events, press releases, and expert commentary
-                          with the FIREWALL Cafe newsletter.
+                          {uiStrings.newsletterSubheading ||
+                            getDefault('homepage', 'newsletterSubheading', language)}
                         </span>
                         <SubscribeForm
                           className="w-full"
@@ -60,6 +82,8 @@ function SubscribeSection({ title }) {
                               ? 'whitespace-nowrap justify-center min-h-[56px] text-red-600 px-6 py-3 border border-red-600 rounded-r bg-white hover:bg-red-50 transition-colors'
                               : 'whitespace-nowrap justify-center min-h-[56px] text-red-600 p-2'
                           }
+                          placeholder={uiStrings.newsletterEmailPlaceholder || getDefault('homepage', 'newsletterEmailPlaceholder', language)}
+                          buttonText={uiStrings.newsletterSubscribeButton || getDefault('homepage', 'newsletterSubscribeButton', language)}
                         />
                       </div>
                       <div className="hidden optionalParent mt-4">

@@ -6,6 +6,9 @@ import useCookie from '../useCookie';
 import FilterControls from './FilterControls';
 import ApiContext from '../context/ApiContext';
 import QuestionIcon from './icons/QuestionIcon';
+import { useLanguage } from '../context/LanguageContext';
+import { getSearchPageStrings, getArchivePageStrings } from '../lib/sanity';
+import { getDefault } from '../constants/uiDefaults';
 
 import GoogleLogoBlue from '../assets/icons/google-logo_blue.svg';
 import BaiduLogoRed from '../assets/icons/baidu_logo_red.svg';
@@ -19,7 +22,10 @@ import Spinner from '../assets/spinner.svg';
 import SearchProgressIndicator from './SearchProgressIndicator';
 
 function SearchInput({ searchMode }) {
+  const { language } = useLanguage();
   const { translateQuery, searchImages, searchArchive } = useContext(ApiContext);
+  const [uiStrings, setUiStrings] = useState({});
+  const [loadingStrings, setLoadingStrings] = useState(true);
   const [isLoading, setLoading] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
   const [searchStage, setSearchStage] = useState(null); // Track current search stage
@@ -61,6 +67,42 @@ function SearchInput({ searchMode }) {
 
   const ranonce = useRef(false);
   const searchInProgress = useRef(false);
+
+  // Load UI strings from Sanity based on search mode
+  useEffect(() => {
+    async function loadStrings() {
+      try {
+        setLoadingStrings(true);
+        const strings = isArchive
+          ? await getArchivePageStrings(language)
+          : await getSearchPageStrings(language);
+        setUiStrings(strings);
+      } catch (error) {
+        console.error('Failed to load UI strings:', error);
+        // Language-aware fallback
+        if (isArchive) {
+          setUiStrings({
+            archiveInputPlaceholder: getDefault('archive', 'archiveInputPlaceholder', language),
+            archiveModeTooltip: getDefault('archive', 'archiveModeTooltip', language),
+            translatingText: getDefault('search', 'translatingText', language),
+            translationLabel: getDefault('search', 'translationLabel', language),
+            errorLabel: getDefault('search', 'errorLabel', language),
+          });
+        } else {
+          setUiStrings({
+            searchInputPlaceholder: getDefault('search', 'searchInputPlaceholder', language),
+            searchModeTooltip: getDefault('search', 'searchModeTooltip', language),
+            translatingText: getDefault('search', 'translatingText', language),
+            translationLabel: getDefault('search', 'translationLabel', language),
+            errorLabel: getDefault('search', 'errorLabel', language),
+          });
+        }
+      } finally {
+        setLoadingStrings(false);
+      }
+    }
+    loadStrings();
+  }, [language, isArchive]);
 
   const loadDefaultResults = useCallback(async () => {
     const filterOptions = { page: 1, page_size: 10 };
@@ -377,8 +419,8 @@ function SearchInput({ searchMode }) {
 
   const displaySearchIcon = !isArchive ? SearchIcon : ArchiveIcon;
   const displayTooltipContent = !isArchive
-    ? '<span class="font-body-03">Your query will automatically translate into the other language. English queries will be searched in <b>Google</b>. Chinese queries will be searched in <b>Baidu</b>.</span>'
-    : '<span class="font-body-03">Explore the archive to view past results from other users and see how they\'ve changed over time.</span>';
+    ? `<span class="font-body-03">${uiStrings.searchModeTooltip || 'Your query will automatically translate into the other language. English queries will be searched in <b>Google</b>. Chinese queries will be searched in <b>Baidu</b>.'}</span>`
+    : `<span class="font-body-03">${uiStrings.archiveModeTooltip || "Explore the archive to view past results from other users and see how they've changed over time."}</span>`;
 
   return (
     <>
@@ -464,7 +506,11 @@ function SearchInput({ searchMode }) {
           <div className="flex justify-center p-1.5 md:p-5 gap-4 w-full rounded border-r border-b border-l border-solid bg-slate-100 border-red-600 iphone:max-w-full">
             <div className="flex w-full bg-white rounded border border-solid border-neutral-500 h-[56px] iphone:flex-1 overflow-hidden">
               <input
-                placeholder={isArchive ? 'Search the query archive' : 'Search Google & Baidu'}
+                placeholder={
+                  isArchive
+                    ? uiStrings.archiveInputPlaceholder || 'Search the query archive'
+                    : uiStrings.searchInputPlaceholder || 'Search Google & Baidu'
+                }
                 value={query}
                 type="text"
                 onChange={e => setQuery(e.target.value)}
@@ -513,7 +559,7 @@ function SearchInput({ searchMode }) {
             {isTranslating && !translation && (
               <span className="p-1 leading-8 text-medium bg-blue-50 border border-blue-600 rounded text-blue-600 flex items-center gap-2">
                 <img src={Spinner} alt="Translating" className="w-4 h-4" />
-                <span className="font-bold">Translating...</span>
+                <span className="font-bold">{uiStrings.translatingText || 'Translating...'}</span>
               </span>
             )}
             {translation && (
@@ -525,12 +571,13 @@ function SearchInput({ searchMode }) {
                 }`}
               >
                 {isTranslating && <img src={Spinner} alt="Loading" className="w-4 h-4" />}
-                <span className="font-bold">Translation:</span> {translation}
+                <span className="font-bold">{uiStrings.translationLabel || 'Translation:'}</span>{' '}
+                {translation}
               </span>
             )}
             {error && (
               <span className="p-1 leading-8 text-medium bg-red-50 border border-red-600 rounded text-red-600">
-                <span className="font-bold">Error:</span> {error}
+                <span className="font-bold">{uiStrings.errorLabel || 'Error:'}</span> {error}
               </span>
             )}
             {isArchive && (

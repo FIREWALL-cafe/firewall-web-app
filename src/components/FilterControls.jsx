@@ -2,8 +2,13 @@ import React, { useState, useEffect } from 'react';
 import VoteButton from './VoteButton';
 import { locationMapping } from '../constants/locations';
 import { formatLocationName } from '../utils/stringUtils';
+import { useLanguage } from '../context/LanguageContext';
+import { getFilterStrings } from '../lib/sanity';
 
 function FilterControls({ onUpdate, isOpen, isLoading }) {
+  const { language } = useLanguage();
+  const [uiStrings, setUiStrings] = useState({});
+  const [loadingStrings, setLoadingStrings] = useState(true);
   const [shouldResetVotes, setShouldResetVotes] = useState(false);
   const [usStatesData, setUsStatesData] = useState([]);
   const [loadingStates, setLoadingStates] = useState(false);
@@ -17,6 +22,44 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
     startDate: null,
     endDate: null,
   });
+
+  // Load filter strings from Sanity
+  useEffect(() => {
+    async function loadStrings() {
+      try {
+        setLoadingStrings(true);
+        const strings = await getFilterStrings(language);
+        setUiStrings(strings);
+      } catch (error) {
+        console.error('Failed to load filter strings:', error);
+        // Fallback to hardcoded English
+        setUiStrings({
+          filterCountryLabel: 'Country',
+          filterStateLabel: 'US State',
+          filterSourceLabel: 'Search Source',
+          filterStartDateLabel: 'Start Date',
+          filterEndDateLabel: 'End Date',
+          filterAllCountries: 'All Countries',
+          filterAllSources: 'All Sources',
+          filterAllStates: 'All States',
+          filterPrimaryLabel: 'Primary',
+          filterSecondaryLabel: 'Secondary',
+          filterActiveFiltersLabel: 'Active Filters:',
+          filterCountActiveText: 'filter(s) active',
+          filterLoadingStatesText: 'Loading states...',
+          filterClearAllButton: 'Clear All',
+          filterBadgeCountry: 'Country:',
+          filterBadgeState: 'State:',
+          filterBadgeSource: 'Source:',
+          filterBadgeStartDate: 'Start:',
+          filterBadgeEndDate: 'End:',
+        });
+      } finally {
+        setLoadingStrings(false);
+      }
+    }
+    loadStrings();
+  }, [language]);
 
   // Dynamic country list from database
   const [countries, setCountries] = useState([]);
@@ -414,11 +457,13 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
           activeFilters.startDate ||
           activeFilters.endDate) && (
           <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-            <div className="text-sm font-semibold mb-2">Active Filters:</div>
+            <div className="text-sm font-semibold mb-2">
+              {uiStrings.filterActiveFiltersLabel || 'Active Filters:'}
+            </div>
             <div className="flex flex-wrap gap-2">
               {activeFilters.country && (
                 <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs flex items-center gap-2">
-                  Country: {activeFilters.country}
+                  {uiStrings.filterBadgeCountry || 'Country:'} {activeFilters.country}
                   <button
                     onClick={() => {
                       const countriesSelect = document.querySelector('select[name="countries"]');
@@ -435,7 +480,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
               )}
               {activeFilters.usState && (
                 <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs flex items-center gap-2">
-                  State: {activeFilters.usState}
+                  {uiStrings.filterBadgeState || 'State:'} {activeFilters.usState}
                   <button
                     onClick={() => {
                       const usStatesSelect = document.querySelector('select[name="us_states"]');
@@ -452,7 +497,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
               )}
               {activeFilters.source && (
                 <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs flex items-center gap-2">
-                  Source: {activeFilters.source}
+                  {uiStrings.filterBadgeSource || 'Source:'} {activeFilters.source}
                   <button
                     onClick={() => {
                       const citiesSelect = document.querySelector('select[name="cities"]');
@@ -469,7 +514,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
               )}
               {activeFilters.startDate && (
                 <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs flex items-center gap-2">
-                  Start: {activeFilters.startDate}
+                  {uiStrings.filterBadgeStartDate || 'Start:'} {activeFilters.startDate}
                   <button
                     onClick={() => {
                       setStartDate('');
@@ -484,7 +529,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
               )}
               {activeFilters.endDate && (
                 <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs flex items-center gap-2">
-                  End: {activeFilters.endDate}
+                  {uiStrings.filterBadgeEndDate || 'End:'} {activeFilters.endDate}
                   <button
                     onClick={() => {
                       setEndDate('');
@@ -509,9 +554,9 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
                 htmlFor="countries"
                 className="text-lg font-black mb-2 flex items-center gap-2"
               >
-                Country
+                {uiStrings.filterCountryLabel || 'Country'}
                 <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-normal">
-                  Primary
+                  {uiStrings.filterPrimaryLabel || 'Primary'}
                 </span>
               </label>
               <select
@@ -520,7 +565,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
                 onChange={e => handleFilterChange(e)}
                 disabled={isLoading}
               >
-                <option value="">All Countries</option>
+                <option value="">{uiStrings.filterAllCountries || 'All Countries'}</option>
                 {countries.map(country => (
                   <option key={country.code} value={country.code}>
                     {country.name} ({country.search_count})
@@ -539,9 +584,9 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
                     htmlFor="us_states"
                     className="text-lg font-black mb-2 flex items-center gap-2"
                   >
-                    <span className="text-blue-600">↳</span> US State
+                    <span className="text-blue-600">↳</span> {uiStrings.filterStateLabel || 'US State'}
                     <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-normal">
-                      Secondary
+                      {uiStrings.filterSecondaryLabel || 'Secondary'}
                     </span>
                   </label>
                   <select
@@ -550,7 +595,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
                     onChange={e => handleFilterChange(e)}
                     disabled={isLoading || loadingStates}
                   >
-                    <option value="">All States</option>
+                    <option value="">{uiStrings.filterAllStates || 'All States'}</option>
                     {usStatesData.map(stateData => (
                       <option key={stateData.state} value={stateData.state}>
                         {stateData.state} ({stateData.search_count})
@@ -558,7 +603,9 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
                     ))}
                   </select>
                   {loadingStates && (
-                    <div className="text-xs text-gray-500 mt-1">Loading states...</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {uiStrings.filterLoadingStatesText || 'Loading states...'}
+                    </div>
                   )}
                 </div>
               </div>
@@ -567,7 +614,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
             {/* Sources Section */}
             <div className="flex flex-col">
               <label htmlFor="cities" className="text-lg font-black mb-2">
-                Search Source
+                {uiStrings.filterSourceLabel || 'Search Source'}
               </label>
               <select
                 name="cities"
@@ -575,7 +622,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
                 onChange={e => handleFilterChange(e)}
                 disabled={isLoading}
               >
-                <option value="">All Sources</option>
+                <option value="">{uiStrings.filterAllSources || 'All Sources'}</option>
                 {searchLocations.map(location => (
                   <option key={location.value} value={location.value}>
                     {location.label} ({location.search_count})
@@ -587,7 +634,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
             {/* Date Range Section */}
             <div className="flex flex-col">
               <label htmlFor="start_date" className="text-lg font-black mb-2">
-                Start Date
+                {uiStrings.filterStartDateLabel || 'Start Date'}
               </label>
               <input
                 type="date"
@@ -602,7 +649,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
 
             <div className="flex flex-col">
               <label htmlFor="end_date" className="text-lg font-black mb-2">
-                End Date
+                {uiStrings.filterEndDateLabel || 'End Date'}
               </label>
               <input
                 type="date"
@@ -644,8 +691,8 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
                 activeFilters.startDate ||
                 activeFilters.endDate) && (
                 <span className="text-sm text-gray-600">
-                  {Object.values(activeFilters).filter(Boolean).length} filter
-                  {Object.values(activeFilters).filter(Boolean).length !== 1 ? 's' : ''} active
+                  {Object.values(activeFilters).filter(Boolean).length}{' '}
+                  {uiStrings.filterCountActiveText || 'filter(s) active'}
                 </span>
               )}
             </div>
@@ -663,7 +710,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
                     d="M6 18L18 6M6 6l12 12"
                   />
                 </svg>
-                Clear All
+                {uiStrings.filterClearAllButton || 'Clear All'}
               </button>
             </div>
           </div>

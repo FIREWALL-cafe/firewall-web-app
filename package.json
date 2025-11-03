@@ -11,14 +11,15 @@
     "deploy": "node scripts/deploy.js",
     "rollback": "node scripts/rollback.js",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --watchAll=false",
     "test:ci": "react-scripts test --watchAll=false",
     "test:minimal": "react-scripts test --watchAll=false --testPathPattern=minimal",
     "eject": "react-scripts eject",
     "lint": "eslint src --ext .js,.jsx",
     "lint:fix": "eslint src --ext .js,.jsx --fix",
     "format": "prettier --write \"src/**/*.{js,jsx,json,css}\"",
-    "format:check": "prettier --check \"src/**/*.{js,jsx,json,css}\""
+    "format:check": "prettier --check \"src/**/*.{js,jsx,json,css}\"",
+    "sanity:init": "node src/lib/sanity-init-data/init-footer-and-terms.js"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
@@ -76,5 +77,14 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!(@sanity|yet-another-react-lightbox)/)"
+    ],
+    "moduleNameMapper": {
+      "@sanity/client/csm": "<rootDir>/node_modules/@sanity/client/dist/index.cjs",
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+    }
   }
 }

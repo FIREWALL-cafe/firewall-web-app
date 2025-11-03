@@ -7,6 +7,7 @@ import Drawer from 'react-modern-drawer';
 import { useMediaQuery } from 'react-responsive';
 import { useLanguage } from '../context/LanguageContext';
 import { getNavigationSettings } from '../lib/sanity';
+import { getDefault } from '../constants/uiDefaults';
 import 'react-modern-drawer/dist/index.css';
 
 import logo from '../assets/icons/logo_name.svg';
@@ -49,9 +50,9 @@ function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [menuLinks, setMenuLinks] = useState(DEFAULT_MENU_LINKS);
-  const [searchPlaceholder, setSearchPlaceholder] = useState('Search Google + Baidu');
-  const [newsletterTitle, setNewsletterTitle] = useState('Subscribe to our newsletter');
-  const [newsletterSubtitle, setNewsletterSubtitle] = useState('保持联系');
+  const [searchPlaceholder, setSearchPlaceholder] = useState(getDefault('navigation', 'searchPlaceholder', language));
+  const [newsletterTitle, setNewsletterTitle] = useState(getDefault('navigation', 'newsletterTitle', language));
+  const [newsletterSubtitle, setNewsletterSubtitle] = useState(getDefault('navigation', 'newsletterSubtitle', language));
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -78,13 +79,16 @@ function Navigation() {
             }));
 
           setMenuLinks(items);
-          setSearchPlaceholder(settings.searchPlaceholder || 'Search Google + Baidu');
-          setNewsletterTitle(settings.newsletterTitle || 'Subscribe to our newsletter');
-          setNewsletterSubtitle(settings.newsletterSubtitle || '保持联系');
+          setSearchPlaceholder(settings.searchPlaceholder || getDefault('navigation', 'searchPlaceholder', language));
+          setNewsletterTitle(settings.newsletterTitle || getDefault('navigation', 'newsletterTitle', language));
+          setNewsletterSubtitle(settings.newsletterSubtitle || getDefault('navigation', 'newsletterSubtitle', language));
         }
       } catch (error) {
         console.error('Failed to load navigation settings:', error);
-        // Fallback to default menu links already set in state
+        // Language-aware fallbacks
+        setSearchPlaceholder(getDefault('navigation', 'searchPlaceholder', language));
+        setNewsletterTitle(getDefault('navigation', 'newsletterTitle', language));
+        setNewsletterSubtitle(getDefault('navigation', 'newsletterSubtitle', language));
       } finally {
         setLoading(false);
       }
