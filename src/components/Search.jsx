@@ -83,9 +83,6 @@ function Search() {
     loadFeatureCards();
   }, [language]);
 
-  if (loading) {
-    return null; // Or a loading skeleton
-  }
   return (
     <main className="min-h-screen">
       <section className="flex flex-col justify-center w-full py-8 md:py-16 bg-white">
@@ -103,7 +100,7 @@ function Search() {
           </div>
         </div>
         <SearchInput searchMode="compare" />
-        <FeatureCards features={features} />
+        {!loading && <FeatureCards features={features} />}
       </section>
     </main>
   );
