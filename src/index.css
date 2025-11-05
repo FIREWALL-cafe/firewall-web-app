@@ -224,3 +224,18 @@ input {
   max-width: 300px !important;
   z-index: 9999 !important;
 }
+
+/* Timeline year hash marks */
+.year-item::after {
+  content: '';
+  position: absolute;
+  left: 76px;
+  width: 16px;
+  height: 1px;
+  background: #9ca3af;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.year-item.active::after {
+  opacity: 0;
+}

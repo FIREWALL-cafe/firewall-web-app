@@ -47,6 +47,33 @@ export async function getPartners() {
   return client.fetch(`*[_type == "partner"] | order(sortOrder asc)`)
 }
 
+// Timeline Events
+export async function getTimelineEvents(lang = 'en') {
+  return client.fetch(
+    `*[_type == "timelineEvent"] | order(year asc) {
+      _id,
+      year,
+      "title": ${localizeField('title', lang)},
+      "description": ${localizeField('description', lang)},
+      googleImage {
+        image,
+        externalUrl,
+        date,
+        alt,
+        placeholder
+      },
+      baiduImage {
+        image,
+        externalUrl,
+        date,
+        alt,
+        placeholder
+      }
+    }`,
+    { lang }
+  )
+}
+
 // Navigation settings (singleton)
 export async function getNavigationSettings(lang = 'en') {
   return client.fetch(
