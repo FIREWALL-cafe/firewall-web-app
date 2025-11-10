@@ -20,6 +20,7 @@ import voteStrings from './voteStrings'
 import globalStrings from './globalStrings'
 import footerStrings from './footerStrings'
 import termsStrings from './termsStrings'
+import homepageImages from './homepageImages'
 
 export const schemaTypes = [
   // Locale types (must be registered first)
@@ -53,4 +54,7 @@ export const schemaTypes = [
 
   // Reusable components
   featureCard,
+
+  // Image assets
+  homepageImages,
 ]

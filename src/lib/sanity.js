@@ -8,6 +8,9 @@ export const client = createClient({
   useCdn: true, // Enable CDN for faster cached responses
 })
 
+// Export client as sanityClient for consistency with other imports
+export const sanityClient = client
+
 // Helper to generate image URLs with Sanity's image pipeline
 const builder = imageUrlBuilder(client)
 
@@ -488,5 +491,137 @@ export async function getFeatureCards(lang = 'en', visibleOn = null) {
   } catch (error) {
     console.error('Error fetching feature cards from Sanity:', error)
     return []
+  }
+}
+
+// Homepage Images (Singleton)
+// Returns all images for the homepage sections
+export async function getHomepageImages() {
+  try {
+    const result = await client.fetch(
+      `*[_type == "homepageImages"][0] {
+        aboutSectionImage1 {
+          default {
+            asset->,
+            alt,
+            hotspot,
+            crop
+          },
+          hover {
+            asset->,
+            alt,
+            hotspot,
+            crop
+          },
+          alt
+        },
+        aboutSectionImage2 {
+          default {
+            asset->,
+            alt,
+            hotspot,
+            crop
+          },
+          hover {
+            asset->,
+            alt,
+            hotspot,
+            crop
+          },
+          alt
+        },
+        aboutSectionImage3 {
+          default {
+            asset->,
+            alt,
+            hotspot,
+            crop
+          },
+          hover {
+            asset->,
+            alt,
+            hotspot,
+            crop
+          },
+          alt
+        },
+        searchTrendsCollage {
+          asset->,
+          alt,
+          hotspot,
+          crop
+        },
+        newsletterImageA {
+          desktop {
+            asset->,
+            hotspot,
+            crop
+          },
+          mobile {
+            asset->,
+            hotspot,
+            crop
+          },
+          alt
+        },
+        newsletterImageB {
+          desktop {
+            asset->,
+            hotspot,
+            crop
+          },
+          mobile {
+            asset->,
+            hotspot,
+            crop
+          },
+          alt
+        },
+        newsletterImageC {
+          desktop {
+            asset->,
+            hotspot,
+            crop
+          },
+          mobile {
+            asset->,
+            hotspot,
+            crop
+          },
+          alt
+        },
+        newsletterImageD {
+          desktop {
+            asset->,
+            hotspot,
+            crop
+          },
+          mobile {
+            asset->,
+            hotspot,
+            crop
+          },
+          alt
+        },
+        newsletterImageE {
+          desktop {
+            asset->,
+            hotspot,
+            crop
+          },
+          mobile {
+            asset->,
+            hotspot,
+            crop
+          },
+          alt
+        }
+      }`
+    )
+
+    return result || null
+  } catch (error) {
+    console.error('Error fetching homepage images from Sanity:', error)
+    return null
   }
 }

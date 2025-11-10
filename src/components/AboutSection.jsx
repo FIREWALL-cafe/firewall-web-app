@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { getHomepageStrings } from '../lib/sanity';
+import { getHomepageStrings, getHomepageImages } from '../lib/sanity';
 import { getDefault } from '../constants/uiDefaults';
 import ArrowRight from './icons/ArrowRight';
+import SanityImage from './common/SanityImage';
+// Fallback images (used if Sanity images not available)
 import censoreda from '../assets/images/homepage-section_1-image_a-default.jpg';
 import censoredb from '../assets/images/homepage-section_1-image_b-default.jpg';
 import censoredc from '../assets/images/homepage-section_1-image_c-default.jpg';
-
 import hovera from '../assets/images/homepage-section_1-image_a-hover.jpg';
 import hoverb from '../assets/images/homepage-section_1-image_b-hover.jpg';
 import hoverc from '../assets/images/homepage-section_1-image_c-hover.jpg';
@@ -15,17 +16,25 @@ import hoverc from '../assets/images/homepage-section_1-image_c-hover.jpg';
 function AboutSection() {
   const { language } = useLanguage();
   const [uiStrings, setUiStrings] = useState({});
+  const [images, setImages] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [hoveredImage, setHoveredImage] = useState({ 1: false, 2: false, 3: false });
 
-  // Fetch UI strings from Sanity on mount and language change
+  // Fetch UI strings and images from Sanity on mount and language change
   useEffect(() => {
-    async function loadStrings() {
+    async function loadData() {
       try {
         setLoading(true);
-        const strings = await getHomepageStrings(language);
+        // Load strings and images in parallel
+        const [strings, homepageImages] = await Promise.all([
+          getHomepageStrings(language),
+          getHomepageImages()
+        ]);
+
         setUiStrings(strings);
+        setImages(homepageImages);
       } catch (error) {
-        console.error('Failed to load homepage strings:', error);
+        console.error('Failed to load homepage data:', error);
         // Language-aware fallback
         setUiStrings({
           aboutMainHeading: getDefault('homepage', 'aboutMainHeading', language),
@@ -40,8 +49,16 @@ function AboutSection() {
       }
     }
 
-    loadStrings();
+    loadData();
   }, [language]);
+
+  const handleMouseEnter = (imageNum) => {
+    setHoveredImage(prev => ({ ...prev, [imageNum]: true }));
+  };
+
+  const handleMouseLeave = (imageNum) => {
+    setHoveredImage(prev => ({ ...prev, [imageNum]: false }));
+  };
 
   if (loading) {
     // Loading skeleton
@@ -99,32 +116,64 @@ function AboutSection() {
         </div>
 
         <div className="w-full md:w-[40%] space-y-4 order-1 md:order-2">
-          <div className="w-full overflow-hidden">
-            <img
-              src={censoreda}
-              onMouseOver={e => (e.currentTarget.src = hovera)}
-              onMouseOut={e => (e.currentTarget.src = censoreda)}
-              alt="Illustration 1"
-              className="w-full object-cover aspect-[2]"
-            />
+          {/* Image 1 */}
+          <div
+            className="w-full overflow-hidden"
+            onMouseEnter={() => handleMouseEnter(1)}
+            onMouseLeave={() => handleMouseLeave(1)}
+          >
+              <SanityImage
+                image={
+                  hoveredImage[1]
+                    ? images.aboutSectionImage1.hover
+                    : images.aboutSectionImage1.default
+                }
+                alt={images.aboutSectionImage1.alt || 'Illustration 1'}
+                width={800}
+                height={400}
+                quality={85}
+                className="w-full object-cover aspect-[2]"
+              />
           </div>
-          <div className="w-full overflow-hidden">
-            <img
-              src={censoredb}
-              onMouseOver={e => (e.currentTarget.src = hoverb)}
-              onMouseOut={e => (e.currentTarget.src = censoredb)}
-              alt="Illustration 2"
-              className="w-full object-cover aspect-[2]"
-            />
+
+          {/* Image 2 */}
+          <div
+            className="w-full overflow-hidden"
+            onMouseEnter={() => handleMouseEnter(2)}
+            onMouseLeave={() => handleMouseLeave(2)}
+          >
+              <SanityImage
+                image={
+                  hoveredImage[2]
+                    ? images.aboutSectionImage2.hover
+                    : images.aboutSectionImage2.default
+                }
+                alt={images.aboutSectionImage2.alt || 'Illustration 2'}
+                width={800}
+                height={400}
+                quality={85}
+                className="w-full object-cover aspect-[2]"
+              />
           </div>
-          <div className="w-full overflow-hidden">
-            <img
-              src={censoredc}
-              onMouseOver={e => (e.currentTarget.src = hoverc)}
-              onMouseOut={e => (e.currentTarget.src = censoredc)}
-              alt="Illustration 3"
-              className="w-full object-cover aspect-[2]"
-            />
+
+          {/* Image 3 */}
+          <div
+            className="w-full overflow-hidden"
+            onMouseEnter={() => handleMouseEnter(3)}
+            onMouseLeave={() => handleMouseLeave(3)}
+          >
+              <SanityImage
+                image={
+                  hoveredImage[3]
+                    ? images.aboutSectionImage3.hover
+                    : images.aboutSectionImage3.default
+                }
+                alt={images.aboutSectionImage3.alt || 'Illustration 3'}
+                width={800}
+                height={400}
+                quality={85}
+                className="w-full object-cover aspect-[2]"
+              />
           </div>
         </div>
       </div>

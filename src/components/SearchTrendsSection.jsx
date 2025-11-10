@@ -1,35 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { getHomepageStrings } from '../lib/sanity';
+import { getHomepageStrings, getHomepageImages } from '../lib/sanity';
 import { getDefault } from '../constants/uiDefaults';
+import SanityImage from './common/SanityImage';
+// Fallback image
 import imageCollage from '../assets/images/homepage-section_2-image_collage.png';
 
 function SearchTrendsSection() {
   const { language } = useLanguage();
   const [uiStrings, setUiStrings] = useState({});
+  const [images, setImages] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch UI strings from Sanity on mount and language change
+  // Fetch UI strings and images from Sanity on mount and language change
   useEffect(() => {
-    async function loadStrings() {
+    async function loadData() {
       try {
         setLoading(true);
-        const strings = await getHomepageStrings(language);
+        // Load strings and images in parallel
+        const [strings, homepageImages] = await Promise.all([
+          getHomepageStrings(language),
+          getHomepageImages()
+        ]);
+
         setUiStrings(strings);
+        setImages(homepageImages);
       } catch (error) {
-        console.error('Failed to load homepage strings:', error);
+        console.error('Failed to load homepage data:', error);
         // Language-aware fallback
         setUiStrings({
           searchTrendsSectionHeading: getDefault('homepage', 'searchTrendsSectionHeading', language),
           searchTrendsSectionHeadingZh: getDefault('homepage', 'searchTrendsSectionHeadingZh', language),
         });
+        setImages(null); // Will fallback to static image
       } finally {
         setLoading(false);
       }
     }
 
-    loadStrings();
+    loadData();
   }, [language]);
 
   const trendingSearches = [
@@ -93,11 +103,22 @@ function SearchTrendsSection() {
           </div>
         </div>
         <div className="w-full md:w-1/2 order-1 md:order-2">
-          <img
-            src={imageCollage}
-            alt="Search trends visualization"
-            className="w-full object-contain aspect-[1.15]"
-          />
+          {images?.searchTrendsCollage ? (
+            <SanityImage
+              image={images.searchTrendsCollage}
+              alt={images.searchTrendsCollage.alt || 'Search trends visualization'}
+              width={800}
+              height={696}
+              quality={90}
+              className="w-full object-contain aspect-[1.15]"
+            />
+          ) : (
+            <img
+              src={imageCollage}
+              alt="Search trends visualization"
+              className="w-full object-contain aspect-[1.15]"
+            />
+          )}
         </div>
       </div>
     </section>
