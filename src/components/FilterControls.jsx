@@ -8,7 +8,6 @@ import { getFilterStrings } from '../lib/sanity';
 function FilterControls({ onUpdate, isOpen, isLoading }) {
   const { language } = useLanguage();
   const [uiStrings, setUiStrings] = useState({});
-  const [loadingStrings, setLoadingStrings] = useState(true);
   const [shouldResetVotes, setShouldResetVotes] = useState(false);
   const [usStatesData, setUsStatesData] = useState([]);
   const [loadingStates, setLoadingStates] = useState(false);
@@ -27,7 +26,6 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
   useEffect(() => {
     async function loadStrings() {
       try {
-        setLoadingStrings(true);
         const strings = await getFilterStrings(language);
         setUiStrings(strings);
       } catch (error) {
@@ -54,8 +52,6 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
           filterBadgeStartDate: 'Start:',
           filterBadgeEndDate: 'End:',
         });
-      } finally {
-        setLoadingStrings(false);
       }
     }
     loadStrings();

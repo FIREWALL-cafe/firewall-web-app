@@ -5,13 +5,6 @@ import { getHomepageStrings, getHomepageImages } from '../lib/sanity';
 import { getDefault } from '../constants/uiDefaults';
 import ArrowRight from './icons/ArrowRight';
 import SanityImage from './common/SanityImage';
-// Fallback images (used if Sanity images not available)
-import censoreda from '../assets/images/homepage-section_1-image_a-default.jpg';
-import censoredb from '../assets/images/homepage-section_1-image_b-default.jpg';
-import censoredc from '../assets/images/homepage-section_1-image_c-default.jpg';
-import hovera from '../assets/images/homepage-section_1-image_a-hover.jpg';
-import hoverb from '../assets/images/homepage-section_1-image_b-hover.jpg';
-import hoverc from '../assets/images/homepage-section_1-image_c-hover.jpg';
 
 function AboutSection() {
   const { language } = useLanguage();

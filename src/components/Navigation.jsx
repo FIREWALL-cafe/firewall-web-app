@@ -53,7 +53,6 @@ function Navigation() {
   const [searchPlaceholder, setSearchPlaceholder] = useState(getDefault('navigation', 'searchPlaceholder', language));
   const [newsletterTitle, setNewsletterTitle] = useState(getDefault('navigation', 'newsletterTitle', language));
   const [newsletterSubtitle, setNewsletterSubtitle] = useState(getDefault('navigation', 'newsletterSubtitle', language));
-  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -65,7 +64,6 @@ function Navigation() {
   useEffect(() => {
     async function loadNavigationSettings() {
       try {
-        setLoading(true);
         const settings = await getNavigationSettings(language);
 
         if (settings && settings.menuItems) {
@@ -89,8 +87,6 @@ function Navigation() {
         setSearchPlaceholder(getDefault('navigation', 'searchPlaceholder', language));
         setNewsletterTitle(getDefault('navigation', 'newsletterTitle', language));
         setNewsletterSubtitle(getDefault('navigation', 'newsletterSubtitle', language));
-      } finally {
-        setLoading(false);
       }
     }
 

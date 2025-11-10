@@ -57,7 +57,7 @@ function HeroSection() {
     return () => {
       typed.current.destroy();
     };
-  }, [loading, uiStrings.heroTitleAnimated]);
+  }, [loading, uiStrings.heroTitleAnimated, language]);
 
   return (
     <section className="w-full flex flex-col items-center py-16">
