@@ -9,13 +9,11 @@ function SubscribeSection({ title }) {
   const location = useLocation();
   const { language } = useLanguage();
   const [uiStrings, setUiStrings] = useState({});
-  const [loading, setLoading] = useState(true);
   const isContactPage = location.pathname === '/contact';
 
   useEffect(() => {
     async function loadStrings() {
       try {
-        setLoading(true);
         const strings = await getHomepageStrings(language);
         setUiStrings(strings);
       } catch (error) {
@@ -27,8 +25,6 @@ function SubscribeSection({ title }) {
           newsletterEmailPlaceholder: getDefault('homepage', 'newsletterEmailPlaceholder', language),
           newsletterSubscribeButton: getDefault('homepage', 'newsletterSubscribeButton', language),
         });
-      } finally {
-        setLoading(false);
       }
     }
     loadStrings();

@@ -29,7 +29,7 @@ const builder = imageUrlBuilder(sanityClient);
 
 function NewsletterSection({ image, title }) {
   const [sanityImages, setSanityImages] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadImages() {
@@ -78,7 +78,7 @@ function NewsletterSection({ image, title }) {
         <SubscribeSection title={title} />
       </div>
       <div className="flex w-full md:w-1/2 h-[300px] md:h-auto order-1 md:order-2">
-        {loading ? (
+        {isLoading ? (
           <div className="w-full h-full bg-gray-200 animate-pulse"></div>
         ) : sanityImageSet ? (
           <picture className="w-full h-full">
@@ -102,7 +102,7 @@ function NewsletterSection({ image, title }) {
             <source media="(min-width: 1080px)" srcSet={staticImages[image].desktop} />
             <img
               src={staticImages[image].desktop}
-              alt="Newsletter image"
+              alt="Newsletter"
               className="w-full h-full object-cover object-center"
             />
           </picture>

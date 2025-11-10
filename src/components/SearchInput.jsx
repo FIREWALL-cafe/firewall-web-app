@@ -25,7 +25,6 @@ function SearchInput({ searchMode }) {
   const { language } = useLanguage();
   const { translateQuery, searchImages, searchArchive } = useContext(ApiContext);
   const [uiStrings, setUiStrings] = useState({});
-  const [loadingStrings, setLoadingStrings] = useState(true);
   const [isLoading, setLoading] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
   const [searchStage, setSearchStage] = useState(null); // Track current search stage
@@ -72,7 +71,6 @@ function SearchInput({ searchMode }) {
   useEffect(() => {
     async function loadStrings() {
       try {
-        setLoadingStrings(true);
         const strings = isArchive
           ? await getArchivePageStrings(language)
           : await getSearchPageStrings(language);
@@ -97,8 +95,6 @@ function SearchInput({ searchMode }) {
             errorLabel: getDefault('search', 'errorLabel', language),
           });
         }
-      } finally {
-        setLoadingStrings(false);
       }
     }
     loadStrings();
@@ -197,7 +193,6 @@ function SearchInput({ searchMode }) {
               setFilteredResults(results);
             } else {
               // Stage 1: Get translation
-              console.log('Stage 1: Translating query:', urlQuery.trim());
               setIsTranslating(true);
               setSearchStage('translating');
               setEstimatedTime(8);
@@ -205,7 +200,6 @@ function SearchInput({ searchMode }) {
               let translationResult;
               try {
                 translationResult = await translateQuery(urlQuery.trim());
-                console.log('Translation received:', translationResult);
                 setTranslation(translationResult.translation || '');
 
                 // Small delay to ensure translation UI is visible before moving to loading state
@@ -217,7 +211,6 @@ function SearchInput({ searchMode }) {
               }
 
               // Stage 2: Search for images (show skeletons during this phase)
-              console.log('Stage 2: Searching for images');
               setIsTranslating(false);
               setSearchStage('searching-google');
               setEstimatedTime(6);
@@ -244,16 +237,6 @@ function SearchInput({ searchMode }) {
                 body: JSON.stringify(searchBody),
               });
 
-              console.log('searchImages response received:', {
-                hasError: !!response.error,
-                hasGoogleResults: !!response.googleResults,
-                hasBaiduResults: !!response.baiduResults,
-                googleCount: response.googleResults?.length,
-                baiduCount: response.baiduResults?.length,
-                hasSearchId: !!response.searchId,
-                hasTranslation: !!response.translation,
-              });
-
               // Stage 3: Processing results
               setSearchStage('saving');
               setEstimatedTime(1);
@@ -274,12 +257,6 @@ function SearchInput({ searchMode }) {
               }
 
               const { googleResults, baiduResults, translation, searchId } = response;
-              console.log(
-                'Setting results - Google:',
-                googleResults?.length,
-                'Baidu:',
-                baiduResults?.length
-              );
               setSearchId(searchId);
               setResults({
                 googleResults: googleResults || [],
@@ -287,7 +264,6 @@ function SearchInput({ searchMode }) {
               });
               // Use translation from response if available, otherwise use the one we got earlier
               setTranslation(translation || translationResult?.translation || '');
-              console.log('Results set successfully');
 
               // Complete
               setSearchStage('complete');
