@@ -5,5 +5,8 @@ export default defineCliConfig({
     projectId: '6i3e0mnh',
     dataset: 'production'
   },
-  studioHost: 'firewall-cafe'
+  studioHost: 'firewall-cafe',
+  deployment: {
+    appId: 'cwobhbv2qn3pmmx8zepvzal3'
+  }
 })
