@@ -96,6 +96,37 @@ export async function getNavigationSettings(lang = 'en') {
   )
 }
 
+// Translations - Autocomplete
+// Search translations by query prefix for autocomplete functionality
+export async function searchTranslations(searchTerm, language = 'en', limit = 10) {
+  try {
+    // Match queries starting with search term (case-insensitive)
+    // Filter by source language and order alphabetically
+    const result = await client.fetch(
+      `*[_type == "translation"
+         && langFrom == $language
+         && query match $searchPattern
+      ] | order(query asc) [0...$limit] {
+        query,
+        translation,
+        langFrom,
+        langTo,
+        source,
+        sensitive
+      }`,
+      {
+        language,
+        searchPattern: `${searchTerm.toLowerCase()}*`,
+        limit
+      }
+    )
+    return result || []
+  } catch (error) {
+    console.error('Error searching translations:', error)
+    return []
+  }
+}
+
 // UI String Queries (Refactored into 11 singleton documents)
 
 // Helper function to build localized field query

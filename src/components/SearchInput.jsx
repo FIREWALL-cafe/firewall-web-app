@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
+import { Combobox } from '@headlessui/react';
 import QueryList from './QueryList';
 import useCookie from '../useCookie';
 import FilterControls from './FilterControls';
@@ -9,6 +10,7 @@ import QuestionIcon from './icons/QuestionIcon';
 import { useLanguage } from '../context/LanguageContext';
 import { getSearchPageStrings, getArchivePageStrings } from '../lib/sanity';
 import { getDefault } from '../constants/uiDefaults';
+import { useAutocomplete } from '../hooks/useAutocomplete';
 
 import GoogleLogoBlue from '../assets/icons/google-logo_blue.svg';
 import BaiduLogoRed from '../assets/icons/baidu_logo_red.svg';
@@ -46,6 +48,9 @@ function SearchInput({ searchMode }) {
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [translation, setTranslation] = useState('');
   const [currentSearchId, setSearchId] = useState(null);
+
+  // Autocomplete suggestions
+  const { suggestions } = useAutocomplete(query, language);
   const setResults = useCallback(results => setImageResults(results), []);
   const [username] = useCookie('username');
   const [filterOpen, setFilterOpen] = useState(false);
@@ -400,7 +405,7 @@ function SearchInput({ searchMode }) {
 
   return (
     <>
-      <div className="flex overflow-hidden flex-col self-center mt-20 min-h-[200px] iphone:mt-10 iphone:max-w-full">
+      <div className="flex flex-col self-center mt-20 min-h-[200px] iphone:mt-10 iphone:max-w-full">
         <div className="flex flex-wrap self-center max-w-[720px] w-[720px] iphone:max-w-full">
           <div className="flex flex-wrap items-center w-full border-b border-solid border-red-600 iphone:max-w-full">
             <div className="flex items-center self-stretch my-auto min-w-[240px] relative iphone:min-w-[200px]">
@@ -480,35 +485,69 @@ function SearchInput({ searchMode }) {
             <Tooltip id="tooltip" border={'1px solid #e60011'} />
           </div>
           <div className="flex justify-center p-1.5 md:p-5 gap-4 w-full rounded border-r border-b border-l border-solid bg-slate-100 border-red-600 iphone:max-w-full">
-            <div className="flex w-full bg-white rounded border border-solid border-neutral-500 h-[56px] iphone:flex-1 overflow-hidden">
-              <input
-                placeholder={
-                  isArchive
-                    ? uiStrings.archiveInputPlaceholder || 'Search the query archive'
-                    : uiStrings.searchInputPlaceholder || 'Search Google & Baidu'
-                }
-                value={query}
-                type="text"
-                onChange={e => setQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={isLoading || isTranslating}
-                className="flex-1 px-4 font-body-02 border-none h-[56px] text-neutral-600 focus:text-black placeholder:text-neutral-600 focus:ring-0 focus:outline-none iphone:text-lg"
-                aria-label="Search query"
-              />
-              <div className="flex items-center bg-white">
-                <button
-                  onClick={handleSubmit}
-                  disabled={isLoading || isTranslating}
-                  className="flex items-center justify-center w-14 h-[56px] bg-white hover:bg-gray-50 transition-colors iphone:w-12"
-                >
-                  <img
-                    src={isLoading || isTranslating ? Spinner : displaySearchIcon}
-                    alt="Search icon"
-                    className="w-6 h-6 object-contain aspect-square min-w-[28px] min-h-[28px] iphone:w-5 iphone:h-5"
+            <Combobox value={query} onChange={setQuery}>
+              <div className="relative flex w-full iphone:flex-1">
+                <div className="flex w-full bg-white rounded border border-solid border-neutral-500 h-[56px] overflow-hidden">
+                  <Combobox.Input
+                    placeholder={
+                      isArchive
+                        ? uiStrings.archiveInputPlaceholder || 'Search the query archive'
+                        : uiStrings.searchInputPlaceholder || 'Search Google & Baidu'
+                    }
+                    value={query}
+                    onChange={e => setQuery(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    disabled={isLoading || isTranslating}
+                    className="flex-1 px-4 font-body-02 border-none h-[56px] text-neutral-600 focus:text-black placeholder:text-neutral-600 focus:ring-0 focus:outline-none iphone:text-lg"
+                    aria-label="Search query"
                   />
-                </button>
+                  <div className="flex items-center bg-white">
+                    <button
+                      onClick={handleSubmit}
+                      disabled={isLoading || isTranslating}
+                      className="flex items-center justify-center w-14 h-[56px] bg-white hover:bg-gray-50 transition-colors iphone:w-12"
+                    >
+                      <img
+                        src={isLoading || isTranslating ? Spinner : displaySearchIcon}
+                        alt="Search icon"
+                        className="w-6 h-6 object-contain aspect-square min-w-[28px] min-h-[28px] iphone:w-5 iphone:h-5"
+                      />
+                    </button>
+                  </div>
+                </div>
+                {!isArchive && suggestions.length > 0 && !isLoading && !isTranslating && (
+                  <Combobox.Options className="absolute top-full left-0 right-0 mt-1 bg-white border border-neutral-500 rounded shadow-lg max-h-[400px] overflow-y-auto z-50">
+                    {suggestions.map(suggestion => (
+                      <Combobox.Option
+                        key={suggestion.query}
+                        value={suggestion.query}
+                        className={({ active }) =>
+                          `px-4 py-3 cursor-pointer flex justify-between items-center transition-colors ${
+                            active ? 'bg-red-50' : 'hover:bg-gray-50'
+                          }`
+                        }
+                      >
+                        {({ active }) => (
+                          <>
+                            <div className="flex items-center gap-2">
+                              <span className={`font-medium ${active ? 'text-red-600' : 'text-gray-900'}`}>
+                                {suggestion.query}
+                              </span>
+                              {suggestion.sensitive && (
+                                <span className="text-xs" title="Sensitive term">
+                                  🔒
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-sm text-gray-500">→ {suggestion.translation}</span>
+                          </>
+                        )}
+                      </Combobox.Option>
+                    ))}
+                  </Combobox.Options>
+                )}
               </div>
-            </div>
+            </Combobox>
             {isArchive && (
               <button
                 onClick={() => setFilterOpen(!filterOpen)}
@@ -577,7 +616,7 @@ function SearchInput({ searchMode }) {
           <FilterControls onUpdate={applyFilters} isOpen={filterOpen} isLoading={isLoading} />
         )}
         {!isArchive &&
-          (isLoading || (currentSearchId && imageResults?.googleResults.length > 0)) && (
+          (isLoading || (imageResults?.googleResults?.length > 0 || imageResults?.baiduResults?.length > 0)) && (
             <SearchCompare
               images={imageResults || { googleResults: [], baiduResults: [] }}
               query={query}
