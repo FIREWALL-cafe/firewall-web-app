@@ -1,6 +1,7 @@
 import event from './event'
 import timelineEvent from './timelineEvent'
 import pressArticle from './pressArticle'
+import editorialArticle from './editorialArticle'
 import partner from './partner'
 import translation from './translation'
 import {localeString, localeText, localeBlockContent} from './localeTypes'
@@ -22,6 +23,7 @@ import globalStrings from './globalStrings'
 import footerStrings from './footerStrings'
 import termsStrings from './termsStrings'
 import homepageImages from './homepageImages'
+import siteAssets from './siteAssets'
 
 export const schemaTypes = [
   // Locale types (must be registered first)
@@ -33,6 +35,7 @@ export const schemaTypes = [
   event,
   timelineEvent,
   pressArticle,
+  editorialArticle,
   partner,
   translation,
 
@@ -59,4 +62,5 @@ export const schemaTypes = [
 
   // Image assets
   homepageImages,
+  siteAssets,
 ]

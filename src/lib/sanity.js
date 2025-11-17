@@ -26,12 +26,108 @@ function localizeField(field, lang = 'en') {
 
 // Query helpers
 export async function getEvents() {
-  return client.fetch(`*[_type == "event"] | order(_createdAt desc)`)
+  return client.fetch(`*[_type == "event"] | order(_createdAt desc) {
+    _id,
+    slug,
+    title,
+    date,
+    exhibition,
+    lecture,
+    opening,
+    hours,
+    archiveLink,
+    location,
+    curators,
+    description,
+    links,
+    cardImageDefault {
+      asset->,
+      hotspot,
+      crop,
+      alt
+    },
+    cardImageHover {
+      asset->,
+      hotspot,
+      crop,
+      alt
+    },
+    images
+  }`)
 }
 
 export async function getEventBySlug(slug) {
   return client.fetch(
-    `*[_type == "event" && slug.current == $slug][0]`,
+    `*[_type == "event" && slug.current == $slug][0] {
+      _id,
+      slug,
+      title,
+      date,
+      exhibition,
+      lecture,
+      opening,
+      hours,
+      archiveLink,
+      location,
+      curators,
+      description,
+      links,
+      cardImageDefault {
+        asset->,
+        hotspot,
+        crop,
+        alt
+      },
+      cardImageHover {
+        asset->,
+        hotspot,
+        crop,
+        alt
+      },
+      images
+    }`,
+    { slug }
+  )
+}
+
+// Separate query for event detail page that expands images array
+export async function getEventDetailBySlug(slug) {
+  return client.fetch(
+    `*[_type == "event" && slug.current == $slug][0] {
+      _id,
+      slug,
+      title,
+      date,
+      exhibition,
+      lecture,
+      opening,
+      hours,
+      archiveLink,
+      location,
+      curators,
+      description,
+      links,
+      cardImageDefault {
+        asset->,
+        hotspot,
+        crop,
+        alt
+      },
+      cardImageHover {
+        asset->,
+        hotspot,
+        crop,
+        alt
+      },
+      images[] {
+        asset->,
+        hotspot,
+        crop,
+        alt,
+        caption,
+        src
+      }
+    }`,
     { slug }
   )
 }
@@ -42,7 +138,28 @@ export async function getPressArticles(language = null) {
     : ''
 
   return client.fetch(
-    `*[_type == "pressArticle" ${languageFilter}] | order(sortOrder asc)`
+    `*[_type == "pressArticle" ${languageFilter}] | order(sortOrder asc) {
+      _id,
+      title,
+      url,
+      date,
+      source,
+      language,
+      note,
+      image {
+        asset->,
+        hotspot,
+        crop,
+        alt
+      },
+      imageHover {
+        asset->,
+        hotspot,
+        crop,
+        alt
+      },
+      sortOrder
+    }`
   )
 }
 
@@ -653,6 +770,202 @@ export async function getHomepageImages() {
     return result || null
   } catch (error) {
     console.error('Error fetching homepage images from Sanity:', error)
+    return null
+  }
+}
+
+// Site Assets (Singleton)
+// Returns all site-wide images, logos, icons, and UI assets
+export async function getSiteAssets() {
+  try {
+    const result = await client.fetch(
+      `*[_type == "siteAssets"][0] {
+        logoFull { asset->, hotspot, crop },
+        logoIcon { asset->, hotspot, crop },
+        facebookIcon { asset-> },
+        instagramIcon { asset-> },
+        youtubeIcon { asset-> },
+        menuIcon { asset-> },
+        closeIcon { asset-> },
+        closeLargeIcon { asset-> },
+        searchIcon { asset-> },
+        locationIcon { asset-> },
+        envelopeIcon { asset-> },
+        aboutHero { asset->, hotspot, crop },
+        supportHero { asset->, hotspot, crop },
+        pressIcon { asset->, hotspot, crop },
+        expertCommentaryIcon { asset->, hotspot, crop },
+        artistHeadshot { asset->, hotspot, crop },
+        archiveIcon { asset-> },
+        archiveIconGrayscale { asset-> },
+        eventsIcon { asset-> },
+        eventsIconGrayscale { asset-> },
+        pressIconNav { asset-> },
+        pressIconNavGrayscale { asset-> },
+        supportIconNav { asset-> },
+        supportIconNavGrayscale { asset-> },
+        donationIcon { asset-> },
+        donationIconGrayscale { asset-> },
+        sponsorIcon { asset-> },
+        sponsorIconGrayscale { asset-> },
+        statsIcon { asset-> },
+        statsIconGrayscale { asset-> },
+        timelineIcon { asset-> },
+        timelineIconGrayscale { asset-> },
+        searchIconColor { asset-> },
+        searchIconGrayscale { asset-> },
+        carouselLeftIcon { asset-> },
+        carouselRightIcon { asset-> },
+        arrowForwardIcon { asset-> },
+        arrowLeftAltIcon { asset-> },
+        arrowRightAltIcon { asset-> },
+        keyboardArrowDownIcon { asset-> },
+        keyboardArrowUpIcon { asset-> },
+        expandCircleDownIcon { asset-> },
+        expandCircleUpIcon { asset-> },
+        toggleActiveIcon { asset-> },
+        toggleDefaultIcon { asset-> },
+        showMoreDefaultIcon { asset-> },
+        showMoreActiveIcon { asset-> },
+        tuneIcon { asset-> },
+        cancelIcon { asset-> },
+        calendarMonthIcon { asset-> },
+        scheduleIcon { asset-> },
+        folderOpenIcon { asset-> },
+        folderOpenSearchIcon { asset-> },
+        checkIcon { asset-> },
+        check2CircleIcon { asset-> },
+        thumbUpIcon { asset-> },
+        thumbDownIcon { asset-> },
+        visibilityIcon { asset-> },
+        visibilityOffIcon { asset-> },
+        howToVoteIcon { asset-> },
+        lostInTranslationIcon { asset-> },
+        questionIcon { asset-> },
+        questionRedIcon { asset-> },
+        brightness2Icon { asset-> },
+        priorityIcon { asset-> },
+        imageSearchIcon { asset-> },
+        imagesModeIcon { asset-> },
+        fullscreenExitIcon { asset-> },
+        disabledByDefaultIcon { asset-> },
+        brokenImagePlaceholder { asset-> },
+        brokenImagePlaceholderPadding { asset-> },
+        brokenImageGrayscale { asset-> },
+        censoredImagePlaceholder { asset-> },
+        censoredImagePlaceholderPadding { asset-> },
+        censoredBrokenImage { asset-> },
+        noImageAvailable { asset-> },
+        googleLogoLong { asset-> },
+        googleLogoBlue { asset-> },
+        googleLogoRed { asset-> },
+        baiduLogoLong { asset-> },
+        baiduLogoRed { asset-> },
+        translateIcon { asset-> },
+        translateIconBlack { asset-> },
+        spinnerIcon { asset-> }
+      }`
+    )
+
+    return result || null
+  } catch (error) {
+    console.error('Error fetching site assets from Sanity:', error)
+    return null
+  }
+}
+
+// ========== EDITORIAL ARTICLES ==========
+
+/**
+ * Fetch all editorial articles
+ * @param {Object} options - Query options
+ * @param {boolean} options.featuredOnly - Only return featured articles
+ * @param {number} options.limit - Limit number of results
+ * @returns {Promise<Array>} Array of editorial articles
+ */
+export async function getEditorialArticles({ featuredOnly = false, limit = null } = {}) {
+  try {
+    const featuredFilter = featuredOnly ? '&& featured == true' : ''
+    const limitClause = limit ? `[0...${limit}]` : ''
+
+    const query = `*[_type == "editorialArticle" ${featuredFilter}] | order(publishedDate desc) ${limitClause} {
+      _id,
+      title,
+      titleZh,
+      slug,
+      publishedDate,
+      readTime,
+      featured,
+      excerpt,
+      tags,
+      authorName,
+      authorBio,
+      authorImage {
+        asset->,
+        hotspot,
+        crop
+      },
+      metaDescription
+    }`
+
+    return client.fetch(query)
+  } catch (error) {
+    console.error('Error fetching editorial articles:', error)
+    return []
+  }
+}
+
+/**
+ * Fetch a single editorial article by slug
+ * @param {string} slug - Article slug
+ * @returns {Promise<Object|null>} Editorial article or null
+ */
+export async function getEditorialArticleBySlug(slug) {
+  try {
+    const query = `*[_type == "editorialArticle" && slug.current == $slug][0] {
+      _id,
+      title,
+      titleZh,
+      slug,
+      publishedDate,
+      readTime,
+      featured,
+      excerpt,
+      body,
+      tags,
+      authorName,
+      authorBio,
+      authorImage {
+        asset->,
+        hotspot,
+        crop
+      },
+      authorSocial[] {
+        platform,
+        url
+      },
+      nextArticleSlug,
+      previousArticleSlug,
+      metaDescription
+    }`
+
+    return client.fetch(query, { slug })
+  } catch (error) {
+    console.error('Error fetching editorial article:', error)
+    return null
+  }
+}
+
+/**
+ * Fetch the featured editorial article
+ * @returns {Promise<Object|null>} Featured editorial article or null
+ */
+export async function getFeaturedEditorialArticle() {
+  try {
+    const articles = await getEditorialArticles({ featuredOnly: true, limit: 1 })
+    return articles.length > 0 ? articles[0] : null
+  } catch (error) {
+    console.error('Error fetching featured editorial article:', error)
     return null
   }
 }

@@ -104,21 +104,46 @@ export default {
       ],
     },
     {
+      name: 'cardImageDefault',
+      title: 'Card Image (Default State)',
+      type: 'image',
+      description: 'Event card thumbnail - default state',
+      options: {
+        hotspot: true,
+      },
+    },
+    {
+      name: 'cardImageHover',
+      title: 'Card Image (Hover State)',
+      type: 'image',
+      description: 'Event card thumbnail - hover state',
+      options: {
+        hotspot: true,
+      },
+    },
+    {
       name: 'images',
       title: 'Event Images',
       type: 'array',
       of: [
         {
-          type: 'object',
+          type: 'image',
+          options: {
+            hotspot: true,
+          },
           fields: [
             {
-              name: 'src',
-              type: 'url',
-              title: 'Image URL',
-              description: 'External image URL (e.g., from Digital Ocean Spaces)',
+              name: 'alt',
+              type: 'string',
+              title: 'Alt Text',
+              description: 'Alternative text for accessibility',
             },
-            {name: 'alt', type: 'string', title: 'Alt Text'},
-            {name: 'caption', type: 'string', title: 'Caption'},
+            {
+              name: 'caption',
+              type: 'string',
+              title: 'Caption',
+              description: 'Optional caption displayed below the image',
+            },
           ],
         },
       ],
@@ -128,6 +153,7 @@ export default {
     select: {
       title: 'title',
       subtitle: 'date',
+      media: 'cardImageDefault',
     },
   },
 }

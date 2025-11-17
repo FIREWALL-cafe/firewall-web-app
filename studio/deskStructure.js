@@ -85,6 +85,15 @@ export const deskStructure = (S) =>
           S.list()
             .title('Page Content')
             .items([
+              // Editorial Articles
+              S.listItem()
+                .title('Editorial Articles')
+                .icon(() => '📰')
+                .child(
+                  S.documentTypeList('editorialArticle')
+                    .title('All Editorial Articles')
+              ),
+              
               // Events
               S.listItem()
                 .title('Events')
@@ -169,7 +178,9 @@ export const deskStructure = (S) =>
             .items([
               S.documentTypeListItem('globalStrings').title('Global Strings'),
               S.documentTypeListItem('footerStrings').title('Footer Strings'),
-              S.documentTypeListItem('homepageImages').title('Homepage Images'),
+              S.divider(),
+              S.documentTypeListItem('homepageImages').title('Homepage Images').icon(() => '🖼️'),
+              S.documentTypeListItem('siteAssets').title('Site Assets').icon(() => '🎨'),
             ])
         ),
     ])
