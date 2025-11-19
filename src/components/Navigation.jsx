@@ -6,10 +6,11 @@ import LanguageSwitcher from './LanguageSwitcher';
 import Drawer from 'react-modern-drawer';
 import { useMediaQuery } from 'react-responsive';
 import { useLanguage } from '../context/LanguageContext';
-import { getNavigationSettings } from '../lib/sanity';
+import { getNavigationSettings, getSiteAssets, urlFor } from '../lib/sanity';
 import { getDefault } from '../constants/uiDefaults';
 import 'react-modern-drawer/dist/index.css';
 
+// Static imports as fallbacks
 import logo from '../assets/icons/logo_name.svg';
 import logoMobile from '../assets/icons/logo_only.svg';
 import NavMenu from '../assets/icons/nav-menu.svg';
@@ -53,12 +54,29 @@ function Navigation() {
   const [searchPlaceholder, setSearchPlaceholder] = useState(getDefault('navigation', 'searchPlaceholder', language));
   const [newsletterTitle, setNewsletterTitle] = useState(getDefault('navigation', 'newsletterTitle', language));
   const [newsletterSubtitle, setNewsletterSubtitle] = useState(getDefault('navigation', 'newsletterSubtitle', language));
+  const [siteAssets, setSiteAssets] = useState(null);
 
   const navigate = useNavigate();
   const location = useLocation();
   const isIphone = useMediaQuery({ maxWidth: 420 });
   const isVerySmallScreen = useMediaQuery({ maxWidth: 320 });
   const isContactPage = location.pathname === '/contact';
+
+  // Fetch site assets from Sanity CMS
+  useEffect(() => {
+    async function loadSiteAssets() {
+      try {
+        const assets = await getSiteAssets();
+        if (assets) {
+          setSiteAssets(assets);
+        }
+      } catch (error) {
+        console.error('Failed to load site assets:', error);
+      }
+    }
+
+    loadSiteAssets();
+  }, []);
 
   // Fetch navigation settings from Sanity CMS
   useEffect(() => {
@@ -122,16 +140,26 @@ function Navigation() {
           <div className="flex gap-3">
             <Link to="/">
               {isVerySmallScreen ? (
-                <img src={logoMobile} alt="Logo" />
+                <img
+                  src={siteAssets?.logoIcon ? urlFor(siteAssets.logoIcon).width(40).url() : logoMobile}
+                  alt="Logo"
+                />
               ) : (
-                <img src={logo} alt="Logo" />
+                <img
+                  src={siteAssets?.logoFull ? urlFor(siteAssets.logoFull).width(200).url() : logo}
+                  alt="Logo"
+                />
               )}
             </Link>
           </div>
           <div className="flex items-center gap-4 relative">
             <LanguageSwitcher />
             <button onClick={toggleDrawer} className="flex items-center justify-end h-16">
-              <img src={NavMenu} alt="Menu" className="object-contain self-stretch my-auto" />
+              <img
+                src={siteAssets?.menuIcon ? urlFor(siteAssets.menuIcon).width(32).url() : NavMenu}
+                alt="Menu"
+                className="object-contain self-stretch my-auto"
+              />
             </button>
             <Drawer
               open={isOpen}
@@ -152,9 +180,15 @@ function Navigation() {
                   <div className="flex items-center gap-3">
                     <Link to="/">
                       {isVerySmallScreen ? (
-                        <img src={logoMobile} alt="Logo" />
+                        <img
+                          src={siteAssets?.logoIcon ? urlFor(siteAssets.logoIcon).width(40).url() : logoMobile}
+                          alt="Logo"
+                        />
                       ) : (
-                        <img src={logo} alt="Logo" />
+                        <img
+                          src={siteAssets?.logoFull ? urlFor(siteAssets.logoFull).width(200).url() : logo}
+                          alt="Logo"
+                        />
                       )}
                     </Link>
                   </div>
@@ -165,7 +199,11 @@ function Navigation() {
                       aria-label="Close"
                       onClick={toggleDrawer}
                     >
-                      <img src={Close} alt="" className="w-6 h-6 object-contain" />
+                      <img
+                        src={siteAssets?.closeLargeIcon ? urlFor(siteAssets.closeLargeIcon).width(24).url() : Close}
+                        alt=""
+                        className="w-6 h-6 object-contain"
+                      />
                     </button>
                   </div>
                 </div>

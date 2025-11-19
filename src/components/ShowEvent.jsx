@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ArrowLeft from './icons/ArrowLeft';
 import EventDetail from './EventDetail';
-import { getEventBySlug } from '../lib/sanity';
+import { getEventDetailBySlug, urlFor } from '../lib/sanity';
 
 function ShowEvent() {
   const { eventId } = useParams();
@@ -14,7 +14,31 @@ function ShowEvent() {
     async function fetchEvent() {
       try {
         setLoading(true);
-        const data = await getEventBySlug(eventId);
+        const data = await getEventDetailBySlug(eventId);
+
+        // Transform Sanity image objects to URLs for EventDetail component
+        if (data && data.images && data.images.length > 0) {
+          data.images = data.images.map(image => {
+            // Handle both Sanity image assets and legacy external URLs
+            if (image.asset) {
+              // New Sanity image format
+              return {
+                src: urlFor(image).width(800).url(),
+                alt: image.alt || '',
+                caption: image.caption || null
+              };
+            } else if (image.src) {
+              // Legacy external URL format
+              return {
+                src: image.src,
+                alt: image.alt || '',
+                caption: image.caption || null
+              };
+            }
+            return null;
+          }).filter(Boolean); // Remove null entries
+        }
+
         setEvent(data);
       } catch (err) {
         console.error('Failed to fetch event:', err);

@@ -1,13 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { getPressPageStrings } from '../lib/sanity';
+import { getPressPageStrings, getSiteAssets, urlFor } from '../lib/sanity';
 
+// Static import as fallback
 import Press from '../assets/icons/press.png';
 
 function HeroPress() {
   const { language } = useLanguage();
   const [uiStrings, setUiStrings] = useState({});
+  const [siteAssets, setSiteAssets] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Fetch site assets from Sanity
+  useEffect(() => {
+    async function loadSiteAssets() {
+      try {
+        const assets = await getSiteAssets();
+        if (assets) {
+          setSiteAssets(assets);
+        }
+      } catch (error) {
+        console.error('Failed to load site assets:', error);
+      }
+    }
+
+    loadSiteAssets();
+  }, []);
 
   // Fetch UI strings from Sanity on mount and language change
   useEffect(() => {
@@ -53,7 +71,7 @@ function HeroPress() {
         <div className="flex flex-col w-full font-display-04 md:font-display-05 font-bitmap-song leading-tight tracking-[2.16px]">
           <h2 className="flex flex-wrap gap-5 items-center text-black">
             <img
-              src={Press}
+              src={siteAssets?.pressIcon ? urlFor(siteAssets.pressIcon).width(52).url() : Press}
               alt=""
               className="object-contain shrink-0 self-stretch my-auto aspect-square w-[52px]"
             />

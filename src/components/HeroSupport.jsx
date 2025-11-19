@@ -1,12 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { getSupportPageStrings } from '../lib/sanity';
+import { getSupportPageStrings, getSiteAssets, urlFor } from '../lib/sanity';
+
+// Static import as fallback
 import SupportHero from '../assets/images/support-hero.png';
 
 function HeroSupport() {
   const { language } = useLanguage();
   const [uiStrings, setUiStrings] = useState({});
+  const [siteAssets, setSiteAssets] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Fetch site assets from Sanity
+  useEffect(() => {
+    async function loadSiteAssets() {
+      try {
+        const assets = await getSiteAssets();
+        if (assets) {
+          setSiteAssets(assets);
+        }
+      } catch (error) {
+        console.error('Failed to load site assets:', error);
+      }
+    }
+
+    loadSiteAssets();
+  }, []);
 
   // Fetch UI strings from Sanity on mount and language change
   useEffect(() => {
@@ -78,7 +97,7 @@ function HeroSupport() {
         </div>
         <div className="flex justify-center items-center w-1/2">
           <img
-            src={SupportHero}
+            src={siteAssets?.supportHero ? urlFor(siteAssets.supportHero).width(500).quality(90).url() : SupportHero}
             className="object-contain w-full max-w-[500px]"
             alt="Donation illustration"
           />

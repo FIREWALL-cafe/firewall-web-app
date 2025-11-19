@@ -1,15 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { getAboutPageStrings } from '../lib/sanity';
+import { getAboutPageStrings, getSiteAssets, urlFor } from '../lib/sanity';
 import Artist from './Artist';
 import CallToAction from './CallToAction';
 import Contributors from './Contributors';
+
+// Static import as fallback
 import AboutHero from '../assets/images/about-hero.jpg';
 
 function About() {
   const { language } = useLanguage();
   const [uiStrings, setUiStrings] = useState({});
+  const [siteAssets, setSiteAssets] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Fetch site assets from Sanity
+  useEffect(() => {
+    async function loadSiteAssets() {
+      try {
+        const assets = await getSiteAssets();
+        if (assets) {
+          setSiteAssets(assets);
+        }
+      } catch (error) {
+        console.error('Failed to load site assets:', error);
+      }
+    }
+
+    loadSiteAssets();
+  }, []);
 
   // Fetch UI strings from Sanity on mount and language change
   useEffect(() => {
@@ -88,7 +107,7 @@ function About() {
               </div>
               <div className="flex-shrink-0 w-full max-w-lg md:order-2 order-1">
                 <img
-                  src={AboutHero}
+                  src={siteAssets?.aboutHero ? urlFor(siteAssets.aboutHero).width(800).quality(90).url() : AboutHero}
                   alt="Illustration related to the topic"
                   className="w-full h-auto object-cover"
                 />

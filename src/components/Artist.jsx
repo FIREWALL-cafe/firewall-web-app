@@ -1,13 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { getAboutPageStrings } from '../lib/sanity';
-import ArtistHeadshot from '../assets/images/joyce-BW-450x450.jpg';
+import { getAboutPageStrings, getSiteAssets, urlFor } from '../lib/sanity';
+
+// Static import as fallback
+import ArtistHeadshotFallback from '../assets/images/joyce-BW-450x450.jpg';
 
 function Artist() {
   const { language } = useLanguage();
   const [uiStrings, setUiStrings] = useState({});
+  const [artistHeadshot, setArtistHeadshot] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Fetch site assets from Sanity
+  useEffect(() => {
+    async function loadSiteAssets() {
+      try {
+        const assets = await getSiteAssets();
+        if (assets && assets.artistHeadshot) {
+          const headshotUrl = urlFor(assets.artistHeadshot).width(450).url();
+          setArtistHeadshot(headshotUrl);
+        }
+      } catch (error) {
+        console.error('Failed to load artist headshot from Sanity:', error);
+      }
+    }
+
+    loadSiteAssets();
+  }, []);
 
   // Fetch UI strings from Sanity on mount and language change
   useEffect(() => {
@@ -66,7 +86,7 @@ function Artist() {
             <div className="flex-shrink-0 w-full max-w-sm md:order-2 order-1">
               <Link to="http://www.joyceyujeanlee.com/">
                 <img
-                  src={ArtistHeadshot}
+                  src={artistHeadshot || ArtistHeadshotFallback}
                   alt="Joyce Yu-Jean Lee"
                   className="w-full h-auto object-cover"
                 />

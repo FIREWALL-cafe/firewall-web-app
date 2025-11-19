@@ -1,16 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { getEditorialPageStrings } from '../lib/sanity';
+import { getEditorialPageStrings, getSiteAssets, urlFor } from '../lib/sanity';
 import FeaturedEditorial from './FeaturedEditorial';
 import ExpertArticles from './ExpertArticles';
 import NewsletterSection from './NewsletterSection';
 
+// Static import as fallback
 import Commentary from '../assets/icons/expert-commentary.png';
 
 function Experts() {
   const { language } = useLanguage();
   const [uiStrings, setUiStrings] = useState({});
+  const [siteAssets, setSiteAssets] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Fetch site assets from Sanity
+  useEffect(() => {
+    async function loadSiteAssets() {
+      try {
+        const assets = await getSiteAssets();
+        if (assets) {
+          setSiteAssets(assets);
+        }
+      } catch (error) {
+        console.error('Failed to load site assets:', error);
+      }
+    }
+
+    loadSiteAssets();
+  }, []);
 
   // Fetch UI strings from Sanity on mount and language change
   useEffect(() => {
@@ -61,7 +79,7 @@ function Experts() {
             <div className="font-bitmap-song items-center gap-2">
               <h1 className="flex flex-row items-center gap-5 my-auto font-display-04 md:font-display-05">
                 <img
-                  src={Commentary}
+                  src={siteAssets?.expertCommentaryIcon ? urlFor(siteAssets.expertCommentaryIcon).width(52).url() : Commentary}
                   alt=""
                   className="object-contain shrink-0 self-stretch my-auto aspect-square w-[52px]"
                 />

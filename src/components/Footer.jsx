@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { getFooterStrings } from '../lib/sanity';
+import { getFooterStrings, getSiteAssets, urlFor } from '../lib/sanity';
 import { getDefault } from '../constants/uiDefaults';
+
+// Static imports as fallbacks
 import logo from '../assets/icons/logo_name.svg';
 import Facebook from '../assets/icons/facebook_red.svg';
 import Youtube from '../assets/icons/youtube_red.svg';
@@ -11,6 +13,23 @@ import Instagram from '../assets/icons/instagram_red.svg';
 function Footer() {
   const { language } = useLanguage();
   const [footerStrings, setFooterStrings] = useState({});
+  const [siteAssets, setSiteAssets] = useState(null);
+
+  // Fetch site assets from Sanity
+  useEffect(() => {
+    async function loadSiteAssets() {
+      try {
+        const assets = await getSiteAssets();
+        if (assets) {
+          setSiteAssets(assets);
+        }
+      } catch (error) {
+        console.error('Failed to load site assets:', error);
+      }
+    }
+
+    loadSiteAssets();
+  }, []);
 
   // Fetch footer strings from Sanity on mount and language change
   useEffect(() => {
@@ -43,7 +62,10 @@ function Footer() {
         <div className="flex justify-between items-start gap-20 md:flex-row flex-col">
           <div className="flex-shrink-0">
             <Link to="/">
-              <img src={logo} alt="Logo" />
+              <img
+                src={siteAssets?.logoFull ? urlFor(siteAssets.logoFull).width(200).url() : logo}
+                alt="Logo"
+              />
             </Link>
           </div>
 
@@ -84,16 +106,28 @@ function Footer() {
 
               <div className="flex gap-2 md:gap-4 mt-2">
                 <Link to="https://www.facebook.com/firewallcafe" aria-label="Facebook">
-                  <img src={Facebook} alt="Facebook logo" className="w-6" />
+                  <img
+                    src={siteAssets?.facebookIcon ? urlFor(siteAssets.facebookIcon).width(24).url() : Facebook}
+                    alt="Facebook logo"
+                    className="w-6"
+                  />
                 </Link>
                 <Link
                   to="https://www.youtube.com/channel/UCMTAKSSmI9iKD7a3GB1JIrA"
                   aria-label="Youtube"
                 >
-                  <img src={Youtube} alt="Youtube logo" className="w-6" />
+                  <img
+                    src={siteAssets?.youtubeIcon ? urlFor(siteAssets.youtubeIcon).width(24).url() : Youtube}
+                    alt="Youtube logo"
+                    className="w-6"
+                  />
                 </Link>
                 <Link to="http://instagram.com/firewallcafe" aria-label="Instagram">
-                  <img src={Instagram} alt="Instagram logo" className="w-6" />
+                  <img
+                    src={siteAssets?.instagramIcon ? urlFor(siteAssets.instagramIcon).width(24).url() : Instagram}
+                    alt="Instagram logo"
+                    className="w-6"
+                  />
                 </Link>
               </div>
             </div>
