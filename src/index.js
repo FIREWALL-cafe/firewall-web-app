@@ -12,7 +12,7 @@ import Press from './components/Press';
 import Search from './components/Search';
 import Support from './components/Support';
 import SearchArchive from './components/SearchArchive';
-import LanYu from './components/LanYu';
+import EditorialArticle from './components/EditorialArticle';
 import ShowEvent from './components/ShowEvent';
 import Partners from './components/Partners';
 import Contributors from './components/Contributors';
@@ -48,8 +48,8 @@ const router = createBrowserRouter([
         element: <Experts />,
       },
       {
-        path: 'editorial/lan-yu',
-        element: <LanYu />,
+        path: 'editorial/:slug',
+        element: <EditorialArticle />,
       },
       {
         path: 'events/:eventId',
