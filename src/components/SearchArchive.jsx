@@ -17,33 +17,34 @@ const iconMap = {
   'expert-commentary': CommentaryHover,
 };
 
+// Default/fallback cards to prevent page flash
+const defaultCards = [
+  {
+    title: 'Search',
+    url: '/search',
+    chineseTitle: { text: '专家点评', color: 'border-red-600' },
+    description: 'Search Google and Baidu and compare the results.',
+    iconSrc: Search,
+    iconSrcHover: SearchHover,
+    bgColor: 'bg-red-600',
+    textColor: 'text-white',
+    borderColor: 'border-red-600',
+  },
+  {
+    title: 'Expert commentary',
+    url: '/editorial',
+    chineseTitle: { text: '专家点评', color: 'text-red-600 border-red-600' },
+    description: 'Read and listen to in-depth commentary from experts.',
+    iconSrc: Commentary,
+    iconSrcHover: CommentaryHover,
+    bgColor: 'bg-white',
+    textColor: 'text-black',
+    borderColor: 'border-red-600',
+  },
+];
+
 const SearchArchive = () => {
   const { language } = useLanguage();
-  // Initialize with default/fallback cards to prevent page flash
-  const defaultCards = [
-    {
-      title: 'Search',
-      url: '/search',
-      chineseTitle: { text: '专家点评', color: 'border-red-600' },
-      description: 'Search Google and Baidu and compare the results.',
-      iconSrc: Search,
-      iconSrcHover: SearchHover,
-      bgColor: 'bg-red-600',
-      textColor: 'text-white',
-      borderColor: 'border-red-600',
-    },
-    {
-      title: 'Expert commentary',
-      url: '/editorial',
-      chineseTitle: { text: '专家点评', color: 'text-red-600 border-red-600' },
-      description: 'Read and listen to in-depth commentary from experts.',
-      iconSrc: Commentary,
-      iconSrcHover: CommentaryHover,
-      bgColor: 'bg-white',
-      textColor: 'text-black',
-      borderColor: 'border-red-600',
-    },
-  ];
   const [features, setFeatures] = useState(defaultCards);
 
   useEffect(() => {

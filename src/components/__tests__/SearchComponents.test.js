@@ -80,6 +80,7 @@ describe('Search Components Localization', () => {
     });
 
     // Verify hidden input exists with correct vote category
+    // eslint-disable-next-line testing-library/no-node-access
     const hiddenInput = screen.getByRole('button').querySelector('input[name="votes_censored"]');
     expect(hiddenInput).toBeInTheDocument();
   });
