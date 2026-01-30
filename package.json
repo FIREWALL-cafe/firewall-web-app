@@ -4,7 +4,7 @@
   "description": "The Firewall Pop-Up client on the web.",
   "homepage": "/",
   "engines": {
-    "node": "20.x.x"
+    "node": "20.x"
   },
   "scripts": {
     "predeploy": "yarn run format && yarn run lint && yarn run build",
