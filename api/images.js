@@ -150,7 +150,8 @@ async function getBaiduImages(query) {
 
 async function detectLanguage(query) {
   console.log('Detecting language for:', query);
-  const url = `https://babelfish.firewallcafe.com/detect-language?query=${encodeURIComponent(query)}`;
+  const translationApiUrl = process.env.TRANSLATION_API_URL || 'https://babelfish.firewallcafe.com/api';
+  const url = `${translationApiUrl}/detect-language?query=${encodeURIComponent(query)}`;
   console.log('Language detection URL:', url);
 
   const response = await fetch(url);
@@ -170,7 +171,8 @@ async function translateText(query, langFrom, langTo) {
   console.log('Translation request body:', body);
   console.log('SHARED_SECRET exists:', !!process.env.SHARED_SECRET);
 
-  const response = await fetch('https://babelfish.firewallcafe.com/translate', {
+  const translationApiUrl = process.env.TRANSLATION_API_URL || 'https://babelfish.firewallcafe.com/api';
+  const response = await fetch(`${translationApiUrl}/translate`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',

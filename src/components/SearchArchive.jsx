@@ -19,21 +19,44 @@ const iconMap = {
 
 const SearchArchive = () => {
   const { language } = useLanguage();
-  const [features, setFeatures] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Initialize with default/fallback cards to prevent page flash
+  const defaultCards = [
+    {
+      title: 'Search',
+      url: '/search',
+      chineseTitle: { text: '专家点评', color: 'border-red-600' },
+      description: 'Search Google and Baidu and compare the results.',
+      iconSrc: Search,
+      iconSrcHover: SearchHover,
+      bgColor: 'bg-red-600',
+      textColor: 'text-white',
+      borderColor: 'border-red-600',
+    },
+    {
+      title: 'Expert commentary',
+      url: '/editorial',
+      chineseTitle: { text: '专家点评', color: 'text-red-600 border-red-600' },
+      description: 'Read and listen to in-depth commentary from experts.',
+      iconSrc: Commentary,
+      iconSrcHover: CommentaryHover,
+      bgColor: 'bg-white',
+      textColor: 'text-black',
+      borderColor: 'border-red-600',
+    },
+  ];
+  const [features, setFeatures] = useState(defaultCards);
 
   useEffect(() => {
     async function loadFeatureCards() {
       try {
-        setLoading(true);
         const cards = await getFeatureCards(language, 'archive');
 
         // Map Sanity data to component format
         const mappedCards = cards.map(card => ({
-          title: card.title,
+          title: card.titleEn || card.title, // Use English title for main title
           url: card.url,
           chineseTitle: {
-            text: card.title, // Use same localized title
+            text: card.titleZh || card.title, // Use Chinese title for chineseTitle
             color: card.textColor || 'text-black',
           },
           description: card.description,
@@ -47,41 +70,12 @@ const SearchArchive = () => {
         setFeatures(mappedCards);
       } catch (error) {
         console.error('Failed to load feature cards:', error);
-        // Fallback to hardcoded cards
-        setFeatures([
-          {
-            title: 'Search',
-            url: '/search',
-            chineseTitle: { text: '专家点评', color: 'border-red-600' },
-            description: 'Search Google and Baidu and compare the results.',
-            iconSrc: Search,
-            iconSrcHover: SearchHover,
-            bgColor: 'bg-red-600',
-            textColor: 'text-white',
-            borderColor: 'border-red-600',
-          },
-          {
-            title: 'Expert commentary',
-            url: '/editorial',
-            chineseTitle: { text: '专家点评', color: 'text-red-600 border-red-600' },
-            description: 'Read and listen to in-depth commentary from experts.',
-            iconSrc: Commentary,
-            iconSrcHover: CommentaryHover,
-            bgColor: 'bg-white',
-            textColor: 'text-black',
-            borderColor: 'border-red-600',
-          },
-        ]);
-      } finally {
-        setLoading(false);
+        // Keep default cards on error
+        setFeatures(defaultCards);
       }
     }
     loadFeatureCards();
   }, [language]);
-
-  if (loading) {
-    return null; // Or a loading skeleton
-  }
   return (
     <main id="search-archive" className="is-large-width-content max-w-[1280px]">
       <section className="flex overflow-hidden flex-col justify-center w-full bg-white max-md:max-w-full">

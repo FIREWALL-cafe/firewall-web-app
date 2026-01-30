@@ -283,7 +283,8 @@ export async function getSearchPageStrings(lang = 'en') {
     const fields = [
       'searchInputPlaceholder', 'searchButton', 'searchModeTooltip',
       'searchErrorEmptyQuery', 'searchErrorNetwork', 'searchErrorGeneric',
-      'searchLoadingText', 'translatingText', 'translationLabel', 'errorLabel'
+      'searchLoadingText', 'translatingText', 'translationLabel', 'errorLabel',
+      'searchSessionHeading'
     ]
 
     const result = await client.fetch(
@@ -306,7 +307,8 @@ export async function getArchivePageStrings(lang = 'en') {
       'archiveInputPlaceholder', 'archiveButton', 'archiveModeTooltip',
       'queryListHeaderVotes', 'queryListHeaderQueryEn', 'queryListHeaderQueryZh',
       'queryListHeaderLocation', 'queryListHeaderDate',
-      'queryListTotalResults', 'queryListNoResults', 'queryListLoadingText', 'queryListLoadMoreButton'
+      'queryListTotalResults', 'queryListNoResults', 'queryListLoadingText', 'queryListLoadMoreButton',
+      'archiveFiltersButton'
     ]
 
     const result = await client.fetch(
@@ -374,7 +376,9 @@ export async function getGlobalStrings(lang = 'en') {
     const fields = [
       'commonLoadingText', 'commonPleaseWaitText',
       'commonErrorSomethingWrong', 'commonErrorTryAgain',
-      'commonSuccessSaved', 'commonSuccessThankYou'
+      'commonSuccessSaved', 'commonSuccessThankYou',
+      'timeDisplayYourTime', 'timeDisplayBeijing',
+      'headerUsernameLabel'
     ]
 
     const result = await client.fetch(
@@ -622,6 +626,8 @@ export async function getFeatureCards(lang = 'en', visibleOn = null) {
       `*[_type == "featureCard" ${visibleOnFilter}] | order(displayOrder asc) {
         _id,
         "title": ${localizeField('title', lang)},
+        "titleEn": ${localizeField('title', 'en')},
+        "titleZh": ${localizeField('title', 'zh')},
         "description": ${localizeField('description', lang)},
         url,
         iconSrc,

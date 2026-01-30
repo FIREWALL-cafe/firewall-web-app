@@ -2,16 +2,15 @@ import React, { useState, useEffect } from 'react';
 import SearchInput from './SearchInput';
 import FeatureCards from './FeatureCards';
 import { useLanguage } from '../context/LanguageContext';
-import { getFeatureCards } from '../lib/sanity';
+import { getFeatureCards, getSearchPageStrings } from '../lib/sanity';
+import { getDefault } from '../constants/uiDefaults';
 
-// Import all possible icons
 import Archive from '../assets/icons/Archive_grayscale.png';
 import ArchiveHover from '../assets/icons/Archive.png';
 import SearchIcon from '../assets/icons/search-color.png';
 import Commentary from '../assets/icons/expert-commentary_grayscale.png';
 import CommentaryHover from '../assets/icons/expert-commentary.png';
 
-// Map icon paths from Sanity to actual imports
 const iconMap = {
   Archive: Archive,
   Archive_grayscale: Archive,
@@ -25,6 +24,31 @@ function Search() {
   const { language } = useLanguage();
   const [features, setFeatures] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Initialize uiStrings with defaults immediately to prevent layout shift
+  const [uiStrings, setUiStrings] = useState(() => ({
+    searchSessionHeading: getDefault('search', 'searchSessionHeading', language),
+  }));
+
+  // Load UI strings from Sanity
+  // Update defaults immediately when language changes to prevent layout shift
+  useEffect(() => {
+    // Immediately update with defaults for current language to prevent layout shift
+    setUiStrings({
+      searchSessionHeading: getDefault('search', 'searchSessionHeading', language),
+    });
+
+    // Then fetch from Sanity and merge
+    async function loadStrings() {
+      try {
+        const strings = await getSearchPageStrings(language);
+        setUiStrings(prev => ({ ...prev, ...strings }));
+      } catch (error) {
+        console.error('Failed to load search page strings:', error);
+        // Already have defaults set above
+      }
+    }
+    loadStrings();
+  }, [language]);
 
   useEffect(() => {
     async function loadFeatureCards() {
@@ -32,12 +56,11 @@ function Search() {
         setLoading(true);
         const cards = await getFeatureCards(language, 'search');
 
-        // Map Sanity data to component format
         const mappedCards = cards.map(card => ({
-          title: card.title,
+          title: card.titleEn || card.title,
           url: card.url,
           chineseTitle: {
-            text: card.title, // Use same localized title
+            text: card.titleZh || card.title,
             color: card.textColor || 'text-black',
           },
           description: card.description,
@@ -51,31 +74,6 @@ function Search() {
         setFeatures(mappedCards);
       } catch (error) {
         console.error('Failed to load feature cards:', error);
-        // Fallback to hardcoded cards
-        setFeatures([
-          {
-            title: 'Archive',
-            url: '/archive',
-            chineseTitle: { text: '档案', color: 'text-black border-black' },
-            description: 'Explore what other users have searched and vote on results.',
-            iconSrc: Archive,
-            iconSrcHover: ArchiveHover,
-            bgColor: 'bg-red-600',
-            textColor: 'text-white',
-            borderColor: 'border-red-600',
-          },
-          {
-            title: 'Expert commentary',
-            url: '/editorial',
-            chineseTitle: { text: '专家点评', color: 'text-red-600 border-red-600' },
-            description: 'Read and listen to in-depth commentary from experts.',
-            iconSrc: Commentary,
-            iconSrcHover: CommentaryHover,
-            bgColor: 'bg-white',
-            textColor: 'text-black',
-            borderColor: 'border-red-600',
-          },
-        ]);
       } finally {
         setLoading(false);
       }
@@ -94,7 +92,7 @@ function Search() {
                 alt=""
                 className="w-8 h-8 md:w-[52px] md:h-[52px] object-contain"
               />
-              <div className="text-black">Search Session</div>
+              <div className="text-black">{uiStrings.searchSessionHeading || getDefault('search', 'searchSessionHeading', language)}</div>
             </div>
             <div className="text-red-600 border-red-600">搜索结果</div>
           </div>

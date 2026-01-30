@@ -3,7 +3,8 @@
 
 async function detectLanguage(query) {
   console.log('Detecting language for:', query);
-  const url = `https://babelfish.firewallcafe.com/detect-language?query=${encodeURIComponent(query)}`;
+  const translationApiUrl = process.env.TRANSLATION_API_URL || 'https://babelfish.firewallcafe.com/api';
+  const url = `${translationApiUrl}/detect-language?query=${encodeURIComponent(query)}`;
 
   const response = await fetch(url);
   const data = await response.json();
@@ -16,7 +17,8 @@ async function translateText(query, langFrom, langTo) {
 
   const body = `query=${encodeURIComponent(query)}&searchEngine=google&secret=${process.env.SHARED_SECRET}&langFrom=${langFrom}&langTo=${langTo}`;
 
-  const response = await fetch('https://babelfish.firewallcafe.com/translate', {
+  const translationApiUrl = process.env.TRANSLATION_API_URL || 'https://babelfish.firewallcafe.com/api';
+  const response = await fetch(`${translationApiUrl}/translate`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',

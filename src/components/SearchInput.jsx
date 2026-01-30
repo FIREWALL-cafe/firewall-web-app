@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useContext, useRef, useMemo } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 import { Combobox } from '@headlessui/react';
@@ -26,7 +26,30 @@ import SearchProgressIndicator from './SearchProgressIndicator';
 function SearchInput({ searchMode }) {
   const { language } = useLanguage();
   const { translateQuery, searchImages, searchArchive } = useContext(ApiContext);
-  const [uiStrings, setUiStrings] = useState({});
+  const [isArchive] = useState(searchMode === 'archive');
+  
+  // Initialize uiStrings with defaults immediately to prevent layout shift
+  const [uiStrings, setUiStrings] = useState(() => {
+    if (isArchive) {
+      return {
+        archiveInputPlaceholder: getDefault('archive', 'archiveInputPlaceholder', language),
+        archiveButton: getDefault('archive', 'archiveButton', language),
+        archiveModeTooltip: getDefault('archive', 'archiveModeTooltip', language),
+        translatingText: getDefault('search', 'translatingText', language),
+        translationLabel: getDefault('search', 'translationLabel', language),
+        errorLabel: getDefault('search', 'errorLabel', language),
+      };
+    } else {
+      return {
+        searchInputPlaceholder: getDefault('search', 'searchInputPlaceholder', language),
+        searchModeTooltip: getDefault('search', 'searchModeTooltip', language),
+        translatingText: getDefault('search', 'translatingText', language),
+        translationLabel: getDefault('search', 'translationLabel', language),
+        errorLabel: getDefault('search', 'errorLabel', language),
+      };
+    }
+  });
+  
   const [isLoading, setLoading] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
   const [searchStage, setSearchStage] = useState(null); // Track current search stage
@@ -54,7 +77,6 @@ function SearchInput({ searchMode }) {
   const setResults = useCallback(results => setImageResults(results), []);
   const [username] = useCookie('username');
   const [filterOpen, setFilterOpen] = useState(false);
-  const [isArchive] = useState(searchMode === 'archive');
   const [currentFilters, setCurrentFilters] = useState({
     vote_ids: [],
     years: [],
@@ -72,34 +94,52 @@ function SearchInput({ searchMode }) {
   const ranonce = useRef(false);
   const searchInProgress = useRef(false);
 
+  // Compute placeholder value with useMemo to ensure it always has correct value
+  // This prevents the input from disappearing during language switch
+  const inputPlaceholder = useMemo(() => {
+    if (isArchive) {
+      return uiStrings.archiveInputPlaceholder || getDefault('archive', 'archiveInputPlaceholder', language);
+    } else {
+      return uiStrings.searchInputPlaceholder || getDefault('search', 'searchInputPlaceholder', language);
+    }
+  }, [isArchive, uiStrings.archiveInputPlaceholder, uiStrings.searchInputPlaceholder, language]);
+
   // Load UI strings from Sanity based on search mode
+  // Update defaults immediately when language/archive mode changes to prevent layout shift
   useEffect(() => {
+    // Immediately update with defaults for current language to prevent layout shift
+    const defaults = isArchive
+        ? {
+            archiveInputPlaceholder: getDefault('archive', 'archiveInputPlaceholder', language),
+            archiveButton: getDefault('archive', 'archiveButton', language),
+            archiveModeTooltip: getDefault('archive', 'archiveModeTooltip', language),
+            archiveFiltersButton: getDefault('archive', 'archiveFiltersButton', language),
+            translatingText: getDefault('search', 'translatingText', language),
+            translationLabel: getDefault('search', 'translationLabel', language),
+            errorLabel: getDefault('search', 'errorLabel', language),
+          }
+      : {
+          searchInputPlaceholder: getDefault('search', 'searchInputPlaceholder', language),
+          searchModeTooltip: getDefault('search', 'searchModeTooltip', language),
+          translatingText: getDefault('search', 'translatingText', language),
+          translationLabel: getDefault('search', 'translationLabel', language),
+          errorLabel: getDefault('search', 'errorLabel', language),
+        };
+    
+    // Set defaults immediately
+    setUiStrings(defaults);
+
+    // Then fetch from Sanity and merge
     async function loadStrings() {
       try {
         const strings = isArchive
           ? await getArchivePageStrings(language)
           : await getSearchPageStrings(language);
-        setUiStrings(strings);
+        // Merge Sanity strings with defaults (Sanity strings take precedence)
+        setUiStrings(prev => ({ ...prev, ...strings }));
       } catch (error) {
         console.error('Failed to load UI strings:', error);
-        // Language-aware fallback
-        if (isArchive) {
-          setUiStrings({
-            archiveInputPlaceholder: getDefault('archive', 'archiveInputPlaceholder', language),
-            archiveModeTooltip: getDefault('archive', 'archiveModeTooltip', language),
-            translatingText: getDefault('search', 'translatingText', language),
-            translationLabel: getDefault('search', 'translationLabel', language),
-            errorLabel: getDefault('search', 'errorLabel', language),
-          });
-        } else {
-          setUiStrings({
-            searchInputPlaceholder: getDefault('search', 'searchInputPlaceholder', language),
-            searchModeTooltip: getDefault('search', 'searchModeTooltip', language),
-            translatingText: getDefault('search', 'translatingText', language),
-            translationLabel: getDefault('search', 'translationLabel', language),
-            errorLabel: getDefault('search', 'errorLabel', language),
-          });
-        }
+        // Already have defaults set above, so no need to set again
       }
     }
     loadStrings();
@@ -424,7 +464,9 @@ function SearchInput({ searchMode }) {
                   {isArchive ? (
                     <>
                       <img src={Archive} alt="Archive" className="w-6 h-6" />
-                      <span className="font-semibold text-red-600 ml-2">Archive</span>
+                      <span className="font-semibold text-red-600 ml-2">
+                        {uiStrings.archiveButton || getDefault('archive', 'archiveButton', language)}
+                      </span>
                     </>
                   ) : (
                     <>
@@ -477,7 +519,7 @@ function SearchInput({ searchMode }) {
                 ) : (
                   <>
                     <img src={ArchiveGrayscale} alt="Archive" className="w-4 h-4" />
-                    <span>Archive</span>
+                    <span>{uiStrings.archiveButton || getDefault('archive', 'archiveButton', language)}</span>
                   </>
                 )}
               </div>
@@ -489,11 +531,7 @@ function SearchInput({ searchMode }) {
               <div className="relative flex w-full iphone:flex-1">
                 <div className="flex w-full bg-white rounded border border-solid border-neutral-500 h-[56px] overflow-hidden">
                   <Combobox.Input
-                    placeholder={
-                      isArchive
-                        ? uiStrings.archiveInputPlaceholder || 'Search the query archive'
-                        : uiStrings.searchInputPlaceholder || 'Search Google & Baidu'
-                    }
+                    placeholder={inputPlaceholder}
                     value={query}
                     onChange={e => setQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -555,7 +593,9 @@ function SearchInput({ searchMode }) {
                   filterOpen ? 'bg-red-50' : ''
                 } iphone:px-3 iphone:py-1.5 iphone:text-sm`}
               >
-                <div className="font-body-02">filters</div>
+                <div className="font-body-02">
+                  {uiStrings.archiveFiltersButton || getDefault('archive', 'archiveFiltersButton', language)}
+                </div>
                 <FilterIcon
                   className={`ml-2 w-6 h-6 transition-transform duration-200 [filter:invert(19%)_sepia(92%)_saturate(2352%)_hue-rotate(343deg)_brightness(94%)_contrast(97%)] ${
                     filterOpen ? 'rotate-180' : ''
@@ -602,7 +642,9 @@ function SearchInput({ searchMode }) {
                   filterOpen ? 'bg-red-50' : ''
                 } iphone:px-3 iphone:py-1.5 iphone:text-sm`}
               >
-                <div className="font-body-02">filters</div>
+                <div className="font-body-02">
+                  {uiStrings.archiveFiltersButton || getDefault('archive', 'archiveFiltersButton', language)}
+                </div>
                 <FilterIcon
                   className={`ml-2 w-6 h-6 transition-transform duration-200 [filter:invert(19%)_sepia(92%)_saturate(2352%)_hue-rotate(343deg)_brightness(94%)_contrast(97%)] ${
                     filterOpen ? 'rotate-180' : ''

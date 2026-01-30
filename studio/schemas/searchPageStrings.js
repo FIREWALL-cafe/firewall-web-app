@@ -69,13 +69,19 @@ export default defineType({
       type: 'localeString',
       description: 'Label prefix for displaying error messages',
     },
+    {
+      name: 'searchSessionHeading',
+      title: 'Search Page - Session Heading',
+      type: 'localeString',
+      description: 'Main heading text for the search page (e.g., "Search Session")',
+    },
   ],
 
   preview: {
     prepare() {
       return {
         title: 'Search Page',
-        subtitle: 'Manage search page UI text (10 fields)',
+        subtitle: 'Manage search page UI text (11 fields)',
       }
     },
   },

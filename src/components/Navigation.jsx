@@ -85,7 +85,6 @@ function Navigation() {
         const settings = await getNavigationSettings(language);
 
         if (settings && settings.menuItems) {
-          // Transform Sanity data to component format
           const items = settings.menuItems
             .filter(item => item.visible !== false)
             .map(item => ({

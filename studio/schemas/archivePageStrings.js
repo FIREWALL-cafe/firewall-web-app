@@ -80,13 +80,19 @@ export default defineType({
       type: 'localeString',
       description: 'Text for the "Load More" button',
     },
+    {
+      name: 'archiveFiltersButton',
+      title: 'Archive - Filters Button',
+      type: 'localeString',
+      description: 'Text for the Filters button in archive mode',
+    },
   ],
 
   preview: {
     prepare() {
       return {
         title: 'Archive Page',
-        subtitle: 'Manage archive page UI text (12 fields)',
+        subtitle: 'Manage archive page UI text (13 fields)',
       }
     },
   },

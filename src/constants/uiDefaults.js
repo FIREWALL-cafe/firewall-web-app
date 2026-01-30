@@ -59,6 +59,7 @@ export const UI_DEFAULTS = {
       translatingText: 'Translating...',
       translationLabel: 'Translation:',
       errorLabel: 'Error:',
+      searchSessionHeading: 'Search Session',
     },
     zh: {
       searchInputPlaceholder: '搜索谷歌和百度',
@@ -66,6 +67,7 @@ export const UI_DEFAULTS = {
       translatingText: '翻译中...',
       translationLabel: '翻译：',
       errorLabel: '错误：',
+      searchSessionHeading: '搜索会话',
     },
   },
 
@@ -73,6 +75,7 @@ export const UI_DEFAULTS = {
   archive: {
     en: {
       archiveInputPlaceholder: 'Search the query archive',
+      archiveButton: 'Archive',
       archiveModeTooltip: "Explore the archive to view past results from other users and see how they've changed over time.",
       queryListHeaderVotes: 'Votes',
       queryListHeaderQueryEn: 'Query EN',
@@ -83,9 +86,11 @@ export const UI_DEFAULTS = {
       queryListNoResults: 'No results found',
       queryListLoadingText: 'Loading...',
       queryListLoadMoreButton: 'load more',
+      archiveFiltersButton: 'filters',
     },
     zh: {
       archiveInputPlaceholder: '搜索查询存档',
+      archiveButton: '存档',
       archiveModeTooltip: '探索存档以查看其他用户的过去结果并了解它们随时间的变化。',
       queryListHeaderVotes: '投票',
       queryListHeaderQueryEn: '搜索结果 英文',
@@ -96,6 +101,7 @@ export const UI_DEFAULTS = {
       queryListNoResults: '未找到结果',
       queryListLoadingText: '加载中...',
       queryListLoadMoreButton: '加载更多',
+      archiveFiltersButton: '筛选',
     },
   },
 
@@ -268,12 +274,18 @@ export const UI_DEFAULTS = {
       commonLoadingText: 'Loading...',
       error: 'An error occurred',
       tryAgain: 'Try again',
+      timeDisplayYourTime: 'Your time:',
+      timeDisplayBeijing: 'Beijing:',
+      headerUsernameLabel: 'Username:',
     },
     zh: {
       loading: '加载中...',
       commonLoadingText: '加载中...',
       error: '发生错误',
       tryAgain: '再试一次',
+      timeDisplayYourTime: '您的时间：',
+      timeDisplayBeijing: '北京：',
+      headerUsernameLabel: '用户名：',
     },
   },
 };

@@ -43,13 +43,49 @@ export default defineType({
       type: 'localeString',
       description: 'Generic thank you message',
     },
+    {
+      name: 'timeDisplayYourTime',
+      title: 'Time Display - Your Time Label',
+      type: 'localeString',
+      description: 'Label for local time display (e.g., "Your time:")',
+    },
+    {
+      name: 'timeDisplayBeijing',
+      title: 'Time Display - Beijing Label',
+      type: 'localeString',
+      description: 'Label for Beijing time display (e.g., "Beijing:")',
+    },
+    {
+      name: 'headerUsernameLabel',
+      title: 'Header - Username Label',
+      type: 'localeString',
+      description: 'Label for username display in header (e.g., "Username:")',
+    },
+    {
+      "name": "commonError",
+      "title": "Common - Error Message",
+      "type": "localeString",
+      "description": "Generic error message",
+    },
+    {
+      "name": "commonLoading",
+      "title": "Common - Loading Message",
+      "type": "localeString",
+      "description": "Generic loading message",
+    },
+    {
+      "name": "commonTryAgain",
+      "title": "Common - Try Again Message",
+      "type": "localeString",
+      "description": "Generic try again message",
+    }
   ],
 
   preview: {
     prepare() {
       return {
         title: 'Global Strings',
-        subtitle: 'Manage common UI text (6 fields)',
+        subtitle: 'Manage common UI text (9 fields)',
       }
     },
   },
