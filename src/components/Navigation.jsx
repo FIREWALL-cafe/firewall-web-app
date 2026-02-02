@@ -23,6 +23,7 @@ import PressIcon from '../assets/icons/press.png';
 import AboutIcon from '../assets/icons/logo_only.svg';
 import SupportIcon from '../assets/icons/support.png';
 import ContactIcon from '../assets/icons/envelope.svg';
+import TimelineIcon from '../assets/icons/Timeline.png';
 
 // Icon mapping for Sanity CMS
 const ICON_MAP = {
@@ -33,6 +34,7 @@ const ICON_MAP = {
   About: AboutIcon,
   Support: SupportIcon,
   Contact: ContactIcon,
+  Timeline: TimelineIcon,
 };
 
 // Default fallback menu items
@@ -44,6 +46,7 @@ const DEFAULT_MENU_LINKS = [
   { to: '/about', title: 'About', icon: AboutIcon },
   { to: '/support', title: 'Support Us', icon: SupportIcon },
   { to: '/contact', title: 'Contact', icon: ContactIcon },
+  { to: '/timeline', title: 'Timeline', icon: TimelineIcon },
 ];
 
 function Navigation() {
