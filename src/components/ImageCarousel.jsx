@@ -62,9 +62,10 @@ function ImageCarousel({ images, searchId, isLoading = false }) {
           ID: {searchId}
         </div>
       )}
-      {currentIndex !== null && (
+      {/* Headers - Always show when loading or when images are available */}
+      {(isLoading || images?.googleResults?.length > 0) && (
         <div className="flex flex-col md:flex-row">
-          {/* Headers */}
+          {/* Mobile Headers */}
           <div className="flex flex-row w-full md:hidden">
             <div id="google-header" className="flex items-center px-8 pb-4 w-1/2">
               <img src={googleLogo} alt="Google" className="w-16 pt-4" />
@@ -106,36 +107,39 @@ function ImageCarousel({ images, searchId, isLoading = false }) {
               />
               <Tooltip id="tooltip-google" border={'1px solid #e60011'} />
             </div>
-            <div
-              id="google-carousel"
-              className="relative justify-center items-center h-[320px] hidden ipad-portrait:flex"
-            >
-              {!isLoading && (
-                <div className="absolute left-0 h-full w-[60px] flex justify-center items-center">
-                  <button
-                    onClick={goToPrevious}
-                    className="h-full w-full flex justify-center items-center"
-                    aria-label="Previous image"
-                  >
-                    <img src={CarouselLeft} alt="Previous" className="w-12 h-12" />
-                  </button>
-                </div>
-              )}
-              <div className="flex-1 h-full flex justify-center items-center pl-[60px]">
-                {isLoading ? (
-                  <Skeleton height={320} width="80%" />
-                ) : (
-                  images?.googleResults?.[currentIndex] && (
-                    <img
-                      src={images.googleResults[currentIndex]}
-                      className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
-                      onError={handleOnError}
-                      alt={`Google search result ${currentIndex + 1}`}
-                    />
-                  )
+            {/* Carousel - Only show when an image is selected */}
+            {currentIndex !== null && (
+              <div
+                id="google-carousel"
+                className="relative justify-center items-center h-[320px] hidden ipad-portrait:flex"
+              >
+                {!isLoading && (
+                  <div className="absolute left-0 h-full w-[60px] flex justify-center items-center">
+                    <button
+                      onClick={goToPrevious}
+                      className="h-full w-full flex justify-center items-center"
+                      aria-label="Previous image"
+                    >
+                      <img src={CarouselLeft} alt="Previous" className="w-12 h-12" />
+                    </button>
+                  </div>
                 )}
+                <div className="flex-1 h-full flex justify-center items-center pl-[60px]">
+                  {isLoading ? (
+                    <Skeleton height={320} width="80%" />
+                  ) : (
+                    images?.googleResults?.[currentIndex] && (
+                      <img
+                        src={images.googleResults[currentIndex]}
+                        className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
+                        onError={handleOnError}
+                        alt={`Google search result ${currentIndex + 1}`}
+                      />
+                    )
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Baidu Section */}
@@ -154,36 +158,39 @@ function ImageCarousel({ images, searchId, isLoading = false }) {
               />
               <Tooltip id="tooltip-baidu" border={'1px solid #e60011'} />
             </div>
-            <div
-              id="baidu-carousel"
-              className="relative justify-center items-center pl-8 h-[320px] hidden ipad-portrait:flex"
-            >
-              <div className="flex-1 h-full flex justify-center items-center pr-[60px]">
-                {isLoading ? (
-                  <Skeleton height={320} width="80%" />
-                ) : (
-                  images?.baiduResults?.[currentIndex] && (
-                    <img
-                      src={images.baiduResults[currentIndex]}
-                      className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
-                      onError={e => handleOnError(e, true)}
-                      alt={`Baidu search result ${currentIndex + 1}`}
-                    />
-                  )
+            {/* Carousel - Only show when an image is selected */}
+            {currentIndex !== null && (
+              <div
+                id="baidu-carousel"
+                className="relative justify-center items-center pl-8 h-[320px] hidden ipad-portrait:flex"
+              >
+                <div className="flex-1 h-full flex justify-center items-center pr-[60px]">
+                  {isLoading ? (
+                    <Skeleton height={320} width="80%" />
+                  ) : (
+                    images?.baiduResults?.[currentIndex] && (
+                      <img
+                        src={images.baiduResults[currentIndex]}
+                        className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
+                        onError={e => handleOnError(e, true)}
+                        alt={`Baidu search result ${currentIndex + 1}`}
+                      />
+                    )
+                  )}
+                </div>
+                {!isLoading && (
+                  <div className="absolute right-0 h-full w-[60px] flex justify-center items-center">
+                    <button
+                      onClick={goToNext}
+                      className="h-full w-full flex justify-center items-center"
+                      aria-label="Next image"
+                    >
+                      <img src={CarouselRight} alt="Next" className="w-12 h-12" />
+                    </button>
+                  </div>
                 )}
               </div>
-              {!isLoading && (
-                <div className="absolute right-0 h-full w-[60px] flex justify-center items-center">
-                  <button
-                    onClick={goToNext}
-                    className="h-full w-full flex justify-center items-center"
-                    aria-label="Next image"
-                  >
-                    <img src={CarouselRight} alt="Next" className="w-12 h-12" />
-                  </button>
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </div>
       )}
