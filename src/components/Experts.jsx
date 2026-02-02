@@ -76,16 +76,18 @@ function Experts() {
       <main className="flex overflow-hidden flex-col bg-white min-h-[200px]">
         <section className="flex flex-col justify-center items-center py-32 w-full max-md:py-24 is-medium-width-content">
           <div className="flex flex-col items-center w-full max-w-[1080px]">
-            <div className="font-bitmap-song items-center gap-2">
-              <h1 className="flex flex-row items-center gap-5 my-auto font-display-04 md:font-display-05">
+            <div className="font-bitmap-song flex flex-col items-center gap-2">
+              <div className="flex flex-wrap justify-center items-center gap-4">
                 <img
                   src={siteAssets?.expertCommentaryIcon ? urlFor(siteAssets.expertCommentaryIcon).width(52).url() : Commentary}
                   alt=""
-                  className="object-contain shrink-0 self-stretch my-auto aspect-square w-[52px]"
+                  className="object-contain aspect-square w-[52px]"
                 />
-                {uiStrings.editorialPageHeading || 'Expert commentary'}
-              </h1>
-              <div className="text-red-600 font-display-04 md:font-display-05 text-center mt-2">
+                <h1 className="font-display-04 md:font-display-05">
+                  {uiStrings.editorialPageHeading || 'Expert commentary'}
+                </h1>
+              </div>
+              <div className="text-red-600 font-display-04 md:font-display-05 text-center">
                 {uiStrings.editorialPageHeadingZh || '专家点评'}
               </div>
             </div>
