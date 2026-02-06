@@ -1,5 +1,7 @@
 import React from 'react';
 import ArticleCard from './ArticleCard';
+import ExpertCommentary from '../assets/icons/expert-commentary.png';
+import ExpertCommentaryGrayscale from '../assets/icons/expert-commentary_grayscale.png';
 
 const articles = [
   {
@@ -26,8 +28,8 @@ function ExpertArticles() {
               title={article.title}
               date={article.date}
               url={article.url}
-              image="/api/placeholder/400/225" // Placeholder for now
-              imageHover="/api/placeholder/400/225"
+              image={ExpertCommentaryGrayscale}
+              imageHover={ExpertCommentary}
             />
           ))}
         </div>

@@ -77,11 +77,11 @@ function Experts() {
         <section className="flex flex-col justify-center items-center py-32 w-full max-md:py-24 is-medium-width-content">
           <div className="flex flex-col items-center w-full max-w-[1080px]">
             <div className="font-bitmap-song flex flex-col items-center gap-2">
-              <div className="flex flex-wrap justify-center items-center gap-4">
+              <div className="flex justify-center items-start gap-4">
                 <img
                   src={siteAssets?.expertCommentaryIcon ? urlFor(siteAssets.expertCommentaryIcon).width(52).url() : Commentary}
                   alt=""
-                  className="object-contain aspect-square w-[52px]"
+                  className="object-contain shrink-0 aspect-square w-[52px]"
                 />
                 <h1 className="font-display-04 md:font-display-05">
                   {uiStrings.editorialPageHeading || 'Expert commentary'}
