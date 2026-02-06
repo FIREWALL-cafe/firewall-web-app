@@ -50,11 +50,13 @@ export default async function handler(req, res) {
   const baseUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
 
   try {
-    const response = await fetch(`${baseUrl}/vote`, {
+    const response = await fetch(`${baseUrl}/create-vote`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-secret': process.env.API_SECRET,
+      },
       body: JSON.stringify({
-        secret: process.env.API_SECRET,
         vote_id,
         search_id,
         vote_timestamp: Date.now(),
