@@ -30,11 +30,11 @@ export default async function handler(req, res) {
       }
 
       const params = new URLSearchParams({
-        ...(query && { term: query }),
+        ...(query && { keyword: query }),
         ...finalFilters,
       });
 
-      const endpoint = query ? 'searches/terms' : 'searches/filter';
+      const endpoint = 'searches/filter';
       const url = `${baseUrl}/${endpoint}?${params.toString()}`;
       console.log('Fetching searches from:', url);
 
