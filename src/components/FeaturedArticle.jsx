@@ -5,8 +5,15 @@ import PressPost from '../assets/images/press-washington_post.jpg';
 function FeaturedArticle() {
   return (
     <section className="flex overflow-hidden justify-center items-start pb-16 w-full bg-white max-md:pb-24 is-medium-width-content">
-      <div className="flex flex-wrap flex-1 shrink gap-10 justify-center w-full basis-0 min-w-[240px]">
-        <div className="flex flex-col flex-1 shrink my-auto text-2xl basis-0 min-w-[240px]">
+      <div className="flex flex-col lg:flex-row gap-10 justify-center w-full">
+        <div className="flex flex-col lg:flex-1 justify-center items-center lg:order-2">
+          <img
+            src={PressPost}
+            alt="Featured article illustration"
+            className="object-contain max-w-full aspect-[1.47]"
+          />
+        </div>
+        <div className="flex flex-col lg:flex-1 text-2xl lg:order-1">
           <div className="flex flex-col w-full">
             <div className="font-body-01 text-neutral-600">Featured</div>
             <div className="font-bitmap-song font-display-04 md:font-display-04 flex flex-col mt-10 w-full ">
@@ -41,13 +48,6 @@ function FeaturedArticle() {
               </svg>
             </a>
           </div>
-        </div>
-        <div className="flex flex-col flex-1 shrink justify-center items-center basis-0 min-w-[240px] max-md:max-w-full">
-          <img
-            src={PressPost}
-            alt="Featured article illustration"
-            className="object-contain max-w-full aspect-[1.47]"
-          />
         </div>
       </div>
     </section>

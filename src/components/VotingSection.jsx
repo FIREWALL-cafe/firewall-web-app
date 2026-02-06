@@ -36,13 +36,17 @@ function VotingSection({ query, searchId }) {
           vote_client_name: username,
         }),
       });
+      if (!voteResponse.ok) {
+        throw new Error(`Vote failed: ${voteResponse.status}`);
+      }
       const voteData = await voteResponse.json();
       setVoteCounts(prevCounts => ({
         ...prevCounts,
         [voteCategory]: voteData.vote_count,
       }));
     } catch (e) {
-      // Handle error silently
+      console.error('Vote submission failed:', e);
+      throw e;
     }
   };
 

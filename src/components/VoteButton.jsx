@@ -112,11 +112,16 @@ function VoteButton({ voteCategory, voteHandler, disabled, shouldReset, totalVot
   };
 
   const imgSrc = voteMeta[voteCategory].img;
-  const vote = e => {
+  const vote = async e => {
     e.preventDefault();
     setSelected(true);
     setDisabled(true);
-    voteHandler(voteCategory);
+    try {
+      await voteHandler(voteCategory);
+    } catch {
+      setSelected(false);
+      setDisabled(false);
+    }
   };
 
   return (

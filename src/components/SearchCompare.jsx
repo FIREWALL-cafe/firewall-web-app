@@ -10,7 +10,7 @@ function SearchCompare({ images, query, searchId, isLoading = false }) {
     >
       <div className="flex overflow-hidden flex-col self-stretch my-auto max-w-[1280px] rounded-lg border border-red-600 border-solid min-w-[240px] w-full max-md:max-w-full">
         <ImageCarousel images={images} searchId={searchId} isLoading={isLoading} />
-        {<VotingSection query={query} searchId={searchId} />}
+        {<VotingSection key={searchId} query={query} searchId={searchId} />}
       </div>
     </section>
   );

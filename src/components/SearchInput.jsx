@@ -237,6 +237,9 @@ function SearchInput({ searchMode }) {
               setarchiveResults(results);
               setFilteredResults(results);
             } else {
+              // Reset search ID so vote buttons don't carry stale state
+              setSearchId(null);
+
               // Stage 1: Get translation
               setIsTranslating(true);
               setSearchStage('translating');
