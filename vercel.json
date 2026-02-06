@@ -23,6 +23,10 @@
   },
   "rewrites": [
     {
+      "source": "/vote",
+      "destination": "/api/vote"
+    },
+    {
       "source": "/images",
       "destination": "/api/images"
     },
