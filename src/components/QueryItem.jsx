@@ -61,6 +61,7 @@ const QueryItem = ({
   search_country,
   search_region,
   search_timestamp,
+  search_term_status_banned,
   isExpanded = false,
   onToggle,
 }) => {
@@ -225,7 +226,7 @@ const QueryItem = ({
 
       <div className={isExpanded ? 'w-full' : 'hidden'}>
         {imageResults?.googleResults && (
-          <SearchCompare images={imageResults} searchId={search_id} />
+          <SearchCompare images={imageResults} searchId={search_id} isBanned={search_term_status_banned} />
         )}
       </div>
     </div>

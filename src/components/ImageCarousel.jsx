@@ -14,7 +14,7 @@ import QuestionIcon from './icons/QuestionIcon';
 import BrokenImagePadding from '../assets/icons/broken-image-placeholder_padding.svg';
 import CensoredBrokenImage from '../assets/icons/censored-image-placeholder_padding.svg';
 
-function ImageCarousel({ images, searchId, isLoading = false }) {
+function ImageCarousel({ images, searchId, isLoading = false, isBanned = false }) {
   const [currentIndex, setCurrentIndex] = useState(null); // Start with no selection
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
@@ -167,6 +167,12 @@ function ImageCarousel({ images, searchId, isLoading = false }) {
                 <div className="flex-1 h-full flex justify-center items-center pr-[60px]">
                   {isLoading ? (
                     <Skeleton height={320} width="80%" />
+                  ) : isBanned ? (
+                    <img
+                      src={CensoredBrokenImage}
+                      className="object-contain max-h-full max-w-full"
+                      alt="Search term is banned in China"
+                    />
                   ) : (
                     images?.baiduResults?.[currentIndex] && (
                       <img
@@ -239,7 +245,17 @@ function ImageCarousel({ images, searchId, isLoading = false }) {
                     <Skeleton height="100%" width="100%" />
                   </div>
                 ))
-            : images?.baiduResults?.map((image, index) => (
+            : isBanned
+              ? (
+                <div className="col-span-full flex justify-center items-center py-8">
+                  <img
+                    src={CensoredBrokenImage}
+                    className="max-h-[200px] object-contain"
+                    alt="Search term is banned in China"
+                  />
+                </div>
+              )
+              : images?.baiduResults?.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => handleThumbnailClick(index)}
@@ -301,12 +317,20 @@ function ImageCarousel({ images, searchId, isLoading = false }) {
               {/* Baidu Section */}
               <div className="w-1/2 relative flex flex-col items-center justify-center bg-neutral-100 border-l border-red-300">
                 <div className="flex flex-col items-center justify-center aspect-square overflow-hidden">
-                  <img
-                    src={slide.baidu}
-                    className="w-full h-full p-2 object-cover shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
-                    onError={e => handleOnError(e, true)}
-                    alt="Baidu search result"
-                  />
+                  {isBanned ? (
+                    <img
+                      src={CensoredBrokenImage}
+                      className="w-full h-full p-2 object-contain"
+                      alt="Search term is banned in China"
+                    />
+                  ) : (
+                    <img
+                      src={slide.baidu}
+                      className="w-full h-full p-2 object-cover shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
+                      onError={e => handleOnError(e, true)}
+                      alt="Baidu search result"
+                    />
+                  )}
                 </div>
                 <div className="flex justify-between w-full pl-2 mt-4">
                   <img src={baiduLogo} alt="Baidu" className="w-12 pt-1" />
