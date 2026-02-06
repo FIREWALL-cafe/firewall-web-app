@@ -119,7 +119,7 @@ function About() {
       <section id="firewall-incident-width" className="bg-red-600 is-full-width-content">
         <div className="max-w-[1080px] mx-auto px-2 md:px-4 py-12">
           <div className="flex flex-col md:flex-row iphone:items-center gap-12">
-            <div className="font-display-03 font-bitmap-song text-center md:text-left md:w-1/2">
+            <div className="font-display-03 font-bitmap-song text-left md:w-1/2">
               <h2 className="leading-tight text-white mt-12">
                 {uiStrings.aboutRedSectionHeading || 'FIREWALL came face to face with that abuse in 2016.'}
               </h2>

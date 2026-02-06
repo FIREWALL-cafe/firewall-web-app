@@ -5,7 +5,7 @@ import Logo from '../assets/icons/logo_name.svg';
 
 function CallToAction() {
   return (
-    <section className="flex flex-col overflow-hidden items-center w-full bg-rose-100 py-36 is-full-width-content">
+    <section className="flex flex-col overflow-hidden items-center w-full bg-rose-100 py-20 is-full-width-content">
       <div className="container mx-auto flex flex-col items-center">
         <div className="font-bitmap-song text-center">
           <div className="max-w-[600px] mx-auto">

@@ -38,7 +38,7 @@ function Contributors() {
   ];
 
   return (
-    <section className="flex overflow-hidden justify-center items-start px-2 md:px-4 pb-16 w-full bg-white max-md:pb-24 max-md:max-w-full">
+    <section className="flex overflow-hidden justify-center items-start px-2 md:px-4 pb-12 w-full bg-white max-md:pb-16 max-md:max-w-full">
       <div className="flex flex-wrap flex-1 shrink gap-10 justify-center w-full basis-0 min-w-[240px] max-md:max-w-full">
         <div className="flex flex-col flex-1 shrink my-auto text-2xl basis-0 min-w-[240px] max-md:max-w-full">
           <div className="font-display-01 font-bitmap-song ipad-portrait:font-display-03 flex flex-col items-center text-center">

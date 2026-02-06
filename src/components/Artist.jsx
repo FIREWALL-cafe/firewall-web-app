@@ -70,7 +70,7 @@ function Artist() {
   }
 
   return (
-    <section className="flex overflow-hidden flex-col w-full bg-white py-16">
+    <section className="flex overflow-hidden flex-col w-full bg-white py-12">
       <div className="container mx-auto px-2 md:px-4">
         <div className="font-display-01 font-bitmap-song ipad-portrait:font-display-03 flex flex-col">
           <h2 className="leading-tight">
@@ -81,7 +81,7 @@ function Artist() {
           </div>
           <p className="mt-2 text-xl sm:text-2xl text-zinc-400">Artist</p>
         </div>
-        <div className="flex flex-col gap-10 mt-10">
+        <div className="flex flex-col gap-8 mt-8">
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-shrink-0 w-full max-w-sm md:order-2 order-1">
               <Link to="http://www.joyceyujeanlee.com/">
