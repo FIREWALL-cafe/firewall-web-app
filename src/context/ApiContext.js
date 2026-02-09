@@ -13,18 +13,37 @@ const searchArchive = async options => {
   try {
     const queryParams = { ...options };
 
-    // Encode query parameter if present
     if (queryParams.query) {
-      queryParams.query = encodeURIComponent(queryParams.query.trim());
+      queryParams.query = queryParams.query.trim();
     }
 
-    // Use /searches/filter endpoint when filters are present, otherwise use /searches
-    const hasFilters = queryParams.vote_ids || queryParams.search_locations ||
-                      queryParams.us_states || queryParams.countries ||
-                      queryParams.years || queryParams.start_date || queryParams.end_date;
+    // Determine which filters are active (excluding keyword)
+    const hasOtherFilters = queryParams.vote_ids || queryParams.search_locations ||
+                           queryParams.us_states || queryParams.countries ||
+                           queryParams.years || queryParams.start_date || queryParams.end_date;
 
-    const endpoint = hasFilters ? '/searches/filter' : '/searches';
-    const url = `${endpoint}?${querystring.stringify(queryParams)}`;
+    let endpoint;
+    let params;
+
+    if (queryParams.query && !hasOtherFilters) {
+      // Keyword-only search → /searches/terms (language-aware full-text search)
+      endpoint = '/searches/terms';
+      params = {
+        term: queryParams.query,
+        page: queryParams.page,
+        page_size: queryParams.page_size,
+      };
+    } else if (queryParams.query || hasOtherFilters) {
+      // Keyword + filters, or filters only → /searches/filter
+      endpoint = '/searches/filter';
+      params = queryParams;
+    } else {
+      // No keyword, no filters → /searches (default pagination)
+      endpoint = '/searches';
+      params = queryParams;
+    }
+
+    const url = `${endpoint}?${querystring.stringify(params)}`;
 
     const response = await fetch(url, { method: 'GET', headers: defaultConfig.headers });
 
