@@ -18,9 +18,14 @@ const searchArchive = async options => {
     }
 
     // Determine which filters are active (excluding keyword)
-    const hasOtherFilters = queryParams.vote_ids || queryParams.search_locations ||
-                           queryParams.us_states || queryParams.countries ||
-                           queryParams.years || queryParams.start_date || queryParams.end_date;
+    // Note: empty arrays are truthy in JS, so check .length for array params
+    const hasOtherFilters =
+      (queryParams.vote_ids && queryParams.vote_ids.length > 0) ||
+      (queryParams.search_locations && queryParams.search_locations.length > 0) ||
+      (queryParams.us_states && queryParams.us_states.length > 0) ||
+      (queryParams.countries && queryParams.countries.length > 0) ||
+      (queryParams.years && queryParams.years.length > 0) ||
+      queryParams.start_date || queryParams.end_date;
 
     let endpoint;
     let params;
