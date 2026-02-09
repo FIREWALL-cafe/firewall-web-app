@@ -38,7 +38,7 @@ const VoteAnalytics = () => {
   const fetchVoteAnalytics = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/analytics/votes');
+      const response = await fetch('/api/analytics/vote-analytics');
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

@@ -3,6 +3,7 @@ import ApiContext from '../context/ApiContext';
 import GeographicInsightsWithMap from './Dashboard/GeographicInsightsWithMap';
 import SearchAnalytics from './Dashboard/SearchAnalytics';
 import VoteAnalytics from './Dashboard/VoteAnalytics';
+import ImageAnalytics from './Dashboard/ImageAnalytics';
 import RecentActivity from './Dashboard/RecentActivity';
 import CurrentUserIP from './Dashboard/CurrentUserIP';
 
@@ -169,7 +170,7 @@ const Dashboard = () => {
         </div>
 
         {/* Analytics Sections Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Search Analytics */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Search Analytics</h3>
@@ -180,6 +181,12 @@ const Dashboard = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Vote & Feedback Analytics</h3>
             <VoteAnalytics />
+          </div>
+
+          {/* Image Analytics */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Image Analytics</h3>
+            <ImageAnalytics />
           </div>
         </div>
 

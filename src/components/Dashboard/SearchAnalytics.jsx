@@ -38,7 +38,7 @@ const SearchAnalytics = () => {
   const fetchSearchAnalytics = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/analytics/searches');
+      const response = await fetch('/api/analytics/search-analytics');
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
