@@ -36,12 +36,14 @@ const useImageGallery = searchId => {
 
     const googleResults = results
       .filter(result => result.image_search_engine === 'google')
-      .map(result => result.image_href)
+      .map(result => result.image_href || result.image_data)
+      .filter(Boolean)
       .slice(0, 9);
 
     const baiduResults = results
       .filter(result => result.image_search_engine === 'baidu')
-      .map(result => result.image_href)
+      .map(result => result.image_href || result.image_data)
+      .filter(Boolean)
       .slice(0, 9);
 
     setImageResults({ googleResults, baiduResults });
