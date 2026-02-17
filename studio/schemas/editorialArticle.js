@@ -57,16 +57,23 @@ export default defineType({
     // ========== CONTENT ==========
     {
       name: 'excerpt',
-      title: 'Excerpt/Summary',
+      title: 'Excerpt/Summary (English)',
       type: 'text',
-      description: 'Short summary or opening paragraph (shown in article listings)',
+      description: 'Short summary or opening paragraph in English (shown in article listings)',
+      rows: 3,
+    },
+    {
+      name: 'excerptZh',
+      title: 'Excerpt/Summary (Chinese)',
+      type: 'text',
+      description: 'Short summary or opening paragraph in Chinese (shown in article listings)',
       rows: 3,
     },
     {
       name: 'body',
-      title: 'Article Body',
+      title: 'Article Body (English)',
       type: 'array',
-      description: 'Main article content',
+      description: 'Main article content in English',
       of: [
         {
           type: 'block',
@@ -138,6 +145,81 @@ export default defineType({
       ],
       validation: (Rule) => Rule.required(),
     },
+    {
+      name: 'bodyZh',
+      title: 'Article Body (Chinese)',
+      type: 'array',
+      description: 'Main article content in Chinese (optional)',
+      of: [
+        {
+          type: 'block',
+          styles: [
+            {title: 'Normal', value: 'normal'},
+            {title: 'H2', value: 'h2'},
+            {title: 'H3', value: 'h3'},
+            {title: 'H4', value: 'h4'},
+            {title: 'Quote', value: 'blockquote'},
+          ],
+          marks: {
+            decorators: [
+              {title: 'Strong', value: 'strong'},
+              {title: 'Emphasis', value: 'em'},
+              {title: 'Code', value: 'code'},
+            ],
+            annotations: [
+              {
+                name: 'link',
+                type: 'object',
+                title: 'External Link',
+                fields: [
+                  {
+                    name: 'href',
+                    type: 'url',
+                    title: 'URL',
+                    validation: (Rule) =>
+                      Rule.uri({
+                        scheme: ['http', 'https', 'mailto', 'tel'],
+                      }),
+                  },
+                  {
+                    name: 'blank',
+                    type: 'boolean',
+                    title: 'Open in new tab',
+                    initialValue: true,
+                  },
+                ],
+              },
+            ],
+          },
+        },
+        {
+          type: 'image',
+          options: {
+            hotspot: true,
+          },
+          fields: [
+            {
+              name: 'alt',
+              type: 'string',
+              title: 'Alternative Text',
+              description: 'Important for accessibility and SEO',
+            },
+            {
+              name: 'caption',
+              type: 'string',
+              title: 'Caption',
+              description: 'Optional caption displayed below the image',
+            },
+            {
+              name: 'attribution',
+              type: 'string',
+              title: 'Photo Credit',
+              description: 'Photo credit or attribution text',
+            },
+          ],
+        },
+      ],
+    },
 
     // ========== CATEGORIZATION ==========
     {
@@ -161,9 +243,16 @@ export default defineType({
     },
     {
       name: 'authorBio',
-      title: 'Author Bio',
+      title: 'Author Bio (English)',
       type: 'text',
-      description: 'Short bio about the author',
+      description: 'Short bio about the author in English',
+      rows: 3,
+    },
+    {
+      name: 'authorBioZh',
+      title: 'Author Bio (Chinese)',
+      type: 'text',
+      description: 'Short bio about the author in Chinese (optional)',
       rows: 3,
     },
     {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { PortableText } from '@portabletext/react';
 import { getEditorialArticleBySlug, urlFor } from '../lib/sanity';
+import { useLanguage } from '../context/LanguageContext';
 
 // Portable Text components for rendering rich content
 const portableTextComponents = {
@@ -117,6 +118,7 @@ const socialIcons = {
 
 function EditorialArticle() {
   const { slug } = useParams();
+  const { language } = useLanguage();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -249,13 +251,18 @@ function EditorialArticle() {
         </header>
 
         <div className="prose prose-lg max-w-none text-neutral-900">
-          {article.excerpt && (
+          {(article.excerpt || article.excerptZh) && (
             <p className="text-xl font-medium leading-relaxed mb-8">
-              <strong>{article.excerpt}</strong>
+              <strong>{language === 'zh' && article.excerptZh ? article.excerptZh : article.excerpt}</strong>
             </p>
           )}
 
-          {article.body && <PortableText value={article.body} components={portableTextComponents} />}
+          {(article.body || article.bodyZh) && (
+            <PortableText
+              value={language === 'zh' && article.bodyZh ? article.bodyZh : article.body}
+              components={portableTextComponents}
+            />
+          )}
         </div>
 
         {/* Author Section */}
@@ -273,8 +280,10 @@ function EditorialArticle() {
               )}
               <div className="flex-1">
                 <h3 className="text-xl font-semibold mb-2">About {article.authorName}</h3>
-                {article.authorBio && (
-                  <p className="text-neutral-700 leading-relaxed mb-4">{article.authorBio}</p>
+                {(article.authorBio || article.authorBioZh) && (
+                  <p className="text-neutral-700 leading-relaxed mb-4">
+                    {language === 'zh' && article.authorBioZh ? article.authorBioZh : article.authorBio}
+                  </p>
                 )}
                 {article.authorSocial && article.authorSocial.length > 0 && (
                   <div className="flex gap-3">
