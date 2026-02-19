@@ -26,7 +26,7 @@ function localizeField(field, lang = 'en') {
 
 // Query helpers
 export async function getEvents() {
-  return client.fetch(`*[_type == "event"] | order(_createdAt desc) {
+  return client.fetch(`*[_type == "event"] | order(sortOrder asc) {
     _id,
     slug,
     title,
@@ -52,7 +52,8 @@ export async function getEvents() {
       crop,
       alt
     },
-    images
+    images,
+    sortOrder
   }`)
 }
 

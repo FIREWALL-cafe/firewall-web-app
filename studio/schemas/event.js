@@ -122,6 +122,12 @@ export default {
       },
     },
     {
+      name: 'sortOrder',
+      title: 'Sort Order',
+      type: 'number',
+      description: 'Lower numbers appear first',
+    },
+    {
       name: 'images',
       title: 'Event Images',
       type: 'array',
@@ -156,4 +162,11 @@ export default {
       media: 'cardImageDefault',
     },
   },
+  orderings: [
+    {
+      title: 'Sort Order',
+      name: 'sortOrder',
+      by: [{field: 'sortOrder', direction: 'asc'}],
+    },
+  ],
 }

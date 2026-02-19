@@ -108,8 +108,10 @@ function AboutSection() {
           </Link>
         </div>
 
+        {images && (
         <div className="w-full md:w-[40%] space-y-4 order-1 md:order-2">
           {/* Image 1 */}
+          {images.aboutSectionImage1 && (
           <div
             className="w-full overflow-hidden"
             onMouseEnter={() => handleMouseEnter(1)}
@@ -128,8 +130,10 @@ function AboutSection() {
                 className="w-full object-cover aspect-[2]"
               />
           </div>
+          )}
 
           {/* Image 2 */}
+          {images.aboutSectionImage2 && (
           <div
             className="w-full overflow-hidden"
             onMouseEnter={() => handleMouseEnter(2)}
@@ -148,8 +152,10 @@ function AboutSection() {
                 className="w-full object-cover aspect-[2]"
               />
           </div>
+          )}
 
           {/* Image 3 */}
+          {images.aboutSectionImage3 && (
           <div
             className="w-full overflow-hidden"
             onMouseEnter={() => handleMouseEnter(3)}
@@ -168,7 +174,9 @@ function AboutSection() {
                 className="w-full object-cover aspect-[2]"
               />
           </div>
+          )}
         </div>
+        )}
       </div>
     </section>
   );
