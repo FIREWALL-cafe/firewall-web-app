@@ -157,6 +157,15 @@ export const deskStructure = (S) =>
 
       S.divider(),
 
+      // Contributors
+      S.listItem()
+        .title('Contributors')
+        .icon(() => '👥')
+        .child(
+          S.documentTypeList('contributor')
+            .title('All Contributors')
+        ),
+
       // Partners
       S.listItem()
         .title('Partners')

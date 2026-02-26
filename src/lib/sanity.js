@@ -168,6 +168,23 @@ export async function getPartners() {
   return client.fetch(`*[_type == "partner"] | order(sortOrder asc)`)
 }
 
+// Contributors
+export async function getContributors() {
+  return client.fetch(`*[_type == "contributor"] | order(sortOrder asc) {
+    _id,
+    name,
+    role,
+    url,
+    bio,
+    headshot {
+      asset->,
+      hotspot,
+      crop
+    },
+    sortOrder
+  }`)
+}
+
 // Timeline Events
 export async function getTimelineEvents(lang = 'en') {
   return client.fetch(

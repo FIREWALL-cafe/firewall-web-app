@@ -2,6 +2,7 @@ import event from './event'
 import timelineEvent from './timelineEvent'
 import pressArticle from './pressArticle'
 import editorialArticle from './editorialArticle'
+import contributor from './contributor'
 import partner from './partner'
 import translation from './translation'
 import {localeString, localeText, localeBlockContent} from './localeTypes'
@@ -36,6 +37,7 @@ export const schemaTypes = [
   timelineEvent,
   pressArticle,
   editorialArticle,
+  contributor,
   partner,
   translation,
 
