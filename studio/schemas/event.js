@@ -17,6 +17,12 @@ export default {
       validation: Rule => Rule.required(),
     },
     {
+      name: 'titleZh',
+      title: 'Title (Chinese)',
+      type: 'string',
+      description: '中文标题',
+    },
+    {
       name: 'date',
       title: 'Event Date',
       type: 'string',
@@ -69,6 +75,13 @@ export default {
           of: [{type: 'string'}],
         },
         {
+          name: 'addressZh',
+          title: 'Address (Chinese)',
+          type: 'array',
+          of: [{type: 'string'}],
+          description: '中文地址',
+        },
+        {
           name: 'mapLink',
           title: 'Map Link',
           type: 'url',
@@ -87,6 +100,25 @@ export default {
       type: 'array',
       of: [{type: 'text'}],
       description: 'Event description paragraphs',
+    },
+    {
+      name: 'descriptionZh',
+      title: 'Description (Chinese)',
+      type: 'array',
+      of: [{type: 'text'}],
+      description: '中文活动描述段落',
+    },
+    {
+      name: 'detail',
+      title: 'Detail',
+      type: 'text',
+      description: 'Additional event details',
+    },
+    {
+      name: 'detailZh',
+      title: 'Detail (Chinese)',
+      type: 'text',
+      description: '中文活动详情',
     },
     {
       name: 'links',

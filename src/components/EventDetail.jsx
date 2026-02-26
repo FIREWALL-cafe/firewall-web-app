@@ -2,18 +2,26 @@ import React from 'react';
 import { ReactComponent as ClockIcon } from '../assets/icons/schedule.svg';
 import { ReactComponent as LocationIcon } from '../assets/icons/location_on.svg';
 import ArchiveIcon from '../assets/icons/search.svg';
+import { useLanguage } from '../context/LanguageContext';
 
 function EventDetail({ event }) {
+  const { language } = useLanguage();
+
   if (!event) {
     return <p>No event data available.</p>;
   }
+
+  const title = (language === 'zh' && event.titleZh) || event.title;
+  const description = (language === 'zh' && event.descriptionZh?.length > 0 && event.descriptionZh) || event.description;
+  const detail = (language === 'zh' && event.detailZh) || event.detail;
+  const address = (language === 'zh' && event.location?.addressZh?.length > 0 && event.location.addressZh) || event.location?.address;
 
   return (
     <section className="flex overflow-hidden justify-center items-start pb-16 w-full bg-white max-md:pb-24 max-md:max-w-full">
       <div className="flex flex-wrap flex-1 shrink gap-10 justify-center w-full basis-0 min-w-[240px] max-md:max-w-full">
         <div className="flex flex-col flex-1 shrink my-auto text-2xl basis-0 min-w-[240px] max-md:max-w-full">
           <div className="flex flex-col w-full max-md:max-w-full">
-            <h1 className="mt-10 font-display-03 font-bitmap-song">{event.title}</h1>
+            <h1 className="mt-10 font-display-03 font-bitmap-song">{title}</h1>
 
             <div className="mt-8 space-y-6 font-body-02">
               <div className="space-y-2">
@@ -52,8 +60,8 @@ function EventDetail({ event }) {
                     ) : (
                       <span>{event.location.name}</span>
                     )}
-                    {event.location.address &&
-                      event.location.address.map((line, index) => (
+                    {address &&
+                      address.map((line, index) => (
                         <React.Fragment key={index}>
                           <br />
                           {line}
@@ -67,19 +75,23 @@ function EventDetail({ event }) {
                 {event.archiveLink && (
                   <div className="flex items-center gap-2 text-gray-600">
                     <img src={ArchiveIcon} alt="Archive" className="w-5 h-5" />
-                    <span className="font-body-02"><a href={event.archiveLink} className="text-red-600 hover:text-red-800">Archive Results</a></span>
+                    <span className="font-body-02"><a href={event.archiveLink} className="text-red-600 hover:text-red-800">{language === 'zh' ? '档案结果' : 'Archive Results'}</a></span>
                   </div>
                 )}
               </div>
 
               <hr className="my-6 border-gray-200" />
 
-              {event.description &&
-                event.description.map((paragraph, index) => (
+              {description &&
+                description.map((paragraph, index) => (
                   <p key={index} className="mb-4 font-body-02">
                     {paragraph}
                   </p>
                 ))}
+
+              {detail && (
+                <p className="mb-4 font-body-02">{detail}</p>
+              )}
 
               {event.links &&
                 event.links.map((link, index) => (

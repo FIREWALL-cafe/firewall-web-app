@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import EventCard from './EventCard';
 import { getEvents, urlFor } from '../lib/sanity';
+import { useLanguage } from '../context/LanguageContext';
 
 function PastEvents() {
+  const { language } = useLanguage();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,7 +19,7 @@ function PastEvents() {
         const transformedEvents = data.map(event => ({
           image: event.cardImageDefault ? urlFor(event.cardImageDefault).width(400).url() : null,
           imageHover: event.cardImageHover ? urlFor(event.cardImageHover).width(400).url() : null,
-          title: event.title,
+          title: (language === 'zh' && event.titleZh) || event.title,
           date: event.date,
           location: event.location?.name || null,
           link: `/events/${event.slug?.current || event.slug}`,
@@ -34,7 +36,7 @@ function PastEvents() {
     }
 
     fetchEvents();
-  }, []);
+  }, [language]);
 
   if (loading) {
     return (

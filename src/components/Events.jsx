@@ -66,7 +66,7 @@ function Events() {
               <EventCard
                 key={event._id}
                 link={`/events/${event.slug.current}`}
-                title={event.title}
+                title={(language === 'zh' && event.titleZh) || event.title}
                 date={event.date}
                 location={event.location?.name || event.location}
                 image={event.images?.[0]?.src || event.images?.[0]}

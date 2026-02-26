@@ -3,8 +3,10 @@ import { Link, useParams } from 'react-router-dom';
 import ArrowLeft from './icons/ArrowLeft';
 import EventDetail from './EventDetail';
 import { getEventDetailBySlug, urlFor } from '../lib/sanity';
+import { useLanguage } from '../context/LanguageContext';
 
 function ShowEvent() {
+  const { language } = useLanguage();
   const { eventId } = useParams();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -79,7 +81,7 @@ function ShowEvent() {
                 color="currentColor"
                 className="object-contain shrink-0 w-6 aspect-square"
               />
-              Back to Events
+              {language === 'zh' ? '返回活动' : 'Back to Events'}
             </Link>
           </div>
           <div className="mx-auto">
