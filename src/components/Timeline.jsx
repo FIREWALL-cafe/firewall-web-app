@@ -177,18 +177,18 @@ function Timeline() {
         <div className="flex gap-4 mt-6">
           {/* Google image card */}
           <div className="flex-1 border-2 border-blue-500 rounded-lg overflow-hidden bg-white">
-            <div className="flex items-center justify-center overflow-hidden">
+            <div className="flex items-center justify-center overflow-hidden aspect-[4/3]">
               {timelineEvents[displayIndex].googleImage?.image ? (
                 <img
                   src={urlFor(timelineEvents[displayIndex].googleImage.image).width(400).url()}
                   alt={timelineEvents[displayIndex].googleImage.alt || 'Google search result'}
-                  className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
+                  className="w-full h-full object-cover"
                 />
               ) : timelineEvents[displayIndex].googleImage?.externalUrl ? (
                 <img
                   src={timelineEvents[displayIndex].googleImage.externalUrl}
                   alt={timelineEvents[displayIndex].googleImage.alt || 'Google search result'}
-                  className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 <span className="text-gray-400">
@@ -206,18 +206,18 @@ function Timeline() {
 
           {/* Baidu image card */}
           <div className="flex-1 border-2 border-pink-400 rounded-lg overflow-hidden bg-white">
-            <div className="flex items-center justify-center overflow-hidden">
+            <div className="flex items-center justify-center overflow-hidden aspect-[4/3]">
               {timelineEvents[displayIndex].baiduImage?.image ? (
                 <img
                   src={urlFor(timelineEvents[displayIndex].baiduImage.image).width(400).url()}
                   alt={timelineEvents[displayIndex].baiduImage.alt || 'Baidu search result'}
-                  className="w-full h-full object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
+                  className="w-full h-full object-cover"
                 />
               ) : timelineEvents[displayIndex].baiduImage?.externalUrl ? (
                 <img
                   src={timelineEvents[displayIndex].baiduImage.externalUrl}
                   alt={timelineEvents[displayIndex].baiduImage.alt || 'Baidu search result'}
-                  className="w-full h-full object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 <span className="text-gray-400">
