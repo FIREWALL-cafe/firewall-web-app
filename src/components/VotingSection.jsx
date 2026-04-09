@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 import VoteButton from './VoteButton';
@@ -9,19 +9,72 @@ import Archive from '../assets/icons/Archive_grayscale.png';
 import ExpandDown from '../assets/icons/expand_circle_down.svg';
 import ExpandUp from '../assets/icons/expand_circle_up.png';
 
+// Maps backend vote_id (1-7) to the frontend meta_key used by VoteButton
+const voteIdToMetaKey = {
+  1: 'votes_censored',
+  2: 'votes_uncensored',
+  3: 'votes_bad_translation',
+  4: 'votes_good_translation',
+  5: 'votes_lost_in_translation',
+  6: 'votes_bad_result',
+  7: 'votes_nsfw',
+};
+
+const emptyVoteCounts = {
+  votes_censored: 0,
+  votes_uncensored: 0,
+  votes_lost_in_translation: 0,
+  votes_bad_translation: 0,
+  votes_good_translation: 0,
+  votes_bad_result: 0,
+  votes_nsfw: 0,
+};
+
 function VotingSection({ query, searchId }) {
   const location = useLocation();
   const notArchive = location.pathname !== '/archive';
   const [isOpen, setIsOpen] = useState(notArchive);
   const [username] = useCookie('username');
 
-  const [voteCounts, setVoteCounts] = useState({
-    votes_censored: 0,
-    votes_uncensored: 0,
-    votes_lost_in_translation: 0,
-    votes_bad_translation: 0,
-    votes_good_translation: 0,
-  });
+  const [voteCounts, setVoteCounts] = useState(emptyVoteCounts);
+
+  // Fetch existing vote counts for this search so prior totals are visible
+  // before the user casts a new vote.
+  useEffect(() => {
+    if (!searchId) return;
+    let cancelled = false;
+
+    const fetchVoteCounts = async () => {
+      try {
+        const response = await fetch(
+          `/api/votes/counts-by-search-id?search_id=${encodeURIComponent(searchId)}`,
+          { headers: { Accept: 'application/json' } },
+        );
+        if (!response.ok) {
+          throw new Error(`Failed to load vote counts: ${response.status}`);
+        }
+        const rows = await response.json();
+        if (cancelled || !Array.isArray(rows)) return;
+
+        const nextCounts = { ...emptyVoteCounts };
+        rows.forEach(row => {
+          const metaKey = voteIdToMetaKey[row.vote_id];
+          if (metaKey) {
+            nextCounts[metaKey] = parseInt(row.vote_count, 10) || 0;
+          }
+        });
+        setVoteCounts(nextCounts);
+      } catch (error) {
+        console.error('Failed to load existing vote counts:', error);
+      }
+    };
+
+    fetchVoteCounts();
+    return () => {
+      cancelled = true;
+    };
+  }, [searchId]);
+
   const handleVote = async voteCategory => {
     try {
       const voteResponse = await fetch('/vote', {
@@ -42,7 +95,7 @@ function VotingSection({ query, searchId }) {
       const voteData = await voteResponse.json();
       setVoteCounts(prevCounts => ({
         ...prevCounts,
-        [voteCategory]: voteData.vote_count,
+        [voteCategory]: parseInt(voteData.vote_count, 10) || 0,
       }));
     } catch (e) {
       console.error('Vote submission failed:', e);

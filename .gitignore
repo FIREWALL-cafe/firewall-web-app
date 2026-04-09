@@ -118,3 +118,4 @@ design-tokens/
 /client/config.js
 /server/config.js
 .env*.local
+tmp/
