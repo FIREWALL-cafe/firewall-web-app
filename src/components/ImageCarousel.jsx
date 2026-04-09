@@ -246,15 +246,20 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false }
                   </div>
                 ))
             : isBanned
-              ? (
-                <div className="col-span-full flex justify-center items-center py-8">
-                  <img
-                    src={CensoredBrokenImage}
-                    className="max-h-[200px] object-contain"
-                    alt="Search term is banned in China"
-                  />
-                </div>
-              )
+              ? Array(9)
+                  .fill(0)
+                  .map((_, index) => (
+                    <div
+                      key={index}
+                      className="relative aspect-square overflow-hidden"
+                    >
+                      <img
+                        src={CensoredBrokenImage}
+                        className="w-full h-full object-cover"
+                        alt="Search term is banned in China"
+                      />
+                    </div>
+                  ))
               : images?.baiduResults?.map((image, index) => (
                 <button
                   key={index}
