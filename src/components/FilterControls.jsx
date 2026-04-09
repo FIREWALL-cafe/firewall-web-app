@@ -639,7 +639,6 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
                 onChange={handleDateChange}
                 onBlur={handleDateBlur}
                 value={startDate}
-                disabled={isLoading}
               />
             </div>
 
@@ -654,7 +653,6 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
                 onChange={handleDateChange}
                 onBlur={handleDateBlur}
                 value={endDate}
-                disabled={isLoading}
               />
             </div>
 

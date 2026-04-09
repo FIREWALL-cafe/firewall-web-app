@@ -61,6 +61,7 @@ const QueryItem = ({
   search_location,
   search_city,
   search_country,
+  search_country_code,
   search_region,
   search_timestamp,
   search_term_status_banned,
@@ -103,8 +104,12 @@ const QueryItem = ({
     }
   };
 
-  const locationLabel =
+  const locationBase =
     search_city || search_region || search_country || formatLocationName(search_location);
+  const locationLabel =
+    search_country_code && locationBase !== search_country
+      ? `${locationBase}, ${search_country_code}`
+      : locationBase;
 
   var isEnglish = true;
   if (search_term_initial_language_code === 'zh-CN') {
