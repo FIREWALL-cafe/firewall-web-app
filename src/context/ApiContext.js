@@ -41,7 +41,13 @@ const searchArchive = async options => {
     } else if (queryParams.query || hasOtherFilters) {
       // Keyword + filters, or filters only → /searches/filter
       endpoint = '/searches/filter';
-      params = queryParams;
+      params = { ...queryParams };
+      // Backend parseFilterParams expects vote_ids as a JSON-encoded string.
+      if (Array.isArray(params.vote_ids) && params.vote_ids.length > 0) {
+        params.vote_ids = JSON.stringify(params.vote_ids.map(id => Number(id)));
+      } else {
+        delete params.vote_ids;
+      }
     } else {
       // No keyword, no filters → /searches (default pagination)
       endpoint = '/searches';

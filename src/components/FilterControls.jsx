@@ -194,9 +194,16 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
     votes_nsfw: 7,
   };
 
-  const voteHandler = voteCategory => {
-    let votebtn = document.getElementById(voteCategory);
-    votebtn.value = votebtn.value === metaKeyToId[voteCategory] ? '' : metaKeyToId[voteCategory];
+  const voteHandler = (voteCategory, isSelected) => {
+    const votebtn = document.getElementById(voteCategory);
+    if (!votebtn) return;
+    // In toggle mode, VoteButton passes the new selected state; otherwise fall back
+    // to comparing the current hidden-input value against the category's ID.
+    const shouldSelect =
+      typeof isSelected === 'boolean'
+        ? isSelected
+        : votebtn.value !== String(metaKeyToId[voteCategory]);
+    votebtn.value = shouldSelect ? String(metaKeyToId[voteCategory]) : '';
     handleFilterChange();
   };
 
@@ -656,23 +663,23 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
               />
             </div>
 
-            {/* Vote Results Section */}
-            <div className="border-t border-gray-200 pt-3 hidden">
-              <label htmlFor="vote" className="text-lg font-black block mb-3">
-                Vote Result
-              </label>
-              <div className="flex gap-2 flex-wrap mb-4">
-                {vote_categories.map((category, index) => (
-                  <VoteButton
-                    key={index}
-                    voteCategory={category}
-                    voteHandler={voteHandler}
-                    isDisabled={false}
-                    setDisabled={() => {}}
-                    shouldReset={shouldResetVotes}
-                  />
-                ))}
-              </div>
+          </div>
+
+          {/* Voter Result Section */}
+          <div className="border-t border-gray-200 pt-4 mb-4">
+            <label htmlFor="vote" className="text-lg font-black block mb-3">
+              {uiStrings.filterVoteResultLabel || 'Voter Result'}
+            </label>
+            <div className="flex gap-2 flex-wrap">
+              {vote_categories.map(category => (
+                <VoteButton
+                  key={category}
+                  voteCategory={category}
+                  voteHandler={voteHandler}
+                  toggle
+                  shouldReset={shouldResetVotes}
+                />
+              ))}
             </div>
           </div>
 

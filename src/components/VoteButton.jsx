@@ -20,7 +20,7 @@ post_id: 310504
 security: 83376c1e81
 */
 
-function VoteButton({ voteCategory, voteHandler, disabled, shouldReset, totalVotes }) {
+function VoteButton({ voteCategory, voteHandler, disabled, shouldReset, totalVotes, toggle = false }) {
   const { language } = useLanguage();
   const [isSelected, setSelected] = useState(false);
   const [isDisabled, setDisabled] = useState(disabled);
@@ -114,6 +114,13 @@ function VoteButton({ voteCategory, voteHandler, disabled, shouldReset, totalVot
   const imgSrc = voteMeta[voteCategory].img;
   const vote = async e => {
     e.preventDefault();
+    if (toggle) {
+      // Filter-mode: click toggles selection, never locks the button
+      const newSelected = !isSelected;
+      setSelected(newSelected);
+      voteHandler(voteCategory, newSelected);
+      return;
+    }
     setSelected(true);
     setDisabled(true);
     try {
