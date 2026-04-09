@@ -19,7 +19,7 @@ const USStatesHeatmap = ({ onBackClick }) => {
   const fetchUSStatesData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/analytics/geographic/us-states');
+      const response = await fetch('/api/analytics/us-states');
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

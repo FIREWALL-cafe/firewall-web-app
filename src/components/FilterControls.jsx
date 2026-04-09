@@ -123,7 +123,7 @@ function FilterControls({ onUpdate, isOpen, isLoading }) {
     const fetchUSStatesData = async () => {
       try {
         setLoadingStates(true);
-        const response = await fetch('/api/analytics/geographic/us-states');
+        const response = await fetch('/api/analytics/us-states');
         if (response.ok) {
           const data = await response.json();
           setUsStatesData(data);
