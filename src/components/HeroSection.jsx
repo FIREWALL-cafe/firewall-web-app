@@ -51,6 +51,9 @@ function HeroSection() {
     const options = {
       strings: titles,
       typeSpeed: 75,
+      // Pause on the completed sentence long enough to read it before
+      // backspacing to the next string.
+      backDelay: 2500,
       loop: true,
     };
     typed.current = new Typed(el.current, options);
