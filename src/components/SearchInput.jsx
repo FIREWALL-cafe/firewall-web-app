@@ -463,31 +463,33 @@ function SearchInput({ searchMode }) {
                   iphone:px-4
                 `}
               >
-                <div className="flex gap-1 items-center">
+                <div className="flex gap-2 items-center">
                   {isArchive ? (
                     <>
-                      <img src={Archive} alt="Archive" className="w-6 h-6" />
+                      <img src={Archive} alt="Archive" className="w-10 h-10 iphone:w-8 iphone:h-8" />
                       <span className="font-semibold text-red-600 ml-2">
                         {uiStrings.archiveButton || getDefault('archive', 'archiveButton', language)}
                       </span>
                     </>
                   ) : (
                     <>
-                      <div className="flex gap-2.5 justify-center items-center w-8 h-8 iphone:w-6 iphone:h-6">
+                      <div className="flex gap-2.5 justify-center items-center w-10 h-10 iphone:w-8 iphone:h-8">
                         <img
                           src={GoogleLogoBlue}
                           alt="Google logo blue"
                           className="object-contain w-full h-full"
                         />
                       </div>
-                      <span className="font-semibold text-red-600">vs.</span>
-                      <div className="flex gap-2.5 justify-center items-center w-8 h-8 iphone:w-6 iphone:h-6">
+                      <div className="flex gap-2.5 justify-center items-center w-10 h-10 iphone:w-8 iphone:h-8">
                         <img
                           src={BaiduLogoRed}
                           alt="Baidu logo red"
                           className="object-contain w-full h-full"
                         />
                       </div>
+                      <span className="font-semibold text-red-600 ml-2">
+                        {uiStrings.compareButton || getDefault('search', 'compareButton', language)}
+                      </span>
                     </>
                   )}
                 </div>
@@ -505,24 +507,28 @@ function SearchInput({ searchMode }) {
               >
                 {isArchive ? (
                   <>
-                    <div className="flex gap-0.5 items-center">
+                    <div className="flex gap-1 items-center">
                       <img
                         src={GoogleLogoBlue}
                         alt="Google"
-                        className="w-4 h-4 grayscale opacity-60"
+                        className="w-5 h-5 grayscale opacity-60"
                       />
-                      <span className="font-semibold text-red-600  grayscale opacity-60">vs.</span>
                       <img
                         src={BaiduLogoRed}
                         alt="Baidu"
-                        className="w-4 h-4 grayscale opacity-60"
+                        className="w-5 h-5 grayscale opacity-60"
                       />
                     </div>
+                    <span>
+                      {uiStrings.searchComparisonLink || getDefault('search', 'searchComparisonLink', language)} →
+                    </span>
                   </>
                 ) : (
                   <>
-                    <img src={ArchiveGrayscale} alt="Archive" className="w-4 h-4" />
-                    <span>{uiStrings.archiveButton || getDefault('archive', 'archiveButton', language)}</span>
+                    <img src={ArchiveGrayscale} alt="Archive" className="w-5 h-5" />
+                    <span>
+                      {uiStrings.searchArchiveLink || getDefault('archive', 'searchArchiveLink', language)} →
+                    </span>
                   </>
                 )}
               </div>

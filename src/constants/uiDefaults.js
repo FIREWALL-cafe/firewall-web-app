@@ -60,6 +60,8 @@ export const UI_DEFAULTS = {
       translationLabel: 'Translation:',
       errorLabel: 'Error:',
       searchSessionHeading: 'Search Session',
+      compareButton: 'Compare',
+      searchComparisonLink: 'search Comparison',
     },
     zh: {
       searchInputPlaceholder: '搜索谷歌和百度',
@@ -68,6 +70,8 @@ export const UI_DEFAULTS = {
       translationLabel: '翻译：',
       errorLabel: '错误：',
       searchSessionHeading: '搜索会话',
+      compareButton: '对比',
+      searchComparisonLink: '搜索对比',
     },
   },
 
@@ -87,10 +91,12 @@ export const UI_DEFAULTS = {
       queryListLoadingText: 'Loading...',
       queryListLoadMoreButton: 'load more',
       archiveFiltersButton: 'filters',
+      searchArchiveLink: 'search Archive',
     },
     zh: {
       archiveInputPlaceholder: '搜索查询存档',
       archiveButton: '存档',
+      searchArchiveLink: '搜索存档',
       archiveModeTooltip: '探索存档以查看其他用户的过去结果并了解它们随时间的变化。',
       queryListHeaderVotes: '投票',
       queryListHeaderQueryEn: '搜索结果 英文',
