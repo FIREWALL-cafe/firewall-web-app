@@ -20,7 +20,7 @@ post_id: 310504
 security: 83376c1e81
 */
 
-function VoteButton({ voteCategory, voteHandler, disabled, shouldReset, totalVotes, toggle = false, hasVoted = false, votedCategories = new Set() }) {
+function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle = false, hasVoted = false, votedCategories = new Set() }) {
   const { language } = useLanguage();
   const [isToggleSelected, setToggleSelected] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);

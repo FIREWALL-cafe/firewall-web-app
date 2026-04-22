@@ -158,7 +158,7 @@ function VotingSection({ query, searchId }) {
               <VoteButton
                 voteCategory="votes_censored"
                 voteHandler={handleVote}
-                disabled={false}
+
                 totalVotes={voteCounts.votes_censored}
                 hasVoted={hasVoted}
                 votedCategories={votedCategories}
@@ -166,7 +166,7 @@ function VotingSection({ query, searchId }) {
               <VoteButton
                 voteCategory="votes_uncensored"
                 voteHandler={handleVote}
-                disabled={false}
+
                 totalVotes={voteCounts.votes_uncensored}
                 hasVoted={hasVoted}
                 votedCategories={votedCategories}
@@ -174,7 +174,7 @@ function VotingSection({ query, searchId }) {
               <VoteButton
                 voteCategory="votes_lost_in_translation"
                 voteHandler={handleVote}
-                disabled={false}
+
                 totalVotes={voteCounts.votes_lost_in_translation}
                 hasVoted={hasVoted}
                 votedCategories={votedCategories}
@@ -200,7 +200,7 @@ function VotingSection({ query, searchId }) {
                 <VoteButton
                   voteCategory="votes_bad_translation"
                   voteHandler={handleVote}
-                  disabled={false}
+  
                   totalVotes={voteCounts.votes_bad_translation}
                   hasVoted={hasVoted}
                   votedCategories={votedCategories}
@@ -208,7 +208,7 @@ function VotingSection({ query, searchId }) {
                 <VoteButton
                   voteCategory="votes_good_translation"
                   voteHandler={handleVote}
-                  disabled={false}
+  
                   totalVotes={voteCounts.votes_good_translation}
                   hasVoted={hasVoted}
                   votedCategories={votedCategories}
