@@ -534,7 +534,7 @@ function SearchInput({ searchMode }) {
             </div>
             <Tooltip id="tooltip" border={'1px solid #e60011'} />
           </div>
-          <div className="flex justify-center p-1.5 md:p-5 gap-4 w-full rounded-tr rounded-br rounded-bl border-r border-b border-l border-solid bg-slate-100 border-red-600 iphone:max-w-full">
+          <div className="flex justify-center p-1.5 md:p-5 gap-4 w-full rounded border-r border-b border-l border-solid bg-slate-100 border-red-600 iphone:max-w-full">
             <Combobox value={query} onChange={setQuery}>
               <div className="relative flex w-full iphone:flex-1">
                 <div className="flex w-full bg-white rounded border border-solid border-neutral-500 h-[56px] overflow-hidden">
