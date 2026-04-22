@@ -37,6 +37,7 @@ function VotingSection({ query, searchId }) {
   const [username] = useCookie('username');
 
   const [voteCounts, setVoteCounts] = useState(emptyVoteCounts);
+  const [hasVoted, setHasVoted] = useState(false);
 
   // Fetch existing vote counts for this search so prior totals are visible
   // before the user casts a new vote.
@@ -93,6 +94,7 @@ function VotingSection({ query, searchId }) {
         throw new Error(`Vote failed: ${voteResponse.status}`);
       }
       const voteData = await voteResponse.json();
+      setHasVoted(true);
       setVoteCounts(prevCounts => ({
         ...prevCounts,
         [voteCategory]: parseInt(voteData.vote_count, 10) || 0,
@@ -129,18 +131,21 @@ function VotingSection({ query, searchId }) {
                 voteHandler={handleVote}
                 disabled={false}
                 totalVotes={voteCounts.votes_censored}
+                hasVoted={hasVoted}
               />
               <VoteButton
                 voteCategory="votes_uncensored"
                 voteHandler={handleVote}
                 disabled={false}
                 totalVotes={voteCounts.votes_uncensored}
+                hasVoted={hasVoted}
               />
               <VoteButton
                 voteCategory="votes_lost_in_translation"
                 voteHandler={handleVote}
                 disabled={false}
                 totalVotes={voteCounts.votes_lost_in_translation}
+                hasVoted={hasVoted}
               />
             </div>
           </div>
@@ -165,12 +170,14 @@ function VotingSection({ query, searchId }) {
                   voteHandler={handleVote}
                   disabled={false}
                   totalVotes={voteCounts.votes_bad_translation}
+                  hasVoted={hasVoted}
                 />
                 <VoteButton
                   voteCategory="votes_good_translation"
                   voteHandler={handleVote}
                   disabled={false}
                   totalVotes={voteCounts.votes_good_translation}
+                  hasVoted={hasVoted}
                 />
               </div>
             </div>
