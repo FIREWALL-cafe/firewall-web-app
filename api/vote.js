@@ -14,13 +14,13 @@ const metaKeyToVoteId = {
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     return res.status(200).end();
   }
 
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST', 'OPTIONS']);
+  if (!['POST', 'PUT', 'DELETE'].includes(req.method)) {
+    res.setHeader('Allow', ['POST', 'PUT', 'DELETE', 'OPTIONS']);
     return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
   }
 
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Backend API URL not configured' });
   }
 
-  const { meta_key, search_id, vote_client_name } = req.body;
+  const { meta_key, previous_meta_key, search_id, vote_client_name } = req.body;
 
   if (!meta_key || !search_id) {
     return res.status(400).json({ error: 'meta_key and search_id are required' });
@@ -41,6 +41,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: `Unknown vote category: ${meta_key}` });
   }
 
+  const previous_vote_id = previous_meta_key ? metaKeyToVoteId[previous_meta_key] : null;
+
   // Extract client IP from Vercel headers
   const vote_ip_address =
     req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
@@ -50,14 +52,19 @@ export default async function handler(req, res) {
   const baseUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
 
   try {
-    const response = await fetch(`${baseUrl}/create-vote`, {
-      method: 'POST',
+    const isUpdate = req.method === 'PUT';
+    const isDelete = req.method === 'DELETE';
+    const backendEndpoint = isDelete ? 'delete-vote' : isUpdate ? 'update-vote' : 'create-vote';
+
+    const response = await fetch(`${baseUrl}/${backendEndpoint}`, {
+      method: isDelete ? 'DELETE' : isUpdate ? 'PUT' : 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-secret': process.env.API_SECRET,
       },
       body: JSON.stringify({
         vote_id,
+        ...(isUpdate && previous_vote_id ? { previous_vote_id } : {}),
         search_id,
         vote_timestamp: Date.now(),
         vote_client_name: vote_client_name || 'anonymous',
@@ -72,7 +79,7 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    res.status(201).json(data);
+    res.status(isDelete || isUpdate ? 200 : 201).json(data);
   } catch (error) {
     console.error('Vote proxy error:', error);
     res.status(500).json({ error: 'Failed to submit vote', message: error.message });

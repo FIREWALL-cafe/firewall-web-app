@@ -20,10 +20,10 @@ post_id: 310504
 security: 83376c1e81
 */
 
-function VoteButton({ voteCategory, voteHandler, disabled, shouldReset, totalVotes, toggle = false, hasVoted = false }) {
+function VoteButton({ voteCategory, voteHandler, disabled, shouldReset, totalVotes, toggle = false, hasVoted = false, votedCategories = new Set() }) {
   const { language } = useLanguage();
-  const [isSelected, setSelected] = useState(false);
-  const [isDisabled, setDisabled] = useState(disabled);
+  const [isToggleSelected, setToggleSelected] = useState(false);
+  const [isSubmitting, setSubmitting] = useState(false);
   const [voteLabels, setVoteLabels] = useState({});
 
   // Fetch vote strings from Sanity on mount and language change
@@ -53,9 +53,8 @@ function VoteButton({ voteCategory, voteHandler, disabled, shouldReset, totalVot
   // Reset state when shouldReset changes
   useEffect(() => {
     if (shouldReset) {
-      setSelected(false);
-      setDisabled(false);
-      // Reset the hidden input value
+      setToggleSelected(false);
+      setSubmitting(false);
       const votebtn = document.getElementById(voteCategory);
       if (votebtn) votebtn.value = '';
     }
@@ -112,22 +111,21 @@ function VoteButton({ voteCategory, voteHandler, disabled, shouldReset, totalVot
   };
 
   const imgSrc = voteMeta[voteCategory].img;
+  const isSelected = toggle ? isToggleSelected : votedCategories.has(voteCategory);
+
   const vote = async e => {
     e.preventDefault();
     if (toggle) {
-      // Filter-mode: click toggles selection, never locks the button
-      const newSelected = !isSelected;
-      setSelected(newSelected);
+      const newSelected = !isToggleSelected;
+      setToggleSelected(newSelected);
       voteHandler(voteCategory, newSelected);
       return;
     }
-    setSelected(true);
-    setDisabled(true);
+    setSubmitting(true);
     try {
       await voteHandler(voteCategory);
-    } catch {
-      setSelected(false);
-      setDisabled(false);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -139,11 +137,11 @@ function VoteButton({ voteCategory, voteHandler, disabled, shouldReset, totalVot
         p-3
         rounded-lg
         border border-solid border-neutral-500
-        ${isDisabled ? 'cursor-not-allowed opacity-50' : 'hover:bg-neutral-200'}
+        ${isSubmitting ? 'cursor-wait opacity-50' : 'hover:bg-neutral-200'}
         ${isSelected ? 'bg-neutral-200' : ''}
       `}
       onClick={vote}
-      disabled={isDisabled}
+      disabled={isSubmitting}
     >
       <div
         id={`${voteMeta[voteCategory].name}-vote-icon`}

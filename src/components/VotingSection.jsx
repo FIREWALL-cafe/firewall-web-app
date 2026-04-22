@@ -38,6 +38,8 @@ function VotingSection({ query, searchId }) {
 
   const [voteCounts, setVoteCounts] = useState(emptyVoteCounts);
   const [hasVoted, setHasVoted] = useState(false);
+  // Track which categories the user has voted in (set of meta_keys)
+  const [votedCategories, setVotedCategories] = useState(new Set());
 
   // Fetch existing vote counts for this search so prior totals are visible
   // before the user casts a new vote.
@@ -77,9 +79,11 @@ function VotingSection({ query, searchId }) {
   }, [searchId]);
 
   const handleVote = async voteCategory => {
+    const isToggleOff = votedCategories.has(voteCategory);
+
     try {
       const voteResponse = await fetch('/vote', {
-        method: 'POST',
+        method: isToggleOff ? 'DELETE' : 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json',
@@ -95,10 +99,35 @@ function VotingSection({ query, searchId }) {
       }
       const voteData = await voteResponse.json();
       setHasVoted(true);
-      setVoteCounts(prevCounts => ({
-        ...prevCounts,
-        [voteCategory]: parseInt(voteData.vote_count, 10) || 0,
-      }));
+
+      // Update voted categories
+      setVotedCategories(prev => {
+        const next = new Set(prev);
+        if (isToggleOff) {
+          next.delete(voteCategory);
+        } else {
+          next.add(voteCategory);
+        }
+        return next;
+      });
+
+      if (voteData.vote_counts) {
+        // DELETE returns all vote counts
+        const nextCounts = { ...emptyVoteCounts };
+        voteData.vote_counts.forEach(row => {
+          const metaKey = voteIdToMetaKey[row.vote_id];
+          if (metaKey) {
+            nextCounts[metaKey] = parseInt(row.vote_count, 10) || 0;
+          }
+        });
+        setVoteCounts(nextCounts);
+      } else {
+        // POST returns single category count
+        setVoteCounts(prevCounts => ({
+          ...prevCounts,
+          [voteCategory]: parseInt(voteData.vote_count, 10) || 0,
+        }));
+      }
     } catch (e) {
       console.error('Vote submission failed:', e);
       throw e;
@@ -132,6 +161,7 @@ function VotingSection({ query, searchId }) {
                 disabled={false}
                 totalVotes={voteCounts.votes_censored}
                 hasVoted={hasVoted}
+                votedCategories={votedCategories}
               />
               <VoteButton
                 voteCategory="votes_uncensored"
@@ -139,6 +169,7 @@ function VotingSection({ query, searchId }) {
                 disabled={false}
                 totalVotes={voteCounts.votes_uncensored}
                 hasVoted={hasVoted}
+                votedCategories={votedCategories}
               />
               <VoteButton
                 voteCategory="votes_lost_in_translation"
@@ -146,6 +177,7 @@ function VotingSection({ query, searchId }) {
                 disabled={false}
                 totalVotes={voteCounts.votes_lost_in_translation}
                 hasVoted={hasVoted}
+                votedCategories={votedCategories}
               />
             </div>
           </div>
@@ -171,6 +203,7 @@ function VotingSection({ query, searchId }) {
                   disabled={false}
                   totalVotes={voteCounts.votes_bad_translation}
                   hasVoted={hasVoted}
+                  votedCategories={votedCategories}
                 />
                 <VoteButton
                   voteCategory="votes_good_translation"
@@ -178,6 +211,7 @@ function VotingSection({ query, searchId }) {
                   disabled={false}
                   totalVotes={voteCounts.votes_good_translation}
                   hasVoted={hasVoted}
+                  votedCategories={votedCategories}
                 />
               </div>
             </div>
