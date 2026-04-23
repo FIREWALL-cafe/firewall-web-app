@@ -54,6 +54,7 @@ const useImageGallery = searchId => {
 
 const QueryItem = ({
   total_votes,
+  unique_voters,
   search_id,
   search_term_initial,
   search_term_initial_language_code,
@@ -154,7 +155,7 @@ const QueryItem = ({
             <div className="flex flex-col items-end space-y-1">
               <div className="flex items-center space-x-1 text-base">
                 <img src={VoteIcon} alt="Votes" className="w-5 h-5" />
-                <span className="font-medium">{total_votes.toString().padStart(2, '0')}</span>
+                <span className="font-medium">{(unique_voters ?? total_votes).toString().padStart(2, '0')}</span>
               </div>
               <div className="text-base text-gray-900">{formatDate(search_timestamp)}</div>
             </div>
@@ -169,7 +170,7 @@ const QueryItem = ({
           <>
             <div className="flex items-center whitespace-nowrap">
               <img src={VoteIcon} alt="Votes" className="w-5 h-5 mr-1" />
-              <span className="text-base">{total_votes}</span>
+              <span className="text-base">{unique_voters ?? total_votes}</span>
             </div>
 
             <div className={`truncate ${isEnglish ? 'text-gray-900' : 'text-gray-500'} text-base`}>
@@ -199,7 +200,7 @@ const QueryItem = ({
           <>
             <div className="flex items-center whitespace-nowrap">
               <img src={VoteIcon} alt="Votes" className="w-6 h-6 mr-1" />
-              <span>{total_votes}</span>
+              <span>{unique_voters ?? total_votes}</span>
             </div>
 
             <div className={`truncate whitespace-nowrap ${isEnglish ? '' : 'text-zinc-400'}`}>
