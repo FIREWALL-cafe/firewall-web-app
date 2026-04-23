@@ -108,18 +108,24 @@ function Timeline() {
             return (
               <div
                 key={year}
-                className={`relative flex items-center h-[36px] year-item ${isSelected ? 'active' : 'inactive'}`}
+                onClick={() => handleYearClick(index)}
+                className={`relative flex items-center h-[36px] year-item cursor-pointer ${isSelected ? 'active' : 'inactive'}`}
               >
                 <span
-                  onClick={() => handleYearClick(index)}
-                  className={`font-bitmap-song leading-[1.5] absolute right-[45px] cursor-pointer transition-colors ${
+                  className={`font-bitmap-song leading-[1.5] absolute right-[45px] transition-colors ${
                     isSelected
-                      ? 'text-[32px] font-bold text-neutral-900'
+                      ? 'text-[32px] text-neutral-900'
                       : 'text-[24px] text-neutral-600 hover:text-neutral-900'
                   }`}
                 >
                   {year}
                 </span>
+                {/* Tick mark on timeline line */}
+                <span
+                  className={`absolute left-[84px] -translate-x-1/2 h-px transition-all ${
+                    isSelected ? 'w-3 bg-red-600' : 'w-2 bg-neutral-400 hover:bg-neutral-600'
+                  }`}
+                />
               </div>
             );
           })}
@@ -163,7 +169,7 @@ function Timeline() {
         </button>
 
         {/* Content card */}
-        <div className="absolute left-[145px] top-[50px] w-[480px]">
+        <div className="absolute left-[145px] top-1/2 -translate-y-1/2 w-[480px]">
         <div className="border-2 border-red-600 rounded-lg p-6 bg-neutral-50">
           <h3 className="text-xl font-bold text-neutral-900 mb-3">
             {timelineEvents[displayIndex].title}
