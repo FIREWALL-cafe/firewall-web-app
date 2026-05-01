@@ -11,6 +11,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { getSearchPageStrings, getArchivePageStrings } from '../lib/sanity';
 import { getDefault } from '../constants/uiDefaults';
 import { useAutocomplete } from '../hooks/useAutocomplete';
+import { useRotatingStatus } from '../hooks/useRotatingStatus';
+import { buildProgressCaptions } from './searchProgressCaptions';
 
 import GoogleLogoBlue from '../assets/icons/google-logo_blue.svg';
 import BaiduLogoRed from '../assets/icons/baidu_logo_red.svg';
@@ -19,6 +21,7 @@ import ArchiveIcon from '../assets/icons/folder_open_search.svg';
 import ArchiveGrayscale from '../assets/icons/Archive_grayscale.png';
 import Archive from '../assets/icons/Archive.png';
 import FilterIcon from './FilterIcon';
+import ArrowRight from './icons/ArrowRight';
 import SearchCompare from './SearchCompare';
 import Spinner from '../assets/spinner.svg';
 import SearchProgressIndicator from './SearchProgressIndicator';
@@ -52,8 +55,8 @@ function SearchInput({ searchMode }) {
   
   const [isLoading, setLoading] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
-  const [searchStage, setSearchStage] = useState(null); // Track current search stage
-  const [estimatedTime, setEstimatedTime] = useState(null); // Estimated time remaining
+  const [progress, setProgress] = useState(0);
+  const progressStartedAt = useRef(null);
   const [imageResults, setImageResults] = useState({});
   const [archiveResults, setarchiveResults] = useState({
     total: 0,
@@ -94,6 +97,34 @@ function SearchInput({ searchMode }) {
   const ranonce = useRef(false);
   const searchInProgress = useRef(false);
 
+  const isSearchActive = isLoading || isTranslating;
+  const progressCaptions = useMemo(() => buildProgressCaptions(uiStrings), [uiStrings]);
+  const rotatingCaption = useRotatingStatus(isSearchActive, progressCaptions);
+
+  useEffect(() => {
+    if (!isSearchActive) {
+      if (progressStartedAt.current) {
+        setProgress(1);
+        const t = setTimeout(() => {
+          progressStartedAt.current = null;
+          setProgress(0);
+        }, 200);
+        return () => clearTimeout(t);
+      }
+      return undefined;
+    }
+    if (!progressStartedAt.current) {
+      progressStartedAt.current = performance.now();
+      setProgress(0);
+    }
+    const ESTIMATED_MS = 15_000;
+    const id = setInterval(() => {
+      const elapsed = performance.now() - progressStartedAt.current;
+      setProgress(Math.min(0.97, elapsed / ESTIMATED_MS));
+    }, 100);
+    return () => clearInterval(id);
+  }, [isSearchActive]);
+
   // Compute placeholder value with useMemo to ensure it always has correct value
   // This prevents the input from disappearing during language switch
   const inputPlaceholder = useMemo(() => {
@@ -132,11 +163,22 @@ function SearchInput({ searchMode }) {
     // Then fetch from Sanity and merge
     async function loadStrings() {
       try {
-        const strings = isArchive
-          ? await getArchivePageStrings(language)
-          : await getSearchPageStrings(language);
-        // Merge Sanity strings with defaults (Sanity strings take precedence)
-        setUiStrings(prev => ({ ...prev, ...strings }));
+        const [pageStrings, searchStrings] = await Promise.all([
+          isArchive ? getArchivePageStrings(language) : getSearchPageStrings(language),
+          isArchive ? getSearchPageStrings(language) : Promise.resolve(null),
+        ]);
+        // Merge Sanity strings with defaults (Sanity strings take precedence).
+        // On Archive, also pull progress-bar captions from searchPageStrings.
+        setUiStrings(prev => ({
+          ...prev,
+          ...pageStrings,
+          ...(searchStrings && {
+            progressTranslatingCaption: searchStrings.progressTranslatingCaption,
+            progressSearchingGoogleCaption: searchStrings.progressSearchingGoogleCaption,
+            progressSearchingBaiduCaption: searchStrings.progressSearchingBaiduCaption,
+            progressFillerCaptions: searchStrings.progressFillerCaptions,
+          }),
+        }));
       } catch (error) {
         console.error('Failed to load UI strings:', error);
         // Already have defaults set above, so no need to set again
@@ -242,8 +284,6 @@ function SearchInput({ searchMode }) {
 
               // Stage 1: Get translation
               setIsTranslating(true);
-              setSearchStage('translating');
-              setEstimatedTime(8);
 
               let translationResult;
               try {
@@ -260,8 +300,6 @@ function SearchInput({ searchMode }) {
 
               // Stage 2: Search for images (show skeletons during this phase)
               setIsTranslating(false);
-              setSearchStage('searching-google');
-              setEstimatedTime(6);
               setLoading(true);
 
               // Pass translation data to avoid duplicate translation
@@ -277,17 +315,9 @@ function SearchInput({ searchMode }) {
                 searchBody.langTo = translationResult.langTo;
               }
 
-              // Update stage to indicate both searches are happening
-              setSearchStage('searching-baidu');
-              setEstimatedTime(4);
-
               const response = await searchImages({
                 body: JSON.stringify(searchBody),
               });
-
-              // Stage 3: Processing results
-              setSearchStage('saving');
-              setEstimatedTime(1);
 
               if (response.error) {
                 // Handle "No images found" error specially
@@ -296,8 +326,6 @@ function SearchInput({ searchMode }) {
                   setError(response.message || `No images found for "${urlQuery}"`);
                   setTranslation(response.translation || translationResult?.translation || '');
                   setLoading(false);
-                  setSearchStage('complete');
-                  setEstimatedTime(null);
                   searchInProgress.current = false;
                   return;
                 }
@@ -313,9 +341,6 @@ function SearchInput({ searchMode }) {
               // Use translation from response if available, otherwise use the one we got earlier
               setTranslation(translation || translationResult?.translation || '');
 
-              // Complete
-              setSearchStage('complete');
-              setEstimatedTime(null);
             }
           } catch (e) {
             console.error('Search error:', e);
@@ -331,8 +356,6 @@ function SearchInput({ searchMode }) {
             }
           } finally {
             setLoading(false);
-            setSearchStage(null);
-            setEstimatedTime(null);
             searchInProgress.current = false;
           }
         };
@@ -457,16 +480,16 @@ function SearchInput({ searchMode }) {
                 className={`
                   relative z-10
                   flex items-center gap-2 px-4 py-2
-                  rounded-t border-t border-l border-r border-solid border-red-600
+                  rounded border border-solid border-red-600
                   cursor-pointer
-                  bg-slate-100 border-b-0 mb-[-1px]
+                  bg-[#F5F7F9]
                 `}
               >
                 <div className="flex gap-2 items-center">
                   {isArchive ? (
                     <>
                       <img src={Archive} alt="Archive" className="w-10 h-10 iphone:w-8 iphone:h-8" />
-                      <span className="font-semibold text-red-600 ml-2">
+                      <span className="font-bitmap-song text-[14px] font-semibold text-red-600 ml-2">
                         {uiStrings.archiveButton || getDefault('archive', 'archiveButton', language)}
                       </span>
                     </>
@@ -486,7 +509,7 @@ function SearchInput({ searchMode }) {
                           className="object-contain w-full h-full"
                         />
                       </div>
-                      <span className="font-semibold text-red-600 ml-2">
+                      <span className="font-bitmap-song text-[14px] font-semibold text-red-600 ml-2">
                         {uiStrings.compareButton || getDefault('search', 'compareButton', language)}
                       </span>
                     </>
@@ -518,15 +541,17 @@ function SearchInput({ searchMode }) {
                         className="w-5 h-5 grayscale opacity-60"
                       />
                     </div>
-                    <span>
-                      {uiStrings.searchComparisonLink || getDefault('search', 'searchComparisonLink', language)} →
+                    <span className="font-bitmap-song text-[14px] inline-flex items-center gap-1">
+                      {uiStrings.searchComparisonLink || getDefault('search', 'searchComparisonLink', language)}
+                      <ArrowRight fill="currentColor" className="w-4 h-4" />
                     </span>
                   </>
                 ) : (
                   <>
                     <img src={ArchiveGrayscale} alt="Archive" className="w-5 h-5" />
-                    <span>
-                      {uiStrings.searchArchiveLink || getDefault('archive', 'searchArchiveLink', language)} →
+                    <span className="font-bitmap-song text-[14px] inline-flex items-center gap-1">
+                      {uiStrings.searchArchiveLink || getDefault('archive', 'searchArchiveLink', language)}
+                      <ArrowRight fill="currentColor" className="w-4 h-4" />
                     </span>
                   </>
                 )}
@@ -534,7 +559,7 @@ function SearchInput({ searchMode }) {
             </div>
             <Tooltip id="tooltip" border={'1px solid #e60011'} />
           </div>
-          <div className="flex justify-center p-1.5 md:p-5 gap-4 w-full rounded-tr rounded-br rounded-bl border border-solid bg-slate-100 border-red-600 iphone:max-w-full">
+          <div className="flex justify-center p-1.5 md:p-5 gap-4 w-full mt-2 rounded border border-solid bg-[#F5F7F9] border-red-600 iphone:max-w-full">
             <Combobox value={query} onChange={setQuery}>
               <div className="relative flex w-full iphone:flex-1">
                 <div className="flex w-full bg-white rounded border border-solid border-neutral-500 h-[56px] overflow-hidden">
@@ -614,26 +639,16 @@ function SearchInput({ searchMode }) {
           </div>
 
           {/* Progress Indicator for Search Stages */}
-          {!isArchive && searchStage && searchStage !== 'complete' && (
-            <SearchProgressIndicator stage={searchStage} estimatedTimeRemaining={estimatedTime} />
-          )}
+          <SearchProgressIndicator
+            isActive={isSearchActive || progress > 0}
+            progress={progress}
+            caption={rotatingCaption}
+          />
+
 
           <div className="flex items-center gap-4 mt-4">
-            {isTranslating && !translation && (
-              <span className="p-1 leading-8 text-medium bg-blue-50 border border-blue-600 rounded text-blue-600 flex items-center gap-2">
-                <img src={Spinner} alt="Translating" className="w-4 h-4" />
-                <span className="font-bold">{uiStrings.translatingText || 'Translating...'}</span>
-              </span>
-            )}
-            {translation && (
-              <span
-                className={`p-1 leading-8 text-medium rounded flex items-center gap-2 ${
-                  isTranslating
-                    ? 'bg-blue-50 border border-blue-600 text-blue-600'
-                    : 'bg-slate-50 border border-black'
-                }`}
-              >
-                {isTranslating && <img src={Spinner} alt="Loading" className="w-4 h-4" />}
+            {!isSearchActive && translation && (
+              <span className="p-1 leading-8 text-medium rounded flex items-center gap-2 bg-slate-50 border border-black">
                 <span className="font-bold">{uiStrings.translationLabel || 'Translation:'}</span>{' '}
                 {translation}
               </span>

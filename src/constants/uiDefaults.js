@@ -54,7 +54,7 @@ export const UI_DEFAULTS = {
   // Search page strings
   search: {
     en: {
-      searchInputPlaceholder: 'Search Google & Baidu',
+      searchInputPlaceholder: 'Search Google + Baidu',
       searchModeTooltip: 'Your query will automatically translate into the other language. English queries will be searched in <b>Google</b>. Chinese queries will be searched in <b>Baidu</b>.',
       translatingText: 'Translating...',
       translationLabel: 'Translation:',
@@ -78,7 +78,7 @@ export const UI_DEFAULTS = {
   // Archive page strings
   archive: {
     en: {
-      archiveInputPlaceholder: 'Search the query archive',
+      archiveInputPlaceholder: 'Search the Archive',
       archiveButton: 'Archive',
       archiveModeTooltip: "Explore the archive to view past results from other users and see how they've changed over time.",
       queryListHeaderVotes: 'Votes',
@@ -90,7 +90,7 @@ export const UI_DEFAULTS = {
       queryListNoResults: 'No results found',
       queryListLoadingText: 'Loading...',
       queryListLoadMoreButton: 'load more',
-      archiveFiltersButton: 'filters',
+      archiveFiltersButton: 'Filters',
       searchArchiveLink: 'search Archive',
     },
     zh: {
