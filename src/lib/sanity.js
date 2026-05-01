@@ -314,12 +314,14 @@ export async function getSearchPageStrings(lang = 'en') {
       'searchInputPlaceholder', 'searchButton', 'searchModeTooltip',
       'searchErrorEmptyQuery', 'searchErrorNetwork', 'searchErrorGeneric',
       'searchLoadingText', 'translatingText', 'translationLabel', 'errorLabel',
-      'searchSessionHeading'
+      'searchSessionHeading',
+      'progressTranslatingCaption', 'progressSearchingGoogleCaption', 'progressSearchingBaiduCaption'
     ]
 
     const result = await client.fetch(
       `*[_type == "searchPageStrings"][0] {
-        ${buildLocalizedQuery(fields, lang)}
+        ${buildLocalizedQuery(fields, lang)},
+        "progressFillerCaptions": progressFillerCaptions[]{ "value": coalesce(@.${lang}, @.en) }.value
       }`,
       { lang }
     )

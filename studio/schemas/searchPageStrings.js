@@ -75,13 +75,39 @@ export default defineType({
       type: 'localeString',
       description: 'Main heading text for the search page (e.g., "Search Session")',
     },
+    {
+      name: 'progressTranslatingCaption',
+      title: 'Progress Bar - Step 1 (Translating)',
+      type: 'localeString',
+      description: 'First caption shown under the search progress bar (e.g., "Translating...").',
+    },
+    {
+      name: 'progressSearchingGoogleCaption',
+      title: 'Progress Bar - Step 2 (Searching Google)',
+      type: 'localeString',
+      description: 'Second caption shown under the search progress bar (e.g., "Searching Google...").',
+    },
+    {
+      name: 'progressSearchingBaiduCaption',
+      title: 'Progress Bar - Step 3 (Searching Baidu)',
+      type: 'localeString',
+      description: 'Third caption shown under the search progress bar (e.g., "Searching Baidu...").',
+    },
+    {
+      name: 'progressFillerCaptions',
+      title: 'Progress Bar - Filler Captions',
+      type: 'array',
+      of: [{type: 'localeString'}],
+      description:
+        'Random rotating captions shown after the first three steps while the search continues. Cycles every 2.5s.',
+    },
   ],
 
   preview: {
     prepare() {
       return {
         title: 'Search Page',
-        subtitle: 'Manage search page UI text (11 fields)',
+        subtitle: 'Manage search page UI text (15 fields)',
       }
     },
   },
