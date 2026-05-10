@@ -20,7 +20,7 @@ post_id: 310504
 security: 83376c1e81
 */
 
-function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle = false, hasVoted = false, votedCategories = new Set() }) {
+function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle = false, hasVoted = false, votedCategories = new Set(), isSelected: isSelectedProp }) {
   const { language } = useLanguage();
   const [isToggleSelected, setToggleSelected] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
@@ -111,14 +111,21 @@ function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle
   };
 
   const imgSrc = voteMeta[voteCategory].img;
-  const isSelected = toggle ? isToggleSelected : votedCategories.has(voteCategory);
+  const isControlled = toggle && isSelectedProp !== undefined;
+  const isSelected = toggle
+    ? (isControlled ? isSelectedProp : isToggleSelected)
+    : votedCategories.has(voteCategory);
 
   const vote = async e => {
     e.preventDefault();
     if (toggle) {
-      const newSelected = !isToggleSelected;
-      setToggleSelected(newSelected);
-      voteHandler(voteCategory, newSelected);
+      if (isControlled) {
+        voteHandler(voteCategory, !isSelectedProp);
+      } else {
+        const newSelected = !isToggleSelected;
+        setToggleSelected(newSelected);
+        voteHandler(voteCategory, newSelected);
+      }
       return;
     }
     setSubmitting(true);

@@ -4,6 +4,7 @@ export default function Modal({
   open,
   onClose,
   onUpdate,
+  onClear,
   children,
   updateButtonText = 'Update',
   clearButtonText = 'Clear all',
@@ -43,7 +44,7 @@ export default function Modal({
         <div className="flex-1 overflow-y-auto">{children}</div>
         <div className="bg-white flex flex-wrap gap-10 justify-between items-center p-4 w-full text-lg text-center max-md:max-w-full mt-auto">
           <button
-            onClick={() => onClose(false)}
+            onClick={() => onClear ? onClear() : onClose(false)}
             className="gap-1 self-stretch px-4 py-2 my-auto text-black bg-white border-black border border-solid min-h-[40px]"
           >
             {clearButtonText}

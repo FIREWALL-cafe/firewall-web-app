@@ -1,721 +1,373 @@
 import React, { useState, useEffect } from 'react';
+import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/react';
 import VoteButton from './VoteButton';
-import { locationMapping } from '../constants/locations';
+import FilterChip from './FilterChip';
 import { formatLocationName } from '../utils/stringUtils';
 import { useLanguage } from '../context/LanguageContext';
-import { getFilterStrings } from '../lib/sanity';
 
-function FilterControls({ onUpdate, isOpen, isLoading }) {
+const CURRENT_YEAR = new Date().getFullYear();
+const FALLBACK_YEARS = Array.from({ length: CURRENT_YEAR - 2014 }, (_, i) => ({
+  year: CURRENT_YEAR - i,
+  search_count: null,
+}));
+
+const metaKeyToId = {
+  votes_censored: 1,
+  votes_uncensored: 2,
+  votes_bad_translation: 3,
+  votes_good_translation: 4,
+  votes_lost_in_translation: 5,
+};
+
+const CENSORSHIP_VOTES = ['votes_censored', 'votes_uncensored', 'votes_lost_in_translation'];
+const TRANSLATION_VOTES = ['votes_bad_translation', 'votes_good_translation'];
+
+function FilterControls({ filters, onChange, isLoading }) {
   const { language } = useLanguage();
-  const [uiStrings, setUiStrings] = useState({});
-  const [shouldResetVotes, setShouldResetVotes] = useState(false);
-  const [usStatesData, setUsStatesData] = useState([]);
-  const [loadingStates, setLoadingStates] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [activeFilters, setActiveFilters] = useState({
-    country: null,
-    usState: null,
-    source: null,
-    startDate: null,
-    endDate: null,
-  });
-
-  // Load filter strings from Sanity
-  useEffect(() => {
-    async function loadStrings() {
-      try {
-        const strings = await getFilterStrings(language);
-        setUiStrings(strings);
-      } catch (error) {
-        console.error('Failed to load filter strings:', error);
-        // Fallback to hardcoded English
-        setUiStrings({
-          filterCountryLabel: 'Country',
-          filterStateLabel: 'US State',
-          filterSourceLabel: 'Search Source',
-          filterStartDateLabel: 'Start Date',
-          filterEndDateLabel: 'End Date',
-          filterAllCountries: 'All Countries',
-          filterAllSources: 'All Sources',
-          filterAllStates: 'All States',
-          filterPrimaryLabel: 'Primary',
-          filterSecondaryLabel: 'Secondary',
-          filterActiveFiltersLabel: 'Active Filters:',
-          filterCountActiveText: 'filter(s) active',
-          filterLoadingStatesText: 'Loading states...',
-          filterClearAllButton: 'Clear All',
-          filterBadgeCountry: 'Country:',
-          filterBadgeState: 'State:',
-          filterBadgeSource: 'Source:',
-          filterBadgeStartDate: 'Start:',
-          filterBadgeEndDate: 'End:',
-        });
-      }
-    }
-    loadStrings();
-  }, [language]);
-
-  // Dynamic country list from database
   const [countries, setCountries] = useState([]);
-
-  // Dynamic search locations from database
   const [searchLocations, setSearchLocations] = useState([]);
+  const [usStatesData, setUsStatesData] = useState([]);
+  const [years, setYears] = useState(FALLBACK_YEARS);
+  const [loadingStates, setLoadingStates] = useState(false);
+  const [showAllCountries, setShowAllCountries] = useState(false);
+  const [showAllLocations, setShowAllLocations] = useState(false);
 
-  const vote_categories = [
-    'votes_censored',
-    'votes_uncensored',
-    'votes_bad_translation',
-    'votes_good_translation',
-    'votes_lost_in_translation',
+  const whereTab = filters.where || 'places';
+  const tabIndex = whereTab === 'events' ? 1 : 0;
+
+  useEffect(() => {
+    async function fetchCountries() {
+      try {
+        const r = await fetch('/api/analytics/countries');
+        if (!r.ok) return;
+        const data = await r.json();
+        setCountries(
+          data
+            .filter(c => c.code && c.name)
+            .sort((a, b) => b.search_count - a.search_count)
+        );
+      } catch {}
+    }
+
+    async function fetchLocations() {
+      try {
+        const r = await fetch('/searches/search-locations');
+        if (!r.ok) return;
+        const data = await r.json();
+        setSearchLocations(
+          data
+            .filter(
+              l =>
+                l.search_location &&
+                l.search_location !== 'automated_scraper' &&
+                l.search_location !== 'nyc3'
+            )
+            .map(l => ({
+              value: l.search_location,
+              label: formatLocationName(l.search_location),
+              search_count: l.search_count,
+            }))
+            .sort((a, b) => b.search_count - a.search_count)
+        );
+      } catch {}
+    }
+
+    async function fetchYears() {
+      try {
+        const r = await fetch('/api/analytics/years');
+        if (!r.ok) return;
+        const data = await r.json();
+        if (data.length) setYears(data);
+      } catch {}
+    }
+
+    fetchCountries();
+    fetchLocations();
+    fetchYears();
+  }, []);
+
+  useEffect(() => {
+    if (!filters.countries.includes('US')) {
+      setUsStatesData([]);
+      return;
+    }
+    async function fetchUSStates() {
+      setLoadingStates(true);
+      try {
+        const r = await fetch('/api/analytics/us-states');
+        if (r.ok) setUsStatesData(await r.json());
+      } catch {}
+      finally { setLoadingStates(false); }
+    }
+    fetchUSStates();
+  }, [filters.countries]);
+
+  function handleTabChange(index) {
+    if (index === 0) {
+      onChange({ ...filters, where: 'places', search_locations: [] });
+    } else {
+      onChange({ ...filters, where: 'events', countries: [], us_states: [], years: [] });
+    }
+  }
+
+  function toggleCountry(code) {
+    const next = filters.countries.includes(code)
+      ? filters.countries.filter(c => c !== code)
+      : [...filters.countries, code];
+    const nextStates = next.includes('US') ? filters.us_states : [];
+    onChange({ ...filters, countries: next, us_states: nextStates });
+  }
+
+  function toggleUsState(state) {
+    const next = filters.us_states.includes(state)
+      ? filters.us_states.filter(s => s !== state)
+      : [...filters.us_states, state];
+    onChange({ ...filters, us_states: next });
+  }
+
+  function toggleLocation(value) {
+    const next = filters.search_locations.includes(value)
+      ? filters.search_locations.filter(l => l !== value)
+      : [...filters.search_locations, value];
+    onChange({ ...filters, search_locations: next });
+  }
+
+  function toggleYear(year) {
+    const y = String(year);
+    const next = filters.years.includes(y)
+      ? filters.years.filter(v => v !== y)
+      : [...filters.years, y];
+    onChange({ ...filters, years: next });
+  }
+
+  function toggleVote(metaKey) {
+    const id = metaKeyToId[metaKey];
+    const next = filters.vote_ids.includes(id)
+      ? filters.vote_ids.filter(v => v !== id)
+      : [...filters.vote_ids, id];
+    onChange({ ...filters, vote_ids: next });
+  }
+
+  const visibleCountries = showAllCountries ? countries : countries.slice(0, 5);
+  const visibleLocations = showAllLocations ? searchLocations : searchLocations.slice(0, 5);
+
+  const VOTE_ID_TO_LABEL = {
+    1: 'Censored', 2: 'Uncensored', 3: 'Bad Translation',
+    4: 'Good Translation', 5: 'Lost in Translation',
+  };
+
+  const draftChips = [
+    ...filters.countries.map(code => ({
+      key: `countries:${code}`, label: code,
+      onRemove: () => onChange({ ...filters, countries: filters.countries.filter(c => c !== code), us_states: code === 'US' ? [] : filters.us_states }),
+    })),
+    ...filters.us_states.map(s => ({
+      key: `us_states:${s}`, label: s,
+      onRemove: () => onChange({ ...filters, us_states: filters.us_states.filter(v => v !== s) }),
+    })),
+    ...filters.search_locations.map(loc => ({
+      key: `search_locations:${loc}`, label: formatLocationName(loc),
+      onRemove: () => onChange({ ...filters, search_locations: filters.search_locations.filter(v => v !== loc) }),
+    })),
+    ...filters.years.map(y => ({
+      key: `years:${y}`, label: y,
+      onRemove: () => onChange({ ...filters, years: filters.years.filter(v => v !== y) }),
+    })),
+    ...filters.vote_ids.map(id => ({
+      key: `vote_ids:${id}`, label: VOTE_ID_TO_LABEL[id] || `Vote ${id}`,
+      onRemove: () => onChange({ ...filters, vote_ids: filters.vote_ids.filter(v => v !== id) }),
+    })),
   ];
 
-  // Fetch countries and search locations data when component mounts
-  useEffect(() => {
-    const fetchCountriesData = async () => {
-      try {
-        const response = await fetch('/api/analytics/countries');
-        if (response.ok) {
-          const data = await response.json();
-          // Filter out entries without country codes and format for dropdown
-          const formattedCountries = data
-            .filter(country => country.code && country.name)
-            .map(country => ({
-              code: country.code,
-              name: country.name,
-              search_count: country.search_count,
-            }))
-            .sort((a, b) => b.search_count - a.search_count); // Sort by search count descending
-          setCountries(formattedCountries);
-        }
-      } catch (error) {
-        console.error('Error fetching countries data:', error);
-      }
-    };
-
-    const fetchSearchLocationsData = async () => {
-      try {
-        const response = await fetch('/searches/search-locations');
-        if (response.ok) {
-          const data = await response.json();
-          // Filter out automated scrapers and format for dropdown
-          const formattedLocations = data
-            .filter(
-              location =>
-                location.search_location &&
-                location.search_location !== 'automated_scraper' &&
-                location.search_location !== 'nyc3'
-            )
-            .map(location => ({
-              value: location.search_location,
-              label: formatLocationName(location.search_location),
-              search_count: location.search_count,
-            }))
-            .sort((a, b) => b.search_count - a.search_count); // Sort by search count descending
-          setSearchLocations(formattedLocations);
-        }
-      } catch (error) {
-        console.error('Error fetching search locations data:', error);
-      }
-    };
-
-    const fetchUSStatesData = async () => {
-      try {
-        setLoadingStates(true);
-        const response = await fetch('/api/analytics/us-states');
-        if (response.ok) {
-          const data = await response.json();
-          setUsStatesData(data);
-        }
-      } catch (error) {
-        console.error('Error fetching US states data:', error);
-      } finally {
-        setLoadingStates(false);
-      }
-    };
-
-    // Fetch countries and search locations once when component mounts
-    if (countries.length === 0) {
-      fetchCountriesData();
-    }
-    if (searchLocations.length === 0) {
-      fetchSearchLocationsData();
-    }
-
-    if (isOpen) {
-      fetchUSStatesData();
-
-      // Check current form values when opening
-      const form = document.getElementById('filter-options-form');
-      if (form) {
-        const countriesSelect = form.querySelector('select[name="countries"]');
-        const citiesSelect = form.querySelector('select[name="cities"]');
-        const usStatesSelect = form.querySelector('select[name="us_states"]');
-
-        const newActiveFilters = {
-          country: null,
-          usState: null,
-          source: null,
-          startDate: startDate || null,
-          endDate: endDate || null,
-        };
-
-        if (countriesSelect && countriesSelect.value) {
-          const country = countries.find(c => c.code === countriesSelect.value);
-          newActiveFilters.country = country ? country.name : null;
-          setSelectedCountry(countriesSelect.value);
-        }
-
-        if (citiesSelect && citiesSelect.value) {
-          // Check if it's an old locationMapping key or a direct search_location value
-          const matchedLocation = searchLocations.find(loc => loc.value === citiesSelect.value);
-          newActiveFilters.source = matchedLocation
-            ? matchedLocation.label
-            : locationMapping[citiesSelect.value] || formatLocationName(citiesSelect.value);
-        }
-
-        if (usStatesSelect && usStatesSelect.value) {
-          newActiveFilters.usState = usStatesSelect.value;
-        }
-
-        setActiveFilters(newActiveFilters);
-      }
-    }
-  }, [isOpen, countries, searchLocations, startDate, endDate]);
-
-  const metaKeyToId = {
-    votes_censored: 1,
-    votes_uncensored: 2,
-    votes_bad_translation: 3,
-    votes_good_translation: 4,
-    votes_lost_in_translation: 5,
-    votes_bad_result: 6,
-    votes_nsfw: 7,
-  };
-
-  const voteHandler = (voteCategory, isSelected) => {
-    const votebtn = document.getElementById(voteCategory);
-    if (!votebtn) return;
-    // In toggle mode, VoteButton passes the new selected state; otherwise fall back
-    // to comparing the current hidden-input value against the category's ID.
-    const shouldSelect =
-      typeof isSelected === 'boolean'
-        ? isSelected
-        : votebtn.value !== String(metaKeyToId[voteCategory]);
-    votebtn.value = shouldSelect ? String(metaKeyToId[voteCategory]) : '';
-    handleFilterChange();
-  };
-
-  const handleDateChange = event => {
-    const { name, value } = event.target;
-
-    if (name === 'start_date') {
-      // Validate that start date is not after end date
-      if (endDate && value && new Date(value) > new Date(endDate)) {
-        // Clear end date if start date is after it
-        setEndDate('');
-        setActiveFilters(prev => ({ ...prev, startDate: value || null, endDate: null }));
-      } else {
-        setActiveFilters(prev => ({ ...prev, startDate: value || null }));
-      }
-      setStartDate(value);
-    } else if (name === 'end_date') {
-      // Validate that end date is not before start date
-      if (startDate && value && new Date(value) < new Date(startDate)) {
-        // Clear start date if end date is before it
-        setStartDate('');
-        setActiveFilters(prev => ({ ...prev, endDate: value || null, startDate: null }));
-      } else {
-        setActiveFilters(prev => ({ ...prev, endDate: value || null }));
-      }
-      setEndDate(value);
-    }
-  };
-
-  const handleDateBlur = () => {
-    // Trigger filter update when user finishes entering date
-    setTimeout(() => handleFilterChange(), 0);
-  };
-
-  const handleFilterChange = event => {
-    const form = document.getElementById('filter-options-form');
-    if (!form) return;
-
-    const formData = new FormData(form);
-    const filterOptions = {
-      vote_ids: [],
-      years: [],
-      search_locations: [],
-      us_states: [],
-      countries: [],
-      start_date: '',
-      end_date: '',
-      page: 1,
-      page_size: 10,
-    };
-
-    // Reset other dropdowns based on which one changed
-    // IMPORTANT: search_location (cities) and geographic filters are mutually exclusive
-    const countriesSelect = form.querySelector('select[name="countries"]');
-    const citiesSelect = form.querySelector('select[name="cities"]');
-    const usStatesSelect = form.querySelector('select[name="us_states"]');
-
-    // Handle Country selection - clears search_location (cities)
-    if (event && event.target && event.target.name === 'countries') {
-      citiesSelect.value = ''; // Clear search_location - mutually exclusive
-      if (usStatesSelect) {
-        usStatesSelect.value = ''; // Reset US States dropdown only if it exists
-      }
-
-      if (countriesSelect.value) {
-        filterOptions.countries = [countriesSelect.value];
-        setSelectedCountry(countriesSelect.value);
-        const country = countries.find(c => c.code === countriesSelect.value);
-        setActiveFilters(prev => ({
-          ...prev,
-          country: country ? country.name : null,
-          usState: null,
-          source: null, // Clear search_location filter
-        }));
-
-        // If not US, clear states data
-        if (countriesSelect.value !== 'US') {
-          filterOptions.us_states = [];
-        }
-      } else {
-        setSelectedCountry('');
-        setActiveFilters(prev => ({ ...prev, country: null, usState: null }));
-      }
-    }
-    // Handle search_location (cities) selection - clears ALL geographic filters
-    else if (event && event.target && event.target.name === 'cities') {
-      // Clear ALL geographic filters - mutually exclusive with search_location
-      countriesSelect.value = '';
-      if (usStatesSelect) {
-        usStatesSelect.value = '';
-      }
-      setSelectedCountry('');
-
-      if (citiesSelect.value) {
-        // Only allow ONE search_location at a time
-        filterOptions.search_locations = [citiesSelect.value];
-
-        // Handle both old location mapping keys and direct search_location values
-        const matchedLocation = searchLocations.find(loc => loc.value === citiesSelect.value);
-        const sourceLabel = matchedLocation
-          ? matchedLocation.label
-          : locationMapping[citiesSelect.value] || formatLocationName(citiesSelect.value);
-        setActiveFilters(prev => ({
-          ...prev,
-          source: sourceLabel,
-          country: null, // Clear geographic filters
-          usState: null  // Clear geographic filters
-        }));
-      } else {
-        setActiveFilters(prev => ({ ...prev, source: null }));
-      }
-    }
-    // Handle US State selection - clears search_location (cities)
-    else if (event && event.target && event.target.name === 'us_states') {
-      citiesSelect.value = ''; // Clear search_location - mutually exclusive
-
-      if (usStatesSelect && usStatesSelect.value) {
-        filterOptions.us_states = [usStatesSelect.value];
-        filterOptions.countries = ['US']; // Ensure US is selected
-        setActiveFilters(prev => ({
-          ...prev,
-          usState: usStatesSelect.value,
-          source: null // Clear search_location filter
-        }));
-      } else {
-        setActiveFilters(prev => ({ ...prev, usState: null }));
-      }
-    }
-
-    // Get current values from all form fields if no specific event triggered this
-    // Ensure search_location and geographic filters remain mutually exclusive
-    if (!event || !event.target) {
-      // Check if search_location (cities) is selected
-      if (citiesSelect && citiesSelect.value) {
-        // If search_location is selected, only use that (ignore geographic filters)
-        filterOptions.search_locations = [citiesSelect.value];
-        // Clear geographic filters to ensure mutual exclusivity
-        filterOptions.countries = [];
-        filterOptions.us_states = [];
-      } else {
-        // If no search_location, then geographic filters can be used
-        if (countriesSelect && countriesSelect.value) {
-          filterOptions.countries = [countriesSelect.value];
-        }
-        if (usStatesSelect && usStatesSelect.value) {
-          filterOptions.us_states = [usStatesSelect.value];
-        }
-      }
-
-      // Include current date values in filter options
-      if (startDate) {
-        filterOptions.start_date = startDate;
-      }
-      if (endDate) {
-        filterOptions.end_date = endDate;
-      }
-
-      // Update active filters based on current form state
-      const newActiveFilters = {
-        country: null,
-        usState: null,
-        source: null,
-        startDate: null,
-        endDate: null,
-      };
-      if (countriesSelect && countriesSelect.value) {
-        const country = countries.find(c => c.code === countriesSelect.value);
-        newActiveFilters.country = country ? country.name : null;
-      }
-      if (citiesSelect && citiesSelect.value) {
-        // Handle both old location mapping keys and direct search_location values
-        const matchedLocation = searchLocations.find(loc => loc.value === citiesSelect.value);
-        newActiveFilters.source = matchedLocation
-          ? matchedLocation.label
-          : locationMapping[citiesSelect.value] || formatLocationName(citiesSelect.value);
-      }
-      if (usStatesSelect && usStatesSelect.value) {
-        newActiveFilters.usState = usStatesSelect.value;
-      }
-      // Include current date values in active filters
-      newActiveFilters.startDate = startDate || null;
-      newActiveFilters.endDate = endDate || null;
-      setActiveFilters(newActiveFilters);
-    }
-
-    // Get date values from state
-    if (startDate) {
-      filterOptions.start_date = startDate;
-    }
-
-    if (endDate) {
-      filterOptions.end_date = endDate;
-    }
-
-    // Get vote values
-    for (let [key, value] of formData.entries()) {
-      if (key.startsWith('votes') && value) {
-        filterOptions.vote_ids.push(value);
-      }
-    }
-
-    // Pass false as second argument to prevent closing
-    onUpdate(filterOptions, false);
-  };
-
-  const handleReset = () => {
-    const form = document.getElementById('filter-options-form');
-    form.reset();
-
-    setShouldResetVotes(true);
-    setSelectedCountry(''); // Reset selected country
-    setStartDate(''); // Reset start date
-    setEndDate(''); // Reset end date
-    setActiveFilters({
-      country: null,
-      usState: null,
-      source: null,
-      startDate: null,
-      endDate: null,
-    }); // Reset active filters
-    setTimeout(() => {
-      setShouldResetVotes(false);
-      // Pass false as second argument to prevent closing
-      onUpdate(
-        {
-          vote_ids: [],
-          years: [],
-          search_locations: [],
-          us_states: [],
-          countries: [],
-          start_date: '',
-          end_date: '',
-          page: 1,
-          page_size: 10,
-        },
-        false,
-        true
-      );
-    }, 100);
-  };
-
   return (
-    <div
-      className={`
-      mx-auto w-full max-w-[720px] bg-white border border-red-600 rounded-md overflow-hidden transition-all duration-300 ease-in-out
-      ${isOpen ? 'max-h-[800px] opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0 border-0'}
-    `}
-    >
-      <div className="p-4">
-        {/* Active Filters Section */}
-        {(activeFilters.country ||
-          activeFilters.source ||
-          activeFilters.usState ||
-          activeFilters.startDate ||
-          activeFilters.endDate) && (
-          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-            <div className="text-sm font-semibold mb-2">
-              {uiStrings.filterActiveFiltersLabel || 'Active Filters:'}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {activeFilters.country && (
-                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs flex items-center gap-2">
-                  {uiStrings.filterBadgeCountry || 'Country:'} {activeFilters.country}
-                  <button
-                    onClick={() => {
-                      const countriesSelect = document.querySelector('select[name="countries"]');
-                      if (countriesSelect) {
-                        countriesSelect.value = '';
-                        handleFilterChange({ target: { name: 'countries', value: '' } });
-                      }
-                    }}
-                    className="text-blue-600 hover:text-blue-800 font-bold"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
-              {activeFilters.usState && (
-                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs flex items-center gap-2">
-                  {uiStrings.filterBadgeState || 'State:'} {activeFilters.usState}
-                  <button
-                    onClick={() => {
-                      const usStatesSelect = document.querySelector('select[name="us_states"]');
-                      if (usStatesSelect) {
-                        usStatesSelect.value = '';
-                        handleFilterChange({ target: { name: 'us_states', value: '' } });
-                      }
-                    }}
-                    className="text-green-600 hover:text-green-800 font-bold"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
-              {activeFilters.source && (
-                <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs flex items-center gap-2">
-                  {uiStrings.filterBadgeSource || 'Source:'} {activeFilters.source}
-                  <button
-                    onClick={() => {
-                      const citiesSelect = document.querySelector('select[name="cities"]');
-                      if (citiesSelect) {
-                        citiesSelect.value = '';
-                        handleFilterChange({ target: { name: 'cities', value: '' } });
-                      }
-                    }}
-                    className="text-purple-600 hover:text-purple-800 font-bold"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
-              {activeFilters.startDate && (
-                <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs flex items-center gap-2">
-                  {uiStrings.filterBadgeStartDate || 'Start:'} {activeFilters.startDate}
-                  <button
-                    onClick={() => {
-                      setStartDate('');
-                      setActiveFilters(prev => ({ ...prev, startDate: null }));
-                      setTimeout(() => handleFilterChange(), 0);
-                    }}
-                    className="text-orange-600 hover:text-orange-800 font-bold"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
-              {activeFilters.endDate && (
-                <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs flex items-center gap-2">
-                  {uiStrings.filterBadgeEndDate || 'End:'} {activeFilters.endDate}
-                  <button
-                    onClick={() => {
-                      setEndDate('');
-                      setActiveFilters(prev => ({ ...prev, endDate: null }));
-                      setTimeout(() => handleFilterChange(), 0);
-                    }}
-                    className="text-orange-600 hover:text-orange-800 font-bold"
-                  >
-                    ×
-                  </button>
-                </span>
-              )}
-            </div>
+    <div className="p-4 text-black">
+
+      {/* Active chips inside modal */}
+      {draftChips.length > 0 && (
+        <div className="mb-4">
+          <div className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Active</div>
+          <div className="flex flex-wrap gap-2">
+            {draftChips.map(chip => (
+              <FilterChip key={chip.key} label={chip.label} onRemove={chip.onRemove} />
+            ))}
           </div>
-        )}
+        </div>
+      )}
 
-        <form id="filter-options-form" className="grow flex flex-col text-black">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            {/* Country and US States Section */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="countries"
-                className="text-lg font-black mb-2 flex items-center gap-2"
+      {/* WHERE */}
+      <div className="mb-5">
+        <div className="text-lg font-black mb-3">Where</div>
+        <TabGroup selectedIndex={tabIndex} onChange={handleTabChange}>
+          <TabList className="flex gap-2 border-b border-gray-200 mb-3">
+            {['All places', 'Live events'].map(label => (
+              <Tab
+                key={label}
+                className={({ selected }) =>
+                  `px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors focus:outline-none ${
+                    selected
+                      ? 'border-red-600 text-red-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`
+                }
               >
-                {uiStrings.filterCountryLabel || 'Country'}
-                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-normal">
-                  {uiStrings.filterPrimaryLabel || 'Primary'}
-                </span>
-              </label>
-              <select
-                name="countries"
-                className="w-full border border-zinc-400 rounded p-2"
-                onChange={e => handleFilterChange(e)}
-                disabled={isLoading}
-              >
-                <option value="">{uiStrings.filterAllCountries || 'All Countries'}</option>
-                {countries.map(country => (
-                  <option key={country.code} value={country.code}>
-                    {country.name} ({country.search_count})
-                  </option>
-                ))}
-              </select>
-
-              {/* US States Section - Slides down when US is selected */}
-              <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                  selectedCountry === 'US' ? 'max-h-40 mt-3' : 'max-h-0'
-                }`}
-              >
-                <div className="bg-blue-50/30 p-3 rounded border-l-4 border-blue-200">
-                  <label
-                    htmlFor="us_states"
-                    className="text-lg font-black mb-2 flex items-center gap-2"
-                  >
-                    <span className="text-blue-600">↳</span> {uiStrings.filterStateLabel || 'US State'}
-                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-normal">
-                      {uiStrings.filterSecondaryLabel || 'Secondary'}
-                    </span>
+                {label}
+              </Tab>
+            ))}
+          </TabList>
+          <TabPanels>
+            {/* All places */}
+            <TabPanel>
+              <div className="space-y-1 mb-3">
+                {visibleCountries.map(c => (
+                  <label key={c.code} className="flex items-center gap-2 cursor-pointer py-0.5">
+                    <input
+                      type="checkbox"
+                      className="accent-red-600"
+                      checked={filters.countries.includes(c.code)}
+                      onChange={() => toggleCountry(c.code)}
+                      disabled={isLoading}
+                    />
+                    <span className="text-sm flex-1">{c.name}</span>
+                    {c.search_count != null && (
+                      <span className="text-xs text-gray-400">{c.search_count.toLocaleString()}</span>
+                    )}
                   </label>
-                  <select
-                    name="us_states"
-                    className="w-full border border-zinc-400 rounded p-2"
-                    onChange={e => handleFilterChange(e)}
-                    disabled={isLoading || loadingStates}
+                ))}
+                {countries.length > 5 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllCountries(v => !v)}
+                    className="text-xs text-red-600 hover:underline mt-1"
                   >
-                    <option value="">{uiStrings.filterAllStates || 'All States'}</option>
-                    {usStatesData.map(stateData => (
-                      <option key={stateData.state} value={stateData.state}>
-                        {stateData.state} ({stateData.search_count})
-                      </option>
-                    ))}
-                  </select>
-                  {loadingStates && (
-                    <div className="text-xs text-gray-500 mt-1">
-                      {uiStrings.filterLoadingStatesText || 'Loading states...'}
+                    {showAllCountries ? 'Show less' : `Show all ${countries.length}`}
+                  </button>
+                )}
+              </div>
+
+              {/* US States sub-list */}
+              {filters.countries.includes('US') && (
+                <div className="pl-4 border-l-2 border-blue-200 mb-3">
+                  <div className="text-sm font-semibold mb-2 text-blue-600">↳ US State</div>
+                  {loadingStates ? (
+                    <span className="text-xs text-gray-400">Loading states…</span>
+                  ) : (
+                    <div className="space-y-1 max-h-40 overflow-y-auto">
+                      {usStatesData.map(s => (
+                        <label key={s.state} className="flex items-center gap-2 cursor-pointer py-0.5">
+                          <input
+                            type="checkbox"
+                            className="accent-red-600"
+                            checked={filters.us_states.includes(s.state)}
+                            onChange={() => toggleUsState(s.state)}
+                            disabled={isLoading}
+                          />
+                          <span className="text-sm flex-1">{s.state}</span>
+                          <span className="text-xs text-gray-400">{s.search_count?.toLocaleString()}</span>
+                        </label>
+                      ))}
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
-
-            {/* Sources Section */}
-            <div className="flex flex-col">
-              <label htmlFor="cities" className="text-lg font-black mb-2">
-                {uiStrings.filterSourceLabel || 'Search Source'}
-              </label>
-              <select
-                name="cities"
-                className="w-full border border-zinc-400 rounded p-2"
-                onChange={e => handleFilterChange(e)}
-                disabled={isLoading}
-              >
-                <option value="">{uiStrings.filterAllSources || 'All Sources'}</option>
-                {searchLocations.map(location => (
-                  <option key={location.value} value={location.value}>
-                    {location.label} ({location.search_count})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Date Range Section */}
-            <div className="flex flex-col">
-              <label htmlFor="start_date" className="text-lg font-black mb-2">
-                {uiStrings.filterStartDateLabel || 'Start Date'}
-              </label>
-              <input
-                type="date"
-                name="start_date"
-                className="w-full border border-zinc-400 rounded p-2"
-                onChange={handleDateChange}
-                onBlur={handleDateBlur}
-                value={startDate}
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label htmlFor="end_date" className="text-lg font-black mb-2">
-                {uiStrings.filterEndDateLabel || 'End Date'}
-              </label>
-              <input
-                type="date"
-                name="end_date"
-                className="w-full border border-zinc-400 rounded p-2"
-                onChange={handleDateChange}
-                onBlur={handleDateBlur}
-                value={endDate}
-              />
-            </div>
-
-          </div>
-
-          {/* Voter Result Section */}
-          <div className="border-t border-gray-200 pt-4 mb-4">
-            <label htmlFor="vote" className="text-lg font-black block mb-3">
-              {uiStrings.filterVoteResultLabel || 'Voter Result'}
-            </label>
-            <div className="flex gap-2 flex-wrap">
-              {vote_categories.map(category => (
-                <VoteButton
-                  key={category}
-                  voteCategory={category}
-                  voteHandler={voteHandler}
-                  toggle
-                  shouldReset={shouldResetVotes}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Close/Clear buttons */}
-          <div className="flex items-center justify-between pt-3 border-t border-gray-200">
-            <div className="flex items-center gap-2">
-              {(activeFilters.country ||
-                activeFilters.source ||
-                activeFilters.usState ||
-                activeFilters.startDate ||
-                activeFilters.endDate) && (
-                <span className="text-sm text-gray-600">
-                  {Object.values(activeFilters).filter(Boolean).length}{' '}
-                  {uiStrings.filterCountActiveText || 'filter(s) active'}
-                </span>
               )}
-            </div>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={handleReset}
-                className="px-4 py-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 transition-colors flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-                {uiStrings.filterClearAllButton || 'Clear All'}
-              </button>
-            </div>
+            </TabPanel>
+
+            {/* Live events */}
+            <TabPanel>
+              <div className="space-y-1">
+                {visibleLocations.map(loc => (
+                  <label key={loc.value} className="flex items-center gap-2 cursor-pointer py-0.5">
+                    <input
+                      type="checkbox"
+                      className="accent-red-600"
+                      checked={filters.search_locations.includes(loc.value)}
+                      onChange={() => toggleLocation(loc.value)}
+                      disabled={isLoading}
+                    />
+                    <span className="text-sm flex-1">{loc.label}</span>
+                    {loc.search_count != null && (
+                      <span className="text-xs text-gray-400">{loc.search_count.toLocaleString()}</span>
+                    )}
+                  </label>
+                ))}
+                {searchLocations.length > 5 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllLocations(v => !v)}
+                    className="text-xs text-red-600 hover:underline mt-1"
+                  >
+                    {showAllLocations ? 'Show less' : `Show all ${searchLocations.length}`}
+                  </button>
+                )}
+              </div>
+            </TabPanel>
+          </TabPanels>
+        </TabGroup>
+      </div>
+
+      {/* WHEN — only in All places mode */}
+      {whereTab === 'places' && (
+        <div className="mb-5 border-t border-gray-200 pt-4">
+          <div className="text-lg font-black mb-3">When</div>
+          <div className="flex flex-wrap gap-2">
+            {years.map(({ year, search_count }) => {
+              const y = String(year);
+              const active = filters.years.includes(y);
+              return (
+                <button
+                  key={year}
+                  type="button"
+                  onClick={() => toggleYear(year)}
+                  disabled={isLoading}
+                  className={`px-3 py-1 text-sm border rounded transition-colors ${
+                    active
+                      ? 'bg-red-600 text-white border-red-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-red-400'
+                  }`}
+                >
+                  {year}
+                  {search_count != null && (
+                    <span className="ml-1 text-xs opacity-70">({search_count.toLocaleString()})</span>
+                  )}
+                </button>
+              );
+            })}
           </div>
-        </form>
+        </div>
+      )}
+
+      {/* VOTE */}
+      <div className="border-t border-gray-200 pt-4">
+        <div className="text-lg font-black mb-3">Vote</div>
+
+        <div className="mb-4">
+          <div className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Censorship</div>
+          <div className="flex gap-2 flex-wrap">
+            {CENSORSHIP_VOTES.map(metaKey => (
+              <VoteButton
+                key={metaKey}
+                voteCategory={metaKey}
+                voteHandler={toggleVote}
+                toggle
+                isSelected={filters.vote_ids.includes(metaKeyToId[metaKey])}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Translation Quality</div>
+          <div className="flex gap-2 flex-wrap">
+            {TRANSLATION_VOTES.map(metaKey => (
+              <VoteButton
+                key={metaKey}
+                voteCategory={metaKey}
+                voteHandler={toggleVote}
+                toggle
+                isSelected={filters.vote_ids.includes(metaKeyToId[metaKey])}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

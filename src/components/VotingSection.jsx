@@ -230,7 +230,10 @@ function VotingSection({ query, searchId }) {
                     className="object-contain shrink-0 self-stretch my-auto w-8 aspect-square"
                     alt="Archive"
                   />
-                  <Link to={`/archive?q=${query}`}>
+                  <Link
+                    to={`/archive?q=${query}`}
+                    onClick={() => window.scrollTo(0, 0)}
+                  >
                     <div className="self-stretch my-auto underline">
                       <span className="font-bold text-red-600">Archive</span>
                       <span className="text-red-600">.</span>

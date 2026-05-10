@@ -5,11 +5,14 @@ import { Combobox } from '@headlessui/react';
 import QueryList from './QueryList';
 import useCookie from '../useCookie';
 import FilterControls from './FilterControls';
+import FilterChip from './FilterChip';
+import Modal from './Modal';
 import ApiContext from '../context/ApiContext';
 import QuestionIcon from './icons/QuestionIcon';
 import { useLanguage } from '../context/LanguageContext';
 import { getSearchPageStrings, getArchivePageStrings } from '../lib/sanity';
 import { getDefault } from '../constants/uiDefaults';
+import { formatLocationName } from '../utils/stringUtils';
 import { useAutocomplete } from '../hooks/useAutocomplete';
 import { useRotatingStatus } from '../hooks/useRotatingStatus';
 import { buildProgressCaptions } from './searchProgressCaptions';
@@ -24,6 +27,7 @@ import FilterIcon from './FilterIcon';
 import ArrowRight from './icons/ArrowRight';
 import SearchCompare from './SearchCompare';
 import Spinner from '../assets/spinner.svg';
+import CloseIcon from '../assets/icons/close_large.svg';
 import SearchProgressIndicator from './SearchProgressIndicator';
 
 function SearchInput({ searchMode }) {
@@ -70,7 +74,7 @@ function SearchInput({ searchMode }) {
     page_size: 10,
     data: [],
   });
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [translation, setTranslation] = useState('');
   const [currentSearchId, setSearchId] = useState(null);
@@ -80,6 +84,19 @@ function SearchInput({ searchMode }) {
   const setResults = useCallback(results => setImageResults(results), []);
   const [username] = useCookie('username');
   const [filterOpen, setFilterOpen] = useState(false);
+const [isLoadingTranslation, setIsLoadingTranslation] = useState(false);
+  const [filterKey, setFilterKey] = useState(0);
+  const emptyFilters = {
+    vote_ids: [],
+    years: [],
+    search_locations: [],
+    us_states: [],
+    countries: [],
+    start_date: '',
+    end_date: '',
+    where: 'places',
+  };
+  const [draftFilters, setDraftFilters] = useState(emptyFilters);
   const [currentFilters, setCurrentFilters] = useState({
     vote_ids: [],
     years: [],
@@ -222,7 +239,8 @@ function SearchInput({ searchMode }) {
 
     // Check if any URL filters are present
     const hasUrlFilters =
-      urlSearchLocations || urlCountries || urlUsStates || urlStartDate || urlEndDate;
+      urlSearchLocations || urlCountries || urlUsStates || urlStartDate || urlEndDate ||
+      searchParams.getAll('vote_ids').length > 0 || searchParams.getAll('years').length > 0;
 
     if (urlQuery || (isArchive && hasUrlFilters)) {
       if (urlQuery) {
@@ -239,6 +257,10 @@ function SearchInput({ searchMode }) {
             if (isArchive) {
               setarchiveResults({ total: 0, page: 1, page_size: 10, data: [] });
               setFilteredResults({ total: 0, page: 1, page_size: 10, data: [] });
+              setTranslation('');
+
+              const urlVoteIds = searchParams.getAll('vote_ids').map(Number).filter(Boolean);
+              const urlYears = searchParams.getAll('years');
 
               // Build filter params from URL
               const filterParams = {
@@ -250,30 +272,50 @@ function SearchInput({ searchMode }) {
               // Add URL filters if present
               if (urlSearchLocations) {
                 filterParams.search_locations = [urlSearchLocations];
-                setCurrentFilters(prev => ({ ...prev, search_locations: [urlSearchLocations] }));
               }
               if (urlCountries) {
                 filterParams.countries = [urlCountries];
-                setCurrentFilters(prev => ({ ...prev, countries: [urlCountries] }));
               }
               if (urlUsStates) {
                 filterParams.us_states = [urlUsStates];
-                setCurrentFilters(prev => ({ ...prev, us_states: [urlUsStates] }));
               }
               if (urlStartDate) {
                 filterParams.start_date = urlStartDate;
-                setCurrentFilters(prev => ({ ...prev, start_date: urlStartDate }));
               }
               if (urlEndDate) {
                 filterParams.end_date = urlEndDate;
-                setCurrentFilters(prev => ({ ...prev, end_date: urlEndDate }));
+              }
+              if (urlVoteIds.length > 0) {
+                filterParams.vote_ids = urlVoteIds;
+              }
+              if (urlYears.length > 0) {
+                filterParams.years = urlYears;
+              }
+
+              // Fire translation independently — show results immediately, translation updates when ready
+              if (urlQuery) {
+                setIsLoadingTranslation(true);
+                translateQuery(urlQuery.trim())
+                  .then(result => { if (result?.translation) setTranslation(result.translation); })
+                  .catch(() => {})
+                  .finally(() => setIsLoadingTranslation(false));
               }
 
               const results = await searchArchive(filterParams);
 
-              if (results.error) {
+              if (results?.error) {
                 throw new Error(results.error);
               }
+
+              setCurrentFilters({
+                vote_ids: urlVoteIds,
+                years: urlYears,
+                search_locations: urlSearchLocations ? [urlSearchLocations] : [],
+                us_states: urlUsStates ? [urlUsStates] : [],
+                countries: urlCountries ? [urlCountries] : [],
+                start_date: urlStartDate || '',
+                end_date: urlEndDate || '',
+              });
 
               setSearchId('archived searches');
               setarchiveResults(results);
@@ -352,7 +394,6 @@ function SearchInput({ searchMode }) {
               setarchiveResults({ total: 0, page: 1, page_size: 10, data: [] });
               setFilteredResults({ total: 0, page: 1, page_size: 10, data: [] });
               setError(e.message || 'Failed to search archives');
-              setTranslation('');
             }
           } finally {
             setLoading(false);
@@ -377,51 +418,6 @@ function SearchInput({ searchMode }) {
     setResults,
     loadDefaultResults,
   ]);
-
-  const applyFilters = async (filterOptions, shouldClose = true, isReset = false) => {
-    setLoading(true);
-    setCurrentFilters(filterOptions);
-
-    if (shouldClose) {
-      setFilterOpen(false);
-    }
-
-    try {
-      // If this is a reset operation, fetch fresh results
-      if (isReset) {
-        const results = await searchArchive({
-          ...(query ? { query: query.trim() } : {}),
-          page: 1,
-          page_size: archiveResults.page_size,
-        });
-        setarchiveResults(results);
-        setFilteredResults(results);
-        return;
-      }
-
-      // Fetch new results with filters applied (always start from page 1 when filtering)
-      const searchParams = {
-        ...(query ? { query: query.trim() } : {}),
-        page: 1,
-        page_size: filterOptions.page_size || archiveResults.page_size,
-        years: filterOptions.years,
-        search_locations: filterOptions.search_locations,
-        us_states: filterOptions.us_states,
-        countries: filterOptions.countries,
-        vote_ids: filterOptions.vote_ids,
-        start_date: filterOptions.start_date,
-        end_date: filterOptions.end_date,
-      };
-
-      const results = await searchArchive(searchParams);
-      setarchiveResults(results);
-      setFilteredResults(results);
-    } catch (error) {
-      console.error('Error applying filters:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleLoadMore = async () => {
     setLoading(true);
@@ -460,9 +456,105 @@ function SearchInput({ searchMode }) {
     }
   };
 
+  const handleOpenFilters = () => {
+    setDraftFilters({
+      countries: searchParams.getAll('countries'),
+      search_locations: searchParams.getAll('search_locations'),
+      years: searchParams.getAll('years'),
+      vote_ids: searchParams.getAll('vote_ids').map(Number),
+      us_states: searchParams.getAll('us_states'),
+      start_date: searchParams.get('start_date') || '',
+      end_date: searchParams.get('end_date') || '',
+      where: searchParams.get('where') || 'places',
+    });
+    setFilterOpen(true);
+  };
+
+  const handleApplyDraftFilters = () => {
+    // Serialize active draft filters to URL params; useEffect watches searchParams and will trigger the search
+    const nextParams = new URLSearchParams();
+    const urlQuery = searchParams.get('q');
+    if (urlQuery) nextParams.set('q', urlQuery);
+    draftFilters.countries.forEach(v => nextParams.append('countries', v));
+    draftFilters.us_states.forEach(v => nextParams.append('us_states', v));
+    draftFilters.search_locations.forEach(v => nextParams.append('search_locations', v));
+    draftFilters.years.forEach(v => nextParams.append('years', v));
+    draftFilters.vote_ids.forEach(v => nextParams.append('vote_ids', String(v)));
+    setSearchParams(nextParams);
+    setFilterOpen(false);
+  };
+
+  const handleClearDraftFilters = () => {
+    setDraftFilters(emptyFilters);
+    setFilterKey(k => k + 1);
+  };
+
+  const handleCloseFilters = () => {
+    setFilterOpen(false);
+  };
+
+  const handleClearSearch = () => {
+    setQuery('');
+    setTranslation('');
+    setIsLoadingTranslation(false);
+    setCurrentFilters({
+      vote_ids: [],
+      years: [],
+      search_locations: [],
+      us_states: [],
+      countries: [],
+      start_date: '',
+      end_date: '',
+    });
+    setSearchParams({});
+    loadDefaultResults();
+  };
+
   const handleKeyDown = e => {
     if (e.keyCode === 13) handleSubmit();
   };
+
+  const VOTE_ID_TO_LABEL = {
+    1: 'Censored', 2: 'Uncensored', 3: 'Bad Translation',
+    4: 'Good Translation', 5: 'Lost in Translation',
+  };
+
+  function removeUrlFilter(key, value) {
+    const next = new URLSearchParams(searchParams);
+    const existing = next.getAll(key).filter(v => v !== String(value));
+    next.delete(key);
+    existing.forEach(v => next.append(key, v));
+    setSearchParams(next);
+    // useEffect watches searchParams and will re-run the search
+  }
+
+  const activeChips = isArchive ? [
+    ...searchParams.getAll('countries').map(code => ({
+      key: `countries:${code}`,
+      label: code,
+      onRemove: () => removeUrlFilter('countries', code),
+    })),
+    ...searchParams.getAll('us_states').map(s => ({
+      key: `us_states:${s}`,
+      label: s,
+      onRemove: () => removeUrlFilter('us_states', s),
+    })),
+    ...searchParams.getAll('search_locations').map(loc => ({
+      key: `search_locations:${loc}`,
+      label: formatLocationName(loc),
+      onRemove: () => removeUrlFilter('search_locations', loc),
+    })),
+    ...searchParams.getAll('years').map(y => ({
+      key: `years:${y}`,
+      label: y,
+      onRemove: () => removeUrlFilter('years', y),
+    })),
+    ...searchParams.getAll('vote_ids').map(id => ({
+      key: `vote_ids:${id}`,
+      label: VOTE_ID_TO_LABEL[Number(id)] || `Vote ${id}`,
+      onRemove: () => removeUrlFilter('vote_ids', id),
+    })),
+  ] : [];
 
   const displaySearchIcon = !isArchive ? SearchIcon : ArchiveIcon;
   const displayTooltipContent = !isArchive
@@ -568,11 +660,36 @@ function SearchInput({ searchMode }) {
                     value={query}
                     onChange={e => setQuery(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    disabled={isLoading || isTranslating}
-                    className="flex-1 px-4 font-body-02 border-none h-[56px] text-neutral-600 focus:text-black placeholder:text-neutral-600 focus:ring-0 focus:outline-none iphone:text-lg"
+disabled={isLoading || isTranslating}
+                    style={
+                      isArchive && (translation || isLoadingTranslation) && query === searchParams.get('q')
+                        ? { width: `calc(${query.length}ch + 2rem)` }
+                        : undefined
+                    }
+                    className={`px-4 font-body-02 border-none h-[56px] text-neutral-600 focus:text-black placeholder:text-neutral-600 focus:ring-0 focus:outline-none iphone:text-lg ${
+                      isArchive && (translation || isLoadingTranslation) && query === searchParams.get('q')
+                        ? 'flex-shrink-0'
+                        : 'flex-1'
+                    }`}
                     aria-label="Search query"
                   />
+                  {isArchive && (translation || isLoadingTranslation) && query === searchParams.get('q') && (
+                    <div className="flex items-center gap-1 flex-1 min-w-0 text-neutral-400 font-body-02 overflow-hidden pr-2">
+                      <span className="flex-shrink-0">|</span>
+                      <span className="truncate">{translation || '...'}</span>
+                    </div>
+                  )}
                   <div className="flex items-center bg-white">
+                    {isArchive && searchParams.get('q') && (
+                      <button
+                        type="button"
+                        onClick={handleClearSearch}
+                        className="flex items-center justify-center w-8 h-[56px] bg-white hover:bg-gray-50 transition-colors"
+                        aria-label="Clear search"
+                      >
+                        <img src={CloseIcon} alt="Clear" className="w-4 h-4 object-contain" />
+                      </button>
+                    )}
                     <button
                       onClick={handleSubmit}
                       disabled={isLoading || isTranslating}
@@ -621,7 +738,7 @@ function SearchInput({ searchMode }) {
             </Combobox>
             {isArchive && (
               <button
-                onClick={() => setFilterOpen(!filterOpen)}
+                onClick={handleOpenFilters}
                 className={`hidden md:flex cursor-pointer justify-center items-center px-4 py-2 text-red-600 bg-white border border-red-600 hover:bg-red-50 transition-colors duration-200 rounded ${
                   filterOpen ? 'bg-red-50' : ''
                 } iphone:px-3 iphone:py-1.5 iphone:text-sm`}
@@ -629,25 +746,30 @@ function SearchInput({ searchMode }) {
                 <div className="font-body-02">
                   {uiStrings.archiveFiltersButton || getDefault('archive', 'archiveFiltersButton', language)}
                 </div>
+                {activeChips.length > 0 && (
+                  <span className="ml-2 bg-red-600 text-white text-xs rounded px-1.5 min-w-[18px] text-center">
+                    {activeChips.length}
+                  </span>
+                )}
                 <FilterIcon
-                  className={`ml-2 w-6 h-6 transition-transform duration-200 [filter:invert(19%)_sepia(92%)_saturate(2352%)_hue-rotate(343deg)_brightness(94%)_contrast(97%)] ${
-                    filterOpen ? 'rotate-180' : ''
-                  }`}
+                  className="ml-2 w-6 h-6 [filter:invert(19%)_sepia(92%)_saturate(2352%)_hue-rotate(343deg)_brightness(94%)_contrast(97%)]"
                 />
               </button>
             )}
           </div>
 
-          {/* Progress Indicator for Search Stages */}
-          <SearchProgressIndicator
-            isActive={isSearchActive || progress > 0}
-            progress={progress}
-            caption={rotatingCaption}
-          />
+          {/* Progress Indicator for Search Stages - regular search only */}
+          {!isArchive && (
+            <SearchProgressIndicator
+              isActive={isSearchActive || progress > 0}
+              progress={progress}
+              caption={rotatingCaption}
+            />
+          )}
 
 
           <div className="flex items-center gap-4 mt-4">
-            {!isSearchActive && translation && (
+            {!isArchive && !isSearchActive && translation && (
               <span className="p-1 leading-8 text-medium rounded flex items-center gap-2 bg-slate-50 border border-black">
                 <span className="font-bold">{uiStrings.translationLabel || 'Translation:'}</span>{' '}
                 {translation}
@@ -660,25 +782,49 @@ function SearchInput({ searchMode }) {
             )}
             {isArchive && (
               <button
-                onClick={() => setFilterOpen(!filterOpen)}
-                className={`md:hidden flex cursor-pointer justify-center items-center px-4 py-2 text-red-600 bg-white border border-red-600 hover:bg-red-50 transition-colors duration-200 rounded ${
-                  filterOpen ? 'bg-red-50' : ''
-                } iphone:px-3 iphone:py-1.5 iphone:text-sm`}
+                onClick={handleOpenFilters}
+                className="md:hidden flex cursor-pointer justify-center items-center px-4 py-2 text-red-600 bg-white border border-red-600 hover:bg-red-50 transition-colors duration-200 rounded iphone:px-3 iphone:py-1.5 iphone:text-sm"
               >
                 <div className="font-body-02">
                   {uiStrings.archiveFiltersButton || getDefault('archive', 'archiveFiltersButton', language)}
                 </div>
+                {activeChips.length > 0 && (
+                  <span className="ml-2 bg-red-600 text-white text-xs rounded px-1.5 min-w-[18px] text-center">
+                    {activeChips.length}
+                  </span>
+                )}
                 <FilterIcon
-                  className={`ml-2 w-6 h-6 transition-transform duration-200 [filter:invert(19%)_sepia(92%)_saturate(2352%)_hue-rotate(343deg)_brightness(94%)_contrast(97%)] ${
-                    filterOpen ? 'rotate-180' : ''
-                  }`}
+                  className="ml-2 w-6 h-6 [filter:invert(19%)_sepia(92%)_saturate(2352%)_hue-rotate(343deg)_brightness(94%)_contrast(97%)]"
                 />
               </button>
             )}
           </div>
+          {isArchive && activeChips.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {activeChips.map(chip => (
+                <FilterChip key={chip.key} label={chip.label} onRemove={chip.onRemove} />
+              ))}
+            </div>
+          )}
         </div>
         {isArchive && (
-          <FilterControls onUpdate={applyFilters} isOpen={filterOpen} isLoading={isLoading} />
+          <Modal
+            open={filterOpen}
+            onClose={handleCloseFilters}
+            onUpdate={handleApplyDraftFilters}
+            onClear={handleClearDraftFilters}
+            title="Filters"
+            updateButtonText="See Results"
+            clearButtonText="Clear all"
+            allowOutsideClick={false}
+          >
+            <FilterControls
+              key={filterKey}
+              filters={draftFilters}
+              onChange={setDraftFilters}
+              isLoading={isLoading}
+            />
+          </Modal>
         )}
         {!isArchive &&
           (isLoading || (imageResults?.googleResults?.length > 0 || imageResults?.baiduResults?.length > 0)) && (

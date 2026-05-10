@@ -59,13 +59,12 @@ export default async function handler(req, res) {
 
     console.log('Backend response status:', response.status);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Backend error response:', errorText.substring(0, 200));
-    }
-
-    // Get the response data
+    // Get the response data (read body once)
     const data = await response.text();
+
+    if (!response.ok) {
+      console.error('Backend error response:', data.substring(0, 200));
+    }
 
     // Try to parse as JSON, otherwise return as text
     let responseData;

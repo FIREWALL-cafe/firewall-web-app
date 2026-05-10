@@ -65,6 +65,7 @@ export default async function handler(req, res) {
     let translatedQuery;
     try {
       translatedQuery = await translateText(query, langFrom, langTo);
+      if (!translatedQuery) throw new Error('Empty translation response');
       console.log('Translation successful:', query, '->', translatedQuery);
     } catch (error) {
       console.warn('Translation failed, using fallback:', error.message);
