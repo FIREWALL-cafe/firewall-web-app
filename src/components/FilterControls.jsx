@@ -4,6 +4,8 @@ import VoteButton from './VoteButton';
 import FilterChip from './FilterChip';
 import { formatLocationName } from '../utils/stringUtils';
 import { useLanguage } from '../context/LanguageContext';
+import ArrowDown from '../assets/icons/keyboard_arrow_down.svg';
+import ArrowUp from '../assets/icons/keyboard_arrow_up.svg';
 
 const CURRENT_YEAR = new Date().getFullYear();
 const FALLBACK_YEARS = Array.from({ length: CURRENT_YEAR - 2014 }, (_, i) => ({
@@ -31,6 +33,7 @@ function FilterControls({ filters, onChange, isLoading }) {
   const [loadingStates, setLoadingStates] = useState(false);
   const [showAllCountries, setShowAllCountries] = useState(false);
   const [showAllLocations, setShowAllLocations] = useState(false);
+  const [showAllStates, setShowAllStates] = useState(false);
 
   const whereTab = filters.where || 'places';
   const tabIndex = whereTab === 'events' ? 1 : 0;
@@ -44,7 +47,11 @@ function FilterControls({ filters, onChange, isLoading }) {
         setCountries(
           data
             .filter(c => c.code && c.name)
-            .sort((a, b) => b.search_count - a.search_count)
+            .sort((a, b) => {
+              if (a.code === 'US') return -1;
+              if (b.code === 'US') return 1;
+              return a.name.localeCompare(b.name);
+            })
         );
       } catch {}
     }
@@ -95,7 +102,10 @@ function FilterControls({ filters, onChange, isLoading }) {
       setLoadingStates(true);
       try {
         const r = await fetch('/api/analytics/us-states');
-        if (r.ok) setUsStatesData(await r.json());
+        if (r.ok) {
+          const data = await r.json();
+          setUsStatesData(data.sort((a, b) => (a.state || '').localeCompare(b.state || '')));
+        }
       } catch {}
       finally { setLoadingStates(false); }
     }
@@ -148,17 +158,19 @@ function FilterControls({ filters, onChange, isLoading }) {
     onChange({ ...filters, vote_ids: next });
   }
 
-  const visibleCountries = showAllCountries ? countries : countries.slice(0, 5);
-  const visibleLocations = showAllLocations ? searchLocations : searchLocations.slice(0, 5);
+  const visibleCountries = showAllCountries ? countries : countries.slice(0, 3);
+  const visibleLocations = showAllLocations ? searchLocations : searchLocations.slice(0, 3);
 
   const VOTE_ID_TO_LABEL = {
     1: 'Censored', 2: 'Uncensored', 3: 'Bad Translation',
     4: 'Good Translation', 5: 'Lost in Translation',
   };
 
+  const countryNameMap = Object.fromEntries(countries.map(c => [c.code, c.name]));
+
   const draftChips = [
     ...filters.countries.map(code => ({
-      key: `countries:${code}`, label: code,
+      key: `countries:${code}`, label: countryNameMap[code] || code,
       onRemove: () => onChange({ ...filters, countries: filters.countries.filter(c => c !== code), us_states: code === 'US' ? [] : filters.us_states }),
     })),
     ...filters.us_states.map(s => ({
@@ -179,12 +191,16 @@ function FilterControls({ filters, onChange, isLoading }) {
     })),
   ];
 
+  const COMPACT_VOTE_LABELS = {
+    votes_uncensored: 'Not Censored',
+  };
+
   return (
-    <div className="p-4 text-black">
+    <div className="px-8 py-3 text-black flex flex-col gap-6">
 
       {/* Active chips inside modal */}
       {draftChips.length > 0 && (
-        <div className="mb-4">
+        <div>
           <div className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Active</div>
           <div className="flex flex-wrap gap-2">
             {draftChips.map(chip => (
@@ -195,18 +211,18 @@ function FilterControls({ filters, onChange, isLoading }) {
       )}
 
       {/* WHERE */}
-      <div className="mb-5">
-        <div className="text-lg font-black mb-3">Where</div>
+      <div className="flex flex-col gap-3">
+        <div className="font-bitmap-song font-header-02">Where</div>
         <TabGroup selectedIndex={tabIndex} onChange={handleTabChange}>
-          <TabList className="flex gap-2 border-b border-gray-200 mb-3">
+          <TabList className="flex bg-[#fbfbfc] border border-[#b9c0c7] rounded h-12 mb-4">
             {['All places', 'Live events'].map(label => (
               <Tab
                 key={label}
                 className={({ selected }) =>
-                  `px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors focus:outline-none ${
+                  `flex-1 flex items-center justify-center text-[17px] font-medium rounded transition-colors focus:outline-none ${
                     selected
-                      ? 'border-red-600 text-red-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      ? 'bg-[#eff2f5] border border-black text-black'
+                      : 'text-[#484e55] hover:text-black'
                   }`
                 }
               >
@@ -214,91 +230,135 @@ function FilterControls({ filters, onChange, isLoading }) {
               </Tab>
             ))}
           </TabList>
-          <TabPanels>
+          <TabPanels className="w-full">
             {/* All places */}
-            <TabPanel>
-              <div className="space-y-1 mb-3">
+            <TabPanel className="w-full">
+              <div className="flex flex-col gap-1 mb-3">
                 {visibleCountries.map(c => (
-                  <label key={c.code} className="flex items-center gap-2 cursor-pointer py-0.5">
-                    <input
-                      type="checkbox"
-                      className="accent-red-600"
-                      checked={filters.countries.includes(c.code)}
-                      onChange={() => toggleCountry(c.code)}
-                      disabled={isLoading}
-                    />
-                    <span className="text-sm flex-1">{c.name}</span>
-                    {c.search_count != null && (
-                      <span className="text-xs text-gray-400">{c.search_count.toLocaleString()}</span>
+                  <React.Fragment key={c.code}>
+                    <label className="flex items-center justify-between cursor-pointer py-0.5">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-6 h-6 border border-[#8d969e] rounded flex items-center justify-center shrink-0 ${filters.countries.includes(c.code) ? 'bg-red-600 border-red-600' : ''}`}>
+                          {filters.countries.includes(c.code) && (
+                            <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </div>
+                        <input
+                          type="checkbox"
+                          className="sr-only"
+                          checked={filters.countries.includes(c.code)}
+                          onChange={() => toggleCountry(c.code)}
+                          disabled={isLoading}
+                        />
+                        <span className="text-[17px] leading-[1.5]">{c.name}</span>
+                      </div>
+                      {c.search_count != null && (
+                        <span className="text-[17px] text-black">{c.search_count.toLocaleString()}</span>
+                      )}
+                    </label>
+
+                    {/* US States inline, directly under United States */}
+                    {c.code === 'US' && filters.countries.includes('US') && (
+                      <div className="pl-10 flex flex-col gap-1 mb-1">
+                        {loadingStates ? (
+                          <span className="text-sm text-gray-400">Loading states…</span>
+                        ) : (
+                          <>
+                            {(showAllStates ? usStatesData : usStatesData.slice(0, 3)).map(s => (
+                              <label key={s.state} className="flex items-center justify-between cursor-pointer py-0.5">
+                                <div className="flex items-center gap-4">
+                                  <div className={`w-6 h-6 border border-[#8d969e] rounded flex items-center justify-center shrink-0 ${filters.us_states.includes(s.state) ? 'bg-red-600 border-red-600' : ''}`}>
+                                    {filters.us_states.includes(s.state) && (
+                                      <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                      </svg>
+                                    )}
+                                  </div>
+                                  <input
+                                    type="checkbox"
+                                    className="sr-only"
+                                    checked={filters.us_states.includes(s.state)}
+                                    onChange={() => toggleUsState(s.state)}
+                                    disabled={isLoading}
+                                  />
+                                  <span className="text-[17px] leading-[1.5]">{s.state}</span>
+                                </div>
+                                <span className="text-[17px] text-black">{s.search_count?.toLocaleString()}</span>
+                              </label>
+                            ))}
+                            {usStatesData.length > 3 && (
+                              <button
+                                type="button"
+                                onClick={() => setShowAllStates(v => !v)}
+                                className="flex items-center gap-1 text-[#2e3238] text-[17px] mt-1 self-start"
+                              >
+                                {showAllStates ? 'Show less' : 'Show All'}
+                                <img src={showAllStates ? ArrowUp : ArrowDown} className="w-6 h-6" alt="" />
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
                     )}
-                  </label>
+                  </React.Fragment>
                 ))}
-                {countries.length > 5 && (
+              </div>
+              {countries.length > 3 && (
+                <div className="flex justify-center pt-3">
                   <button
                     type="button"
                     onClick={() => setShowAllCountries(v => !v)}
-                    className="text-xs text-red-600 hover:underline mt-1"
+                    className="flex items-center gap-1 text-[#2e3238] text-[20px]"
                   >
-                    {showAllCountries ? 'Show less' : `Show all ${countries.length}`}
+                    {showAllCountries ? 'Show less' : 'Show All'}
+                    <img src={showAllCountries ? ArrowUp : ArrowDown} className="w-6 h-6" alt="" />
                   </button>
-                )}
-              </div>
-
-              {/* US States sub-list */}
-              {filters.countries.includes('US') && (
-                <div className="pl-4 border-l-2 border-blue-200 mb-3">
-                  <div className="text-sm font-semibold mb-2 text-blue-600">↳ US State</div>
-                  {loadingStates ? (
-                    <span className="text-xs text-gray-400">Loading states…</span>
-                  ) : (
-                    <div className="space-y-1 max-h-40 overflow-y-auto">
-                      {usStatesData.map(s => (
-                        <label key={s.state} className="flex items-center gap-2 cursor-pointer py-0.5">
-                          <input
-                            type="checkbox"
-                            className="accent-red-600"
-                            checked={filters.us_states.includes(s.state)}
-                            onChange={() => toggleUsState(s.state)}
-                            disabled={isLoading}
-                          />
-                          <span className="text-sm flex-1">{s.state}</span>
-                          <span className="text-xs text-gray-400">{s.search_count?.toLocaleString()}</span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
                 </div>
               )}
             </TabPanel>
 
             {/* Live events */}
-            <TabPanel>
-              <div className="space-y-1">
+            <TabPanel className="w-full">
+              <div className="flex flex-col gap-1 mb-3">
                 {visibleLocations.map(loc => (
-                  <label key={loc.value} className="flex items-center gap-2 cursor-pointer py-0.5">
-                    <input
-                      type="checkbox"
-                      className="accent-red-600"
-                      checked={filters.search_locations.includes(loc.value)}
-                      onChange={() => toggleLocation(loc.value)}
-                      disabled={isLoading}
-                    />
-                    <span className="text-sm flex-1">{loc.label}</span>
+                  <label key={loc.value} className="flex items-center justify-between cursor-pointer py-0.5">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-6 h-6 border border-[#8d969e] rounded flex items-center justify-center shrink-0 ${filters.search_locations.includes(loc.value) ? 'bg-red-600 border-red-600' : ''}`}>
+                        {filters.search_locations.includes(loc.value) && (
+                          <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </div>
+                      <input
+                        type="checkbox"
+                        className="sr-only"
+                        checked={filters.search_locations.includes(loc.value)}
+                        onChange={() => toggleLocation(loc.value)}
+                        disabled={isLoading}
+                      />
+                      <span className="text-[17px] leading-[1.5]">{loc.label}</span>
+                    </div>
                     {loc.search_count != null && (
-                      <span className="text-xs text-gray-400">{loc.search_count.toLocaleString()}</span>
+                      <span className="text-[17px] text-black">{loc.search_count.toLocaleString()}</span>
                     )}
                   </label>
                 ))}
-                {searchLocations.length > 5 && (
+              </div>
+              {searchLocations.length > 3 && (
+                <div className="flex justify-center pt-3">
                   <button
                     type="button"
                     onClick={() => setShowAllLocations(v => !v)}
-                    className="text-xs text-red-600 hover:underline mt-1"
+                    className="flex items-center gap-1 text-[#2e3238] text-[20px]"
                   >
-                    {showAllLocations ? 'Show less' : `Show all ${searchLocations.length}`}
+                    {showAllLocations ? 'Show less' : 'Show All'}
+                    <img src={showAllLocations ? ArrowUp : ArrowDown} className="w-6 h-6" alt="" />
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </TabPanel>
           </TabPanels>
         </TabGroup>
@@ -306,69 +366,71 @@ function FilterControls({ filters, onChange, isLoading }) {
 
       {/* WHEN — only in All places mode */}
       {whereTab === 'places' && (
-        <div className="mb-5 border-t border-gray-200 pt-4">
-          <div className="text-lg font-black mb-3">When</div>
-          <div className="flex flex-wrap gap-2">
-            {years.map(({ year, search_count }) => {
-              const y = String(year);
-              const active = filters.years.includes(y);
-              return (
-                <button
-                  key={year}
-                  type="button"
-                  onClick={() => toggleYear(year)}
-                  disabled={isLoading}
-                  className={`px-3 py-1 text-sm border rounded transition-colors ${
-                    active
-                      ? 'bg-red-600 text-white border-red-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-red-400'
-                  }`}
-                >
-                  {year}
-                  {search_count != null && (
-                    <span className="ml-1 text-xs opacity-70">({search_count.toLocaleString()})</span>
-                  )}
-                </button>
-              );
-            })}
+        <div className="border-t border-[#b9c0c7] pt-6 flex flex-col gap-3">
+          <div className="font-bitmap-song font-header-02">When</div>
+          <div className="relative">
+            <div className="flex gap-3 overflow-x-auto pb-1 no-scrollbar">
+              {years.map(({ year }) => {
+                const y = String(year);
+                const active = filters.years.includes(y);
+                return (
+                  <button
+                    key={year}
+                    type="button"
+                    onClick={() => toggleYear(year)}
+                    disabled={isLoading}
+                    className={`h-8 px-3 border rounded shrink-0 text-[17px] leading-[1.5] transition-colors ${
+                      active
+                        ? 'bg-black text-white border-black'
+                        : 'bg-white text-[#2e3238] border-[#b9c0c7] hover:border-black'
+                    }`}
+                  >
+                    {year}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="pointer-events-none absolute top-0 right-0 h-full w-8 bg-gradient-to-l from-white to-transparent" />
           </div>
         </div>
       )}
 
-      {/* VOTE */}
-      <div className="border-t border-gray-200 pt-4">
-        <div className="text-lg font-black mb-3">Vote</div>
-
-        <div className="mb-4">
-          <div className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Censorship</div>
-          <div className="flex gap-2 flex-wrap">
-            {CENSORSHIP_VOTES.map(metaKey => (
-              <VoteButton
-                key={metaKey}
-                voteCategory={metaKey}
-                voteHandler={toggleVote}
-                toggle
-                isSelected={filters.vote_ids.includes(metaKeyToId[metaKey])}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <div className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Translation Quality</div>
-          <div className="flex gap-2 flex-wrap">
-            {TRANSLATION_VOTES.map(metaKey => (
-              <VoteButton
-                key={metaKey}
-                voteCategory={metaKey}
-                voteHandler={toggleVote}
-                toggle
-                isSelected={filters.vote_ids.includes(metaKeyToId[metaKey])}
-              />
-            ))}
-          </div>
+      {/* CENSORSHIP */}
+      <div className="border-t border-[#b9c0c7] pt-6 flex flex-col gap-3">
+        <div className="font-bitmap-song font-header-02">Censorship</div>
+        <div className="flex flex-wrap gap-3">
+          {CENSORSHIP_VOTES.map(metaKey => (
+            <VoteButton
+              key={metaKey}
+              voteCategory={metaKey}
+              nameOverride={COMPACT_VOTE_LABELS[metaKey]}
+              voteHandler={toggleVote}
+              toggle
+              compact
+              isSelected={filters.vote_ids.includes(metaKeyToId[metaKey])}
+            />
+          ))}
         </div>
       </div>
+
+      {/* TRANSLATION QUALITY */}
+      <div className="border-t border-[#b9c0c7] pt-6 flex flex-col gap-3">
+        <div className="font-bitmap-song font-header-02">Translation Quality</div>
+        <div className="flex flex-wrap gap-3">
+          {TRANSLATION_VOTES.map(metaKey => (
+            <VoteButton
+              key={metaKey}
+              voteCategory={metaKey}
+              nameOverride={COMPACT_VOTE_LABELS[metaKey]}
+              voteHandler={toggleVote}
+              toggle
+              compact
+              isSelected={filters.vote_ids.includes(metaKeyToId[metaKey])}
+            />
+          ))}
+        </div>
+      </div>
+
     </div>
   );
 }

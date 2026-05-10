@@ -20,7 +20,7 @@ post_id: 310504
 security: 83376c1e81
 */
 
-function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle = false, hasVoted = false, votedCategories = new Set(), isSelected: isSelectedProp }) {
+function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle = false, hasVoted = false, votedCategories = new Set(), isSelected: isSelectedProp, compact = false, nameOverride }) {
   const { language } = useLanguage();
   const [isToggleSelected, setToggleSelected] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
@@ -111,6 +111,7 @@ function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle
   };
 
   const imgSrc = voteMeta[voteCategory].img;
+  const displayName = nameOverride || voteMeta[voteCategory].name;
   const isControlled = toggle && isSelectedProp !== undefined;
   const isSelected = toggle
     ? (isControlled ? isSelectedProp : isToggleSelected)
@@ -136,6 +137,23 @@ function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle
     }
   };
 
+  if (compact) {
+    return (
+      <button
+        className={`
+          flex items-center gap-2 px-3 py-2 rounded border border-neutral-500
+          ${isSelected ? 'bg-neutral-200' : 'bg-white hover:bg-neutral-100'}
+          ${isSubmitting ? 'cursor-wait opacity-50' : ''}
+        `}
+        onClick={vote}
+        disabled={isSubmitting}
+      >
+        <img src={imgSrc} className="w-8 h-8 shrink-0" alt={displayName} />
+        <span className="font-medium text-[17px] leading-[1.5] whitespace-nowrap">{displayName}</span>
+      </button>
+    );
+  }
+
   return (
     <button
       className={`
@@ -154,7 +172,7 @@ function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle
         id={`${voteMeta[voteCategory].name}-vote-icon`}
         className="w-full flex justify-between items-start"
       >
-        <img src={imgSrc} className="w-9 h-9" alt={voteMeta[voteCategory].name} />
+        <img src={imgSrc} className="w-9 h-9" alt={displayName} />
         {hasVoted && totalVotes > 0 && (
           <div className="flex items-center gap-1">
             <span className="font-body-02-bold-sm">{totalVotes}</span>
@@ -163,7 +181,7 @@ function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle
         )}
       </div>
       <input type="hidden" id={voteCategory} name={voteCategory} />
-      <div className="font-body-02-bold-sm mt-6">{voteMeta[voteCategory].name}</div>
+      <div className="font-body-02-bold-sm mt-6">{displayName}</div>
     </button>
   );
 }

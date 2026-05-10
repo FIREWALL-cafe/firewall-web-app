@@ -28,6 +28,7 @@ import ArrowRight from './icons/ArrowRight';
 import SearchCompare from './SearchCompare';
 import Spinner from '../assets/spinner.svg';
 import CloseIcon from '../assets/icons/close_large.svg';
+import TuneIcon from '../assets/icons/tune.svg';
 import SearchProgressIndicator from './SearchProgressIndicator';
 
 function SearchInput({ searchMode }) {
@@ -84,8 +85,8 @@ function SearchInput({ searchMode }) {
   const setResults = useCallback(results => setImageResults(results), []);
   const [username] = useCookie('username');
   const [filterOpen, setFilterOpen] = useState(false);
-const [isLoadingTranslation, setIsLoadingTranslation] = useState(false);
-  const [filterKey, setFilterKey] = useState(0);
+  const [isLoadingTranslation, setIsLoadingTranslation] = useState(false);
+  const [countryNameMap, setCountryNameMap] = useState({});
   const emptyFilters = {
     vote_ids: [],
     years: [],
@@ -151,6 +152,18 @@ const [isLoadingTranslation, setIsLoadingTranslation] = useState(false);
       return uiStrings.searchInputPlaceholder || getDefault('search', 'searchInputPlaceholder', language);
     }
   }, [isArchive, uiStrings.archiveInputPlaceholder, uiStrings.searchInputPlaceholder, language]);
+
+  // Fetch country code → name map for chip labels
+  useEffect(() => {
+    fetch('/api/analytics/countries')
+      .then(r => r.ok ? r.json() : [])
+      .then(data => {
+        const map = {};
+        data.forEach(c => { if (c.code && c.name) map[c.code] = c.name; });
+        setCountryNameMap(map);
+      })
+      .catch(() => {});
+  }, []);
 
   // Load UI strings from Sanity based on search mode
   // Update defaults immediately when language/archive mode changes to prevent layout shift
@@ -231,15 +244,16 @@ const [isLoadingTranslation, setIsLoadingTranslation] = useState(false);
   useEffect(() => {
     // Update the input field when query params change and perform search
     const urlQuery = searchParams.get('q');
-    const urlSearchLocations = searchParams.get('search_locations');
-    const urlCountries = searchParams.get('countries');
-    const urlUsStates = searchParams.get('us_states');
+    const urlSearchLocations = searchParams.getAll('search_locations');
+    const urlCountries = searchParams.getAll('countries');
+    const urlUsStates = searchParams.getAll('us_states');
     const urlStartDate = searchParams.get('start_date');
     const urlEndDate = searchParams.get('end_date');
 
     // Check if any URL filters are present
     const hasUrlFilters =
-      urlSearchLocations || urlCountries || urlUsStates || urlStartDate || urlEndDate ||
+      urlSearchLocations.length > 0 || urlCountries.length > 0 || urlUsStates.length > 0 ||
+      urlStartDate || urlEndDate ||
       searchParams.getAll('vote_ids').length > 0 || searchParams.getAll('years').length > 0;
 
     if (urlQuery || (isArchive && hasUrlFilters)) {
@@ -270,14 +284,14 @@ const [isLoadingTranslation, setIsLoadingTranslation] = useState(false);
               };
 
               // Add URL filters if present
-              if (urlSearchLocations) {
-                filterParams.search_locations = [urlSearchLocations];
+              if (urlSearchLocations.length > 0) {
+                filterParams.search_locations = urlSearchLocations;
               }
-              if (urlCountries) {
-                filterParams.countries = [urlCountries];
+              if (urlCountries.length > 0) {
+                filterParams.countries = urlCountries;
               }
-              if (urlUsStates) {
-                filterParams.us_states = [urlUsStates];
+              if (urlUsStates.length > 0) {
+                filterParams.us_states = urlUsStates;
               }
               if (urlStartDate) {
                 filterParams.start_date = urlStartDate;
@@ -310,9 +324,9 @@ const [isLoadingTranslation, setIsLoadingTranslation] = useState(false);
               setCurrentFilters({
                 vote_ids: urlVoteIds,
                 years: urlYears,
-                search_locations: urlSearchLocations ? [urlSearchLocations] : [],
-                us_states: urlUsStates ? [urlUsStates] : [],
-                countries: urlCountries ? [urlCountries] : [],
+                search_locations: urlSearchLocations,
+                us_states: urlUsStates,
+                countries: urlCountries,
                 start_date: urlStartDate || '',
                 end_date: urlEndDate || '',
               });
@@ -480,14 +494,21 @@ const [isLoadingTranslation, setIsLoadingTranslation] = useState(false);
     draftFilters.search_locations.forEach(v => nextParams.append('search_locations', v));
     draftFilters.years.forEach(v => nextParams.append('years', v));
     draftFilters.vote_ids.forEach(v => nextParams.append('vote_ids', String(v)));
+    if (draftFilters.where === 'events') nextParams.set('where', 'events');
     setSearchParams(nextParams);
     setFilterOpen(false);
   };
 
   const handleClearDraftFilters = () => {
     setDraftFilters(emptyFilters);
-    setFilterKey(k => k + 1);
   };
+
+  const isDraftEmpty =
+    draftFilters.countries.length === 0 &&
+    draftFilters.us_states.length === 0 &&
+    draftFilters.search_locations.length === 0 &&
+    draftFilters.years.length === 0 &&
+    draftFilters.vote_ids.length === 0;
 
   const handleCloseFilters = () => {
     setFilterOpen(false);
@@ -531,7 +552,7 @@ const [isLoadingTranslation, setIsLoadingTranslation] = useState(false);
   const activeChips = isArchive ? [
     ...searchParams.getAll('countries').map(code => ({
       key: `countries:${code}`,
-      label: code,
+      label: countryNameMap[code] || code,
       onRemove: () => removeUrlFilter('countries', code),
     })),
     ...searchParams.getAll('us_states').map(s => ({
@@ -813,13 +834,14 @@ disabled={isLoading || isTranslating}
             onClose={handleCloseFilters}
             onUpdate={handleApplyDraftFilters}
             onClear={handleClearDraftFilters}
+            clearDisabled={isDraftEmpty}
             title="Filters"
+            headerIcon={TuneIcon}
             updateButtonText="See Results"
             clearButtonText="Clear all"
             allowOutsideClick={false}
           >
             <FilterControls
-              key={filterKey}
               filters={draftFilters}
               onChange={setDraftFilters}
               isLoading={isLoading}

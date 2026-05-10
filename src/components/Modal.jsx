@@ -1,14 +1,16 @@
-import Close from '../assets/icons/close_large.svg';
+import CloseX from '../assets/icons/close.svg';
 
 export default function Modal({
   open,
   onClose,
   onUpdate,
   onClear,
+  clearDisabled = false,
   children,
   updateButtonText = 'Update',
   clearButtonText = 'Clear all',
   title = 'Modal',
+  headerIcon,
   allowOutsideClick = true,
   showCloseButton = true,
 }) {
@@ -20,38 +22,45 @@ export default function Modal({
       ${open ? 'visible bg-black/50' : 'invisible'}
     `}
     >
-      {/* modal */}
       <div
         onClick={e => e.stopPropagation()}
         className={`
-          bg-white rounded shadow p-2 transition-all mx-4 max-w-[720px] ipad-portrait:mx-24 max-h-[90vh] relative flex flex-col
+          bg-white rounded shadow transition-all mx-4 w-[500px] max-w-[calc(100vw-2rem)] max-h-[90vh] relative flex flex-col
           ${open ? 'scale-100 opacity-100' : 'scale-125 opacity-0'}
         `}
       >
-        <h3 className="px-4 pt-4 flex font-black bg-white justify-between w-full">
-          <div className="font-bitmap-song font-header-02">{title}</div>
-          {showCloseButton && (
-            <div>
-              <img
-                src={Close}
-                onClick={() => onClose(false)}
-                className="cursor-pointer w-6 aspect-square inline-block"
-                alt="Close modal"
-              />
-            </div>
+        {/* Header */}
+        <div className="flex items-center gap-2 px-8 py-3 border-b border-[#b9c0c7] bg-white shrink-0">
+          {headerIcon && (
+            <img src={headerIcon} className="w-7 h-7 shrink-0" alt="" />
           )}
-        </h3>
-        <div className="flex-1 overflow-y-auto">{children}</div>
-        <div className="bg-white flex flex-wrap gap-10 justify-between items-center p-4 w-full text-lg text-center max-md:max-w-full mt-auto">
+          <span className="flex-1 text-[24px] font-normal leading-[1.5] text-black">{title}</span>
+          {showCloseButton && (
+            <button
+              onClick={() => onClose(false)}
+              className="border border-[#b9c0c7] rounded flex items-center justify-center w-7 h-7 shrink-0 hover:bg-gray-50"
+              aria-label="Close"
+            >
+              <img src={CloseX} className="w-6 h-6" alt="Close" />
+            </button>
+          )}
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto min-h-0">{children}</div>
+
+        {/* Footer */}
+        <div className="bg-white flex items-center justify-between px-6 py-4 w-full border-t border-[#b9c0c7] shrink-0" style={{ boxShadow: '-1px -1px 8px 3px rgba(0,0,0,0.05)' }}>
           <button
             onClick={() => onClear ? onClear() : onClose(false)}
-            className="gap-1 self-stretch px-4 py-2 my-auto text-black bg-white border-black border border-solid min-h-[40px]"
+            disabled={clearDisabled}
+            className={`text-[17px] leading-[1.5] h-10 px-4 bg-white border-0 ${clearDisabled ? 'text-[#b9c0c7] cursor-not-allowed' : 'text-[#8d969e] hover:text-black'}`}
           >
             {clearButtonText}
           </button>
           <button
             onClick={onUpdate}
-            className="gap-1 px-4 py-2 my-auto text-white bg-black min-h-[40px]"
+            className="border border-black rounded-full text-[17px] leading-[1.5] text-black h-10 px-4 hover:bg-gray-50"
           >
             {updateButtonText}
           </button>
