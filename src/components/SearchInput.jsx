@@ -98,6 +98,8 @@ function SearchInput({ searchMode }) {
     where: 'places',
   };
   const [draftFilters, setDraftFilters] = useState(emptyFilters);
+  const [previewCount, setPreviewCount] = useState(null);
+  const [isCountLoading, setIsCountLoading] = useState(false);
   const [currentFilters, setCurrentFilters] = useState({
     vote_ids: [],
     years: [],
@@ -471,6 +473,8 @@ function SearchInput({ searchMode }) {
   };
 
   const handleOpenFilters = () => {
+    setPreviewCount(null);
+    setIsCountLoading(false);
     setDraftFilters({
       countries: searchParams.getAll('countries'),
       search_locations: searchParams.getAll('search_locations'),
@@ -510,8 +514,33 @@ function SearchInput({ searchMode }) {
     draftFilters.years.length === 0 &&
     draftFilters.vote_ids.length === 0;
 
+  useEffect(() => {
+    if (!filterOpen) return;
+    const currentQuery = searchParams.get('q') || '';
+    if (isDraftEmpty && !currentQuery) {
+      setPreviewCount(null);
+      setIsCountLoading(false);
+      return;
+    }
+    setIsCountLoading(true);
+    const timer = setTimeout(async () => {
+      try {
+        const result = await searchArchive({ query: currentQuery, ...draftFilters, page_size: 1, page: 1 });
+        const total = result?.total ?? result?.pagination?.total;
+        setPreviewCount(typeof total === 'number' ? total : null);
+      } catch {
+        setPreviewCount(null);
+      } finally {
+        setIsCountLoading(false);
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [draftFilters, filterOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleCloseFilters = () => {
     setFilterOpen(false);
+    setPreviewCount(null);
+    setIsCountLoading(false);
   };
 
   const handleClearSearch = () => {
@@ -837,7 +866,7 @@ disabled={isLoading || isTranslating}
             clearDisabled={isDraftEmpty}
             title="Filters"
             headerIcon={TuneIcon}
-            updateButtonText="See Results"
+            updateButtonText={isCountLoading ? 'See Results…' : previewCount !== null ? `See ${previewCount.toLocaleString()} Results` : 'See Results'}
             clearButtonText="Clear all"
             allowOutsideClick={false}
           >

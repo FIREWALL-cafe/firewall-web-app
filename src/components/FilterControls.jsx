@@ -3,7 +3,6 @@ import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/react';
 import VoteButton from './VoteButton';
 import FilterChip from './FilterChip';
 import { formatLocationName } from '../utils/stringUtils';
-import { useLanguage } from '../context/LanguageContext';
 import ArrowDown from '../assets/icons/keyboard_arrow_down.svg';
 import ArrowUp from '../assets/icons/keyboard_arrow_up.svg';
 
@@ -25,7 +24,6 @@ const CENSORSHIP_VOTES = ['votes_censored', 'votes_uncensored', 'votes_lost_in_t
 const TRANSLATION_VOTES = ['votes_bad_translation', 'votes_good_translation'];
 
 function FilterControls({ filters, onChange, isLoading }) {
-  const { language } = useLanguage();
   const [countries, setCountries] = useState([]);
   const [searchLocations, setSearchLocations] = useState([]);
   const [usStatesData, setUsStatesData] = useState([]);
@@ -73,8 +71,9 @@ function FilterControls({ filters, onChange, isLoading }) {
               value: l.search_location,
               label: formatLocationName(l.search_location),
               search_count: l.search_count,
+              year: l.year,
             }))
-            .sort((a, b) => b.search_count - a.search_count)
+          // already sorted by year desc from backend
         );
       } catch {}
     }
@@ -201,7 +200,7 @@ function FilterControls({ filters, onChange, isLoading }) {
       {/* Active chips inside modal */}
       {draftChips.length > 0 && (
         <div>
-          <div className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Active</div>
+          <div className="font-bitmap-song font-header-02 mb-2">Active</div>
           <div className="flex flex-wrap gap-2">
             {draftChips.map(chip => (
               <FilterChip key={chip.key} label={chip.label} onRemove={chip.onRemove} />
@@ -238,9 +237,9 @@ function FilterControls({ filters, onChange, isLoading }) {
                   <React.Fragment key={c.code}>
                     <label className="flex items-center justify-between cursor-pointer py-0.5">
                       <div className="flex items-center gap-4">
-                        <div className={`w-6 h-6 border border-[#8d969e] rounded flex items-center justify-center shrink-0 ${filters.countries.includes(c.code) ? 'bg-red-600 border-red-600' : ''}`}>
+                        <div className={`w-6 h-6 border rounded flex items-center justify-center shrink-0 ${filters.countries.includes(c.code) ? 'bg-[#eff2f5] border-black' : 'border-[#8d969e]'}`}>
                           {filters.countries.includes(c.code) && (
-                            <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                            <svg className="w-4 h-4 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                           )}
@@ -269,9 +268,9 @@ function FilterControls({ filters, onChange, isLoading }) {
                             {(showAllStates ? usStatesData : usStatesData.slice(0, 3)).map(s => (
                               <label key={s.state} className="flex items-center justify-between cursor-pointer py-0.5">
                                 <div className="flex items-center gap-4">
-                                  <div className={`w-6 h-6 border border-[#8d969e] rounded flex items-center justify-center shrink-0 ${filters.us_states.includes(s.state) ? 'bg-red-600 border-red-600' : ''}`}>
+                                  <div className={`w-6 h-6 border rounded flex items-center justify-center shrink-0 ${filters.us_states.includes(s.state) ? 'bg-[#eff2f5] border-black' : 'border-[#8d969e]'}`}>
                                     {filters.us_states.includes(s.state) && (
-                                      <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                      <svg className="w-4 h-4 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                       </svg>
                                     )}
@@ -325,9 +324,9 @@ function FilterControls({ filters, onChange, isLoading }) {
                 {visibleLocations.map(loc => (
                   <label key={loc.value} className="flex items-center justify-between cursor-pointer py-0.5">
                     <div className="flex items-center gap-4">
-                      <div className={`w-6 h-6 border border-[#8d969e] rounded flex items-center justify-center shrink-0 ${filters.search_locations.includes(loc.value) ? 'bg-red-600 border-red-600' : ''}`}>
+                      <div className={`w-6 h-6 border rounded flex items-center justify-center shrink-0 ${filters.search_locations.includes(loc.value) ? 'bg-[#eff2f5] border-black' : 'border-[#8d969e]'}`}>
                         {filters.search_locations.includes(loc.value) && (
-                          <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                          <svg className="w-4 h-4 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
                         )}
@@ -339,7 +338,10 @@ function FilterControls({ filters, onChange, isLoading }) {
                         onChange={() => toggleLocation(loc.value)}
                         disabled={isLoading}
                       />
-                      <span className="text-[17px] leading-[1.5]">{loc.label}</span>
+                      <span className="text-[17px] leading-[1.5]">
+                        {loc.label}
+                        {loc.year && <span className="text-[#8d969e]"> ({loc.year})</span>}
+                      </span>
                     </div>
                     {loc.search_count != null && (
                       <span className="text-[17px] text-black">{loc.search_count.toLocaleString()}</span>
@@ -381,7 +383,7 @@ function FilterControls({ filters, onChange, isLoading }) {
                     disabled={isLoading}
                     className={`h-8 px-3 border rounded shrink-0 text-[17px] leading-[1.5] transition-colors ${
                       active
-                        ? 'bg-black text-white border-black'
+                        ? 'bg-[#eff2f5] text-black border-black'
                         : 'bg-white text-[#2e3238] border-[#b9c0c7] hover:border-black'
                     }`}
                   >

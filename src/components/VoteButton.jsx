@@ -141,8 +141,8 @@ function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle
     return (
       <button
         className={`
-          flex items-center gap-2 px-3 py-2 rounded border border-neutral-500
-          ${isSelected ? 'bg-neutral-200' : 'bg-white hover:bg-neutral-100'}
+          flex items-center gap-2 px-3 py-2 rounded border
+          ${isSelected ? 'bg-[#eff2f5] border-black' : 'bg-white border-neutral-500 hover:bg-neutral-100'}
           ${isSubmitting ? 'cursor-wait opacity-50' : ''}
         `}
         onClick={vote}

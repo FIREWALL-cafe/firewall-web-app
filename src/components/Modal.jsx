@@ -25,7 +25,7 @@ export default function Modal({
       <div
         onClick={e => e.stopPropagation()}
         className={`
-          bg-white rounded shadow transition-all mx-4 w-[500px] max-w-[calc(100vw-2rem)] max-h-[90vh] relative flex flex-col
+          bg-white rounded-[8px] border border-black shadow transition-all mx-4 w-[500px] max-w-[calc(100vw-2rem)] max-h-[90vh] relative flex flex-col overflow-hidden
           ${open ? 'scale-100 opacity-100' : 'scale-125 opacity-0'}
         `}
       >
@@ -54,7 +54,7 @@ export default function Modal({
           <button
             onClick={() => onClear ? onClear() : onClose(false)}
             disabled={clearDisabled}
-            className={`text-[17px] leading-[1.5] h-10 px-4 bg-white border-0 ${clearDisabled ? 'text-[#b9c0c7] cursor-not-allowed' : 'text-[#8d969e] hover:text-black'}`}
+            className={`text-[17px] leading-[1.5] h-10 px-4 bg-white border-0 ${clearDisabled ? 'text-[#b9c0c7] cursor-not-allowed' : 'text-[#e81717] hover:opacity-80'}`}
           >
             {clearButtonText}
           </button>
