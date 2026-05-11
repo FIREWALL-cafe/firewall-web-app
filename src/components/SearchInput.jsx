@@ -525,7 +525,7 @@ function SearchInput({ searchMode }) {
     setIsCountLoading(true);
     const timer = setTimeout(async () => {
       try {
-        const result = await searchArchive({ query: currentQuery, ...draftFilters, page_size: 1, page: 1 });
+        const result = await searchArchive({ query: currentQuery, ...draftFilters });
         const total = result?.total ?? result?.pagination?.total;
         setPreviewCount(typeof total === 'number' ? total : null);
       } catch {
