@@ -872,7 +872,7 @@ disabled={isLoading || isTranslating}
           >
             <FilterControls
               filters={draftFilters}
-              onChange={setDraftFilters}
+              onChange={newFilters => { setPreviewCount(null); setDraftFilters(newFilters); }}
               isLoading={isLoading}
             />
           </Modal>
