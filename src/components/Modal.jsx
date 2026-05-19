@@ -47,7 +47,7 @@ export default function Modal({
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto min-h-0">{children}</div>
+        <div className="flex-1 overflow-y-scroll min-h-0">{children}</div>
 
         {/* Footer */}
         <div className="bg-white flex items-center justify-between px-6 py-4 w-full border-t border-[#b9c0c7] shrink-0" style={{ boxShadow: '-1px -1px 8px 3px rgba(0,0,0,0.05)' }}>

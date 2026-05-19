@@ -631,7 +631,7 @@ function SearchInput({ searchMode }) {
                   {isArchive ? (
                     <>
                       <img src={Archive} alt="Archive" className="w-10 h-10 iphone:w-8 iphone:h-8" />
-                      <span className="font-bitmap-song text-[14px] font-semibold text-red-600 ml-2">
+                      <span className="font-bitmap-song text-[18px] font-semibold text-red-600 ml-2">
                         {uiStrings.archiveButton || getDefault('archive', 'archiveButton', language)}
                       </span>
                     </>
@@ -651,7 +651,7 @@ function SearchInput({ searchMode }) {
                           className="object-contain w-full h-full"
                         />
                       </div>
-                      <span className="font-bitmap-song text-[14px] font-semibold text-red-600 ml-2">
+                      <span className="font-bitmap-song text-[18px] font-semibold text-red-600 ml-2">
                         {uiStrings.compareButton || getDefault('search', 'compareButton', language)}
                       </span>
                     </>
@@ -683,7 +683,7 @@ function SearchInput({ searchMode }) {
                         className="w-5 h-5 grayscale opacity-60"
                       />
                     </div>
-                    <span className="font-bitmap-song text-[14px] inline-flex items-center gap-1">
+                    <span className="font-bitmap-song text-[18px] inline-flex items-center gap-1">
                       {uiStrings.searchComparisonLink || getDefault('search', 'searchComparisonLink', language)}
                       <ArrowRight fill="currentColor" className="w-4 h-4" />
                     </span>
@@ -691,7 +691,7 @@ function SearchInput({ searchMode }) {
                 ) : (
                   <>
                     <img src={ArchiveGrayscale} alt="Archive" className="w-5 h-5" />
-                    <span className="font-bitmap-song text-[14px] inline-flex items-center gap-1">
+                    <span className="font-bitmap-song text-[18px] inline-flex items-center gap-1">
                       {uiStrings.searchArchiveLink || getDefault('archive', 'searchArchiveLink', language)}
                       <ArrowRight fill="currentColor" className="w-4 h-4" />
                     </span>
@@ -797,7 +797,7 @@ disabled={isLoading || isTranslating}
                   {uiStrings.archiveFiltersButton || getDefault('archive', 'archiveFiltersButton', language)}
                 </div>
                 {activeChips.length > 0 && (
-                  <span className="ml-2 bg-red-600 text-white text-xs rounded px-1.5 min-w-[18px] text-center">
+                  <span className="ml-2 bg-red-600 text-white text-xs rounded px-1.5 py-0.5 min-w-[18px] text-center">
                     {activeChips.length}
                   </span>
                 )}
@@ -839,7 +839,7 @@ disabled={isLoading || isTranslating}
                   {uiStrings.archiveFiltersButton || getDefault('archive', 'archiveFiltersButton', language)}
                 </div>
                 {activeChips.length > 0 && (
-                  <span className="ml-2 bg-red-600 text-white text-xs rounded px-1.5 min-w-[18px] text-center">
+                  <span className="ml-2 bg-red-600 text-white text-xs rounded px-1.5 py-0.5 min-w-[18px] text-center">
                     {activeChips.length}
                   </span>
                 )}
