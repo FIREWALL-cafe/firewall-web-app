@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import MenuLink from './MenuLink';
 import LanguageSwitcher from './LanguageSwitcher';
 import SubscribeForm from './SubscribeForm';
@@ -76,14 +76,11 @@ const DEFAULT_MENU_LINKS = [
 function Navigation() {
   const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [menuLinks, setMenuLinks] = useState(DEFAULT_MENU_LINKS);
-  const [searchPlaceholder, setSearchPlaceholder] = useState(getDefault('navigation', 'searchPlaceholder', language));
   const [newsletterTitle, setNewsletterTitle] = useState(getDefault('navigation', 'newsletterTitle', language));
   const [newsletterSubtitle, setNewsletterSubtitle] = useState(getDefault('navigation', 'newsletterSubtitle', language));
   const [siteAssets, setSiteAssets] = useState(null);
 
-  const navigate = useNavigate();
   const location = useLocation();
   const isIphone = useMediaQuery({ maxWidth: 420 });
   const isVerySmallScreen = useMediaQuery({ maxWidth: 320 });
@@ -122,13 +119,11 @@ function Navigation() {
             }));
 
           setMenuLinks(items);
-          setSearchPlaceholder(settings.searchPlaceholder || getDefault('navigation', 'searchPlaceholder', language));
           setNewsletterTitle(settings.newsletterTitle || getDefault('navigation', 'newsletterTitle', language));
           setNewsletterSubtitle(settings.newsletterSubtitle || getDefault('navigation', 'newsletterSubtitle', language));
         }
       } catch (error) {
         console.error('Failed to load navigation settings:', error);
-        setSearchPlaceholder(getDefault('navigation', 'searchPlaceholder', language));
         setNewsletterTitle(getDefault('navigation', 'newsletterTitle', language));
         setNewsletterSubtitle(getDefault('navigation', 'newsletterSubtitle', language));
       }
@@ -139,21 +134,6 @@ function Navigation() {
 
   const toggleDrawer = () => {
     setIsOpen(prevState => !prevState);
-  };
-
-  const handleSearchSubmit = e => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      setIsOpen(false);
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery('');
-    }
-  };
-
-  const handleSearchKeyDown = e => {
-    if (e.key === 'Enter') {
-      handleSearchSubmit(e);
-    }
   };
 
   return (
