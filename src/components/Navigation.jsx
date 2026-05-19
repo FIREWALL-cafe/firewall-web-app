@@ -82,7 +82,7 @@ function Navigation() {
   const [siteAssets, setSiteAssets] = useState(null);
 
   const location = useLocation();
-  const isIphone = useMediaQuery({ maxWidth: 420 });
+  const isMobile = useMediaQuery({ maxWidth: 768 });
   const isVerySmallScreen = useMediaQuery({ maxWidth: 320 });
   const isContactPage = location.pathname === '/contact';
 
@@ -178,17 +178,17 @@ function Navigation() {
                 transitionDuration: '500ms',
                 right: '0px',
                 transform: 'translate3d(100%, 0px, 0px)',
-                width: isIphone ? '100%' : '50%',
+                width: isMobile ? '100%' : '50%',
               }}
             >
               <nav className="flex flex-col h-full w-full bg-white">
                 {/* Red bar with language switcher */}
-                <div className="h-[40px] bg-red-600 flex items-center justify-end px-8 shrink-0">
+                <div className={`${isMobile ? 'h-[48px] px-6' : 'h-[40px] px-8'} bg-red-600 flex items-center justify-end shrink-0`}>
                   <LanguageSwitcher />
                 </div>
 
                 {/* Drawer header: logo + close button */}
-                <div className="flex justify-between items-center px-8 py-5">
+                <div className={`flex justify-between items-center ${isMobile ? 'px-6 py-5' : 'px-8 py-5'}`}>
                   <Link to="/" onClick={toggleDrawer}>
                     {isVerySmallScreen ? (
                       <img
@@ -216,17 +216,17 @@ function Navigation() {
                 </div>
 
                 {/* Navigation Links */}
-                <div className="flex flex-col flex-1 p-8 overflow-y-auto">
+                <div className={`flex flex-col flex-1 overflow-y-auto ${isMobile ? 'px-6 pt-6 pb-16' : 'p-8'}`}>
                   {menuLinks.map((link, index) => (
-                    <MenuLink key={index} link={link} toggleDrawer={toggleDrawer} />
+                    <MenuLink key={index} link={link} toggleDrawer={toggleDrawer} isMobile={isMobile} />
                   ))}
                 </div>
 
                 {/* Divider */}
-                <hr className="border-t border-[#b9c0c7] mx-8 shrink-0" />
+                <hr className={`border-t border-[#b9c0c7] ${isMobile ? 'mx-6' : 'mx-8'} shrink-0`} />
 
                 {/* Subscribe Form */}
-                <div className="px-8 pt-8 pb-8">
+                <div className={`${isMobile ? 'px-6 pt-6 pb-6' : 'px-8 pt-8 pb-8'}`}>
                   <div className="mb-6">
                     <div className="font-bitmap-song text-[28px] leading-[1.5] text-black">
                       {newsletterTitle}

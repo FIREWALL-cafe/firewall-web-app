@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-function MenuLink({ link, toggleDrawer }) {
+function MenuLink({ link, toggleDrawer, isMobile }) {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
 
@@ -19,9 +19,9 @@ function MenuLink({ link, toggleDrawer }) {
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="flex gap-4 items-center py-3 w-full"
+      className={`flex gap-4 items-center w-full ${isMobile ? 'py-2' : 'py-3'}`}
     >
-      <div className="size-10 flex items-center justify-center shrink-0">
+      <div className={`${isMobile ? 'size-8' : 'size-10'} flex items-center justify-center shrink-0`}>
         {currentIcon && (
           <img src={currentIcon} alt="" className="w-full h-full object-contain" />
         )}
