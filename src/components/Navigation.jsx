@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import MenuLink from './MenuLink';
+import LanguageSwitcher from './LanguageSwitcher';
 import SubscribeForm from './SubscribeForm';
 import Drawer from 'react-modern-drawer';
 import { useMediaQuery } from 'react-responsive';
@@ -15,17 +16,28 @@ import logoMobile from '../assets/icons/logo_only.svg';
 import NavMenu from '../assets/icons/nav-menu.svg';
 import Close from '../assets/icons/close_large.svg';
 
-import ArchiveIcon from '../assets/icons/Archive.png';
-import CommentaryIcon from '../assets/icons/expert-commentary.png';
-import EventsIcon from '../assets/icons/events.png';
-import PressIcon from '../assets/icons/press.png';
+import SearchIcon from '../assets/icons/search-grayscale.png';
+import ArchiveIcon from '../assets/icons/Archive_grayscale.png';
+import CommentaryIcon from '../assets/icons/expert-commentary_grayscale.png';
+import EventsIcon from '../assets/icons/events_grayscale.png';
+import PressIcon from '../assets/icons/press_grayscale.png';
 import AboutIcon from '../assets/icons/logo_only.svg';
-import SupportIcon from '../assets/icons/support.png';
-import ContactIcon from '../assets/icons/envelope.svg';
-import TimelineIcon from '../assets/icons/Timeline.png';
+import SupportIcon from '../assets/icons/support_grayscale.png';
+import ContactIcon from '../assets/icons/Envelope_icon_gray.png';
+import TimelineIcon from '../assets/icons/Timeline_grayscale.png';
+
+import SearchColorIcon from '../assets/icons/search-color.png';
+import ArchiveColorIcon from '../assets/icons/Archive.png';
+import CommentaryColorIcon from '../assets/icons/expert-commentary.png';
+import EventsColorIcon from '../assets/icons/events.png';
+import PressColorIcon from '../assets/icons/press.png';
+import SupportColorIcon from '../assets/icons/support.png';
+import ContactRedIcon from '../assets/icons/Envelope_icon_red.png';
+import TimelineColorIcon from '../assets/icons/Timeline.png';
 
 // Icon mapping for Sanity CMS
 const ICON_MAP = {
+  Search: SearchIcon,
   Archive: ArchiveIcon,
   Commentary: CommentaryIcon,
   Events: EventsIcon,
@@ -36,16 +48,29 @@ const ICON_MAP = {
   Timeline: TimelineIcon,
 };
 
+const HOVER_ICON_MAP = {
+  Search: SearchColorIcon,
+  Archive: ArchiveColorIcon,
+  Commentary: CommentaryColorIcon,
+  Events: EventsColorIcon,
+  Press: PressColorIcon,
+  About: AboutIcon,
+  Support: SupportColorIcon,
+  Contact: ContactRedIcon,
+  Timeline: TimelineColorIcon,
+};
+
 // Default fallback menu items
 const DEFAULT_MENU_LINKS = [
-  { to: '/archive', title: 'Query Archive', icon: ArchiveIcon },
-  { to: '/editorial', title: 'Expert Commentary', icon: CommentaryIcon },
-  { to: '/events', title: 'Events', icon: EventsIcon },
-  { to: '/press', title: 'Press', icon: PressIcon },
-  { to: '/about', title: 'About', icon: AboutIcon },
-  { to: '/support', title: 'Support Us', icon: SupportIcon },
-  { to: '/contact', title: 'Contact', icon: ContactIcon },
-  { to: '/timeline', title: 'Timeline', icon: TimelineIcon },
+  { to: '/search', title: 'Search', icon: SearchIcon, hoverIcon: SearchColorIcon },
+  { to: '/archive', title: 'Query Archive', icon: ArchiveIcon, hoverIcon: ArchiveColorIcon },
+  { to: '/editorial', title: 'Expert Commentary', icon: CommentaryIcon, hoverIcon: CommentaryColorIcon },
+  { to: '/events', title: 'Events', icon: EventsIcon, hoverIcon: EventsColorIcon },
+  { to: '/press', title: 'Press', icon: PressIcon, hoverIcon: PressColorIcon },
+  { to: '/about', title: 'About', icon: AboutIcon, hoverIcon: AboutIcon },
+  { to: '/support', title: 'Support Us', icon: SupportIcon, hoverIcon: SupportColorIcon },
+  { to: '/contact', title: 'Contact', icon: ContactIcon, hoverIcon: ContactRedIcon },
+  { to: '/timeline', title: 'Timeline', icon: TimelineIcon, hoverIcon: TimelineColorIcon },
 ];
 
 function Navigation() {
@@ -93,6 +118,7 @@ function Navigation() {
               to: item.path,
               title: item.label,
               icon: ICON_MAP[item.icon] || AboutIcon,
+              hoverIcon: HOVER_ICON_MAP[item.icon] || AboutIcon,
             }));
 
           setMenuLinks(items);
@@ -102,7 +128,6 @@ function Navigation() {
         }
       } catch (error) {
         console.error('Failed to load navigation settings:', error);
-        // Language-aware fallbacks
         setSearchPlaceholder(getDefault('navigation', 'searchPlaceholder', language));
         setNewsletterTitle(getDefault('navigation', 'newsletterTitle', language));
         setNewsletterSubtitle(getDefault('navigation', 'newsletterSubtitle', language));
@@ -119,9 +144,9 @@ function Navigation() {
   const handleSearchSubmit = e => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      setIsOpen(false); // Close the drawer
+      setIsOpen(false);
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery(''); // Clear the search input
+      setSearchQuery('');
     }
   };
 
@@ -171,16 +196,20 @@ function Navigation() {
               className="navDrawer"
               style={{
                 transitionDuration: '500ms',
-                top: '40px',
                 right: '0px',
                 transform: 'translate3d(100%, 0px, 0px)',
-                height: 'calc(100vh - 40px)',
                 width: isIphone ? '100%' : '50%',
               }}
             >
               <nav className="flex flex-col h-full w-full bg-white">
+                {/* Red bar with language switcher */}
+                <div className="h-[40px] bg-red-600 flex items-center justify-end px-8 shrink-0">
+                  <LanguageSwitcher />
+                </div>
+
+                {/* Drawer header: logo + close button */}
                 <div className="flex justify-between items-center px-8 py-5">
-                  <Link to="/">
+                  <Link to="/" onClick={toggleDrawer}>
                     {isVerySmallScreen ? (
                       <img
                         src={siteAssets?.logoIcon ? urlFor(siteAssets.logoIcon).width(40).url() : logoMobile}
@@ -194,70 +223,43 @@ function Navigation() {
                     )}
                   </Link>
                   <button
-                    className="flex items-center justify-center border border-gray-300 rounded h-10 w-10"
+                    className="flex items-center justify-center size-[36px]"
                     aria-label="Close"
                     onClick={toggleDrawer}
                   >
                     <img
-                      src={siteAssets?.closeLargeIcon ? urlFor(siteAssets.closeLargeIcon).width(24).url() : Close}
+                      src={siteAssets?.closeLargeIcon ? urlFor(siteAssets.closeLargeIcon).width(36).url() : Close}
                       alt=""
-                      className="w-6 h-6 object-contain"
+                      className="w-full h-full object-contain"
                     />
                   </button>
                 </div>
 
-                {/* Search Bar */}
-                <div className="px-6 mb-4">
-                  <form onSubmit={handleSearchSubmit} className="relative">
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={e => setSearchQuery(e.target.value)}
-                      onKeyDown={handleSearchKeyDown}
-                      placeholder={searchPlaceholder}
-                      className="w-full px-4 py-3 border-b-2 border-gray-300 bg-transparent text-gray-600 placeholder-gray-400 focus:outline-none focus:border-red-600"
-                    />
-                    <button
-                      type="submit"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:text-red-600 transition-colors"
-                    >
-                      <svg
-                        className="w-6 h-6 text-gray-400 hover:text-red-600 transition-colors"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        />
-                      </svg>
-                    </button>
-                  </form>
-                </div>
-
                 {/* Navigation Links */}
-                <div className="flex flex-col flex-1 px-6">
+                <div className="flex flex-col flex-1 p-8 overflow-y-auto">
                   {menuLinks.map((link, index) => (
                     <MenuLink key={index} link={link} toggleDrawer={toggleDrawer} />
                   ))}
                 </div>
 
+                {/* Divider */}
+                <hr className="border-t border-[#b9c0c7] mx-8 shrink-0" />
+
                 {/* Subscribe Form */}
-                <div className="px-6 pb-8">
+                <div className="px-8 pt-8 pb-8">
                   <div className="mb-6">
-                    <div className="text-lg font-medium text-black">
+                    <div className="font-bitmap-song text-[28px] leading-[1.5] text-black">
                       {newsletterTitle}
                     </div>
                     {newsletterSubtitle && (
-                      <div className="text-lg font-medium text-red-500">{newsletterSubtitle}</div>
+                      <div className="font-bitmap-song text-[28px] leading-[1.5] text-[#e81717]">{newsletterSubtitle}</div>
                     )}
                   </div>
                   <SubscribeForm
-                    inputClassName="flex-1 px-4 py-3 border border-gray-300 rounded-l bg-white text-gray-700 placeholder-gray-400 focus:outline-none focus:border-red-600"
-                    buttonClassName="px-8 py-3 bg-white border border-red-600 text-red-600 rounded-r hover:bg-red-50 transition-colors"
+                    placeholder="Email 电子邮件"
+                    containerClassName="flex items-center w-full bg-[#fbfbfc] border border-[#b9c0c7] rounded-[4px] overflow-hidden"
+                    inputClassName="flex-1 px-4 py-3 bg-transparent text-[#2e3238] placeholder-[#8d969e] focus:outline-none border-0 outline-none"
+                    buttonClassName="px-6 py-3 bg-white border border-[#e81717] text-[#e81717] rounded-[4px] shrink-0 hover:bg-red-50 transition-colors"
                   />
                 </div>
               </nav>

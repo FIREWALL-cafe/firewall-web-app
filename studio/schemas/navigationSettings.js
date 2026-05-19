@@ -45,6 +45,7 @@ export default defineType({
               description: 'Icon identifier for the menu item',
               options: {
                 list: [
+                  {title: 'Search', value: 'Search'},
                   {title: 'Archive', value: 'Archive'},
                   {title: 'Commentary', value: 'Commentary'},
                   {title: 'Events', value: 'Events'},

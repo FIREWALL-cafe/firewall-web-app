@@ -2,6 +2,7 @@ import React from 'react';
 
 function SubscribeForm({
   className = '',
+  containerClassName = 'flex items-center w-full',
   inputClassName = '',
   buttonClassName = '',
   placeholder = 'Email', // Caller should provide language-aware default
@@ -16,7 +17,7 @@ function SubscribeForm({
       className={`validate ${className}`}
       target="_self"
     >
-      <div className="flex items-center w-full">
+      <div className={containerClassName}>
         <input
           type="email"
           name="EMAIL"
