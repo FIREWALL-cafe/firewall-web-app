@@ -1,6 +1,16 @@
 // Vercel Function to handle translation requests
 // Returns only translation without performing image search
 
+async function withRetry(fn, delay = 1000) {
+  try {
+    return await fn();
+  } catch (firstErr) {
+    console.warn('Translation attempt failed, retrying in 1s:', firstErr.message);
+    await new Promise(r => setTimeout(r, delay));
+    return await fn();
+  }
+}
+
 async function detectLanguage(query) {
   console.log('Detecting language for:', query);
   const translationApiUrl = process.env.TRANSLATION_API_URL || 'https://babelfish.firewallcafe.com/api';
@@ -61,17 +71,13 @@ export default async function handler(req, res) {
       console.log('Fallback language detection:', langFrom, 'to', langTo);
     }
 
-    // 2. Translate query
-    let translatedQuery;
-    try {
-      translatedQuery = await translateText(query, langFrom, langTo);
-      if (!translatedQuery) throw new Error('Empty translation response');
-      console.log('Translation successful:', query, '->', translatedQuery);
-    } catch (error) {
-      console.warn('Translation failed, using fallback:', error.message);
-      // Fallback to mock translation if translation service fails
-      translatedQuery = langFrom === 'en' ? '测试' : 'test';
-    }
+    // 2. Translate query — retry once, then surface the error
+    const translatedQuery = await withRetry(async () => {
+      const result = await translateText(query, langFrom, langTo);
+      if (!result) throw new Error('Empty translation response');
+      return result;
+    });
+    console.log('Translation successful:', query, '->', translatedQuery);
 
     // 3. Return translation result
     const response = {

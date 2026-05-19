@@ -1,6 +1,16 @@
 // Vercel Function to handle image search requests
 // Implements Google and Baidu search directly without Express server dependency
 
+async function withRetry(fn, delay = 1000) {
+  try {
+    return await fn();
+  } catch (firstErr) {
+    console.warn('Translation attempt failed, retrying in 1s:', firstErr.message);
+    await new Promise(r => setTimeout(r, delay));
+    return await fn();
+  }
+}
+
 import { fetchWithFallback } from './lib/proxy.js';
 import { waitUntil } from '@vercel/functions';
 
@@ -328,15 +338,13 @@ export default async function handler(req, res) {
         console.log('Fallback language detection:', langFrom, 'to', langTo);
       }
 
-      // 2. Translate query
-      try {
-        translatedQuery = await translateText(query, langFrom, langTo);
-        console.log('Translation successful:', query, '->', translatedQuery);
-      } catch (error) {
-        console.warn('Translation failed, using fallback:', error.message);
-        // Fallback to mock translation if translation service fails
-        translatedQuery = langFrom === 'en' ? '测试' : 'test';
-      }
+      // 2. Translate query — retry once, then surface the error
+      translatedQuery = await withRetry(async () => {
+        const result = await translateText(query, langFrom, langTo);
+        if (!result) throw new Error('Empty translation response');
+        return result;
+      });
+      console.log('Translation successful:', query, '->', translatedQuery);
     }
 
     const enQuery = langFrom === 'en' ? query : translatedQuery;
