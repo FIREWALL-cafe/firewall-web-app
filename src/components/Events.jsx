@@ -50,7 +50,7 @@ function Events() {
 
   return (
     <section className="flex overflow-hidden flex-col bg-white">
-      <div className="flex flex-col justify-center items-center py-32 w-full max-md:py-24">
+      <div className="flex flex-col justify-center items-center py-32 w-full max-md:py-24 px-8">
         <div className="flex flex-col items-center w-full max-w-[1080px]">
           <h1 className="text-5xl font-medium text-center mb-8">
             {language === 'en' ? 'Events' : '活动'}
