@@ -606,6 +606,10 @@ function SearchInput({ searchMode }) {
     })),
   ] : [];
 
+  const showInlineTranslation = isArchive
+    ? !!(translation || isLoadingTranslation) && query === searchParams.get('q')
+    : !!(translation || isTranslating);
+
   const displaySearchIcon = !isArchive ? SearchIcon : ArchiveIcon;
   const displayTooltipContent = !isArchive
     ? `<span class="font-body-03">${uiStrings.searchModeTooltip || 'Your query will automatically translate into the other language. English queries will be searched in <b>Google</b>. Chinese queries will be searched in <b>Baidu</b>.'}</span>`
@@ -712,18 +716,16 @@ function SearchInput({ searchMode }) {
                     onKeyDown={handleKeyDown}
 disabled={isLoading || isTranslating}
                     style={
-                      isArchive && (translation || isLoadingTranslation) && query === searchParams.get('q')
+                      showInlineTranslation
                         ? { width: `calc(${query.length}ch + 2rem)` }
                         : undefined
                     }
                     className={`px-4 font-body-02 border-none h-[56px] text-neutral-600 focus:text-black placeholder:text-neutral-600 focus:ring-0 focus:outline-none iphone:text-lg ${
-                      isArchive && (translation || isLoadingTranslation) && query === searchParams.get('q')
-                        ? 'flex-shrink-0'
-                        : 'flex-1'
+                      showInlineTranslation ? 'flex-shrink-0' : 'flex-1'
                     }`}
                     aria-label="Search query"
                   />
-                  {isArchive && (translation || isLoadingTranslation) && query === searchParams.get('q') && (
+                  {showInlineTranslation && (
                     <div className="flex items-center gap-1 flex-1 min-w-0 text-neutral-600 font-body-02 overflow-hidden pr-2">
                       <span className="flex-shrink-0">|</span>
                       <span className="truncate">{translation || '...'}</span>
@@ -819,12 +821,6 @@ disabled={isLoading || isTranslating}
 
 
           <div className="flex items-center gap-4 mt-4">
-            {!isArchive && !isSearchActive && translation && (
-              <span className="p-1 leading-8 text-medium rounded flex items-center gap-2 bg-slate-50 border border-black">
-                <span className="font-bold">{uiStrings.translationLabel || 'Translation:'}</span>{' '}
-                {translation}
-              </span>
-            )}
             {error && (
               <span className="p-1 leading-8 text-medium bg-red-50 border border-red-600 rounded text-red-600">
                 <span className="font-bold">{uiStrings.errorLabel || 'Error:'}</span> {error}
