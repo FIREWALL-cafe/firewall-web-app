@@ -134,6 +134,10 @@ code {
   height: 100vh;
 }
 
+.EZDrawer .EZDrawer__overlay {
+  background-color: rgba(30, 58, 138, 0.5);
+}
+
 .font-bitmap-song {
   font-family: WenQuanYi;
 }

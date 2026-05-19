@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import MenuLink from './MenuLink';
 import SubscribeForm from './SubscribeForm';
-import LanguageSwitcher from './LanguageSwitcher';
 import Drawer from 'react-modern-drawer';
 import { useMediaQuery } from 'react-responsive';
 import { useLanguage } from '../context/LanguageContext';
@@ -137,7 +136,7 @@ function Navigation() {
       id="navigation"
       className={`w-full is-full-width-content ${isContactPage ? 'bg-gray-100' : ''}`}
     >
-      <div className="w-full max-w-[1280px] mx-auto">
+      <div className="w-full max-w-[1280px] mx-auto px-8 py-5">
         <div className="flex justify-between items-center w-full">
           <div className="flex gap-3">
             <Link to="/">
@@ -154,13 +153,15 @@ function Navigation() {
               )}
             </Link>
           </div>
-          <div className="flex items-center gap-4 relative">
-            <LanguageSwitcher />
-            <button onClick={toggleDrawer} className="flex items-center justify-end h-16">
+          <div className="flex items-center relative">
+            <button
+              onClick={toggleDrawer}
+              className="flex items-center justify-center bg-red-600 size-[36px] rounded-[4.5px]"
+            >
               <img
-                src={siteAssets?.menuIcon ? urlFor(siteAssets.menuIcon).width(32).url() : NavMenu}
+                src={siteAssets?.menuIcon ? urlFor(siteAssets.menuIcon).width(24).url() : NavMenu}
                 alt="Menu"
-                className="object-contain self-stretch my-auto"
+                className="w-6 h-6 object-contain"
               />
             </button>
             <Drawer
@@ -170,44 +171,39 @@ function Navigation() {
               className="navDrawer"
               style={{
                 transitionDuration: '500ms',
-                top: '0px',
+                top: '40px',
                 right: '0px',
                 transform: 'translate3d(100%, 0px, 0px)',
-                height: '100vh',
+                height: 'calc(100vh - 40px)',
                 width: isIphone ? '100%' : '50%',
               }}
             >
               <nav className="flex flex-col h-full w-full bg-white">
-                <div className="flex justify-between items-center p-6">
-                  <div className="flex items-center gap-3">
-                    <Link to="/">
-                      {isVerySmallScreen ? (
-                        <img
-                          src={siteAssets?.logoIcon ? urlFor(siteAssets.logoIcon).width(40).url() : logoMobile}
-                          alt="Logo"
-                        />
-                      ) : (
-                        <img
-                          src={siteAssets?.logoFull ? urlFor(siteAssets.logoFull).width(200).url() : logo}
-                          alt="Logo"
-                        />
-                      )}
-                    </Link>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <LanguageSwitcher />
-                    <button
-                      className="w-10 h-10 flex items-center justify-center"
-                      aria-label="Close"
-                      onClick={toggleDrawer}
-                    >
+                <div className="flex justify-between items-center px-8 py-5">
+                  <Link to="/">
+                    {isVerySmallScreen ? (
                       <img
-                        src={siteAssets?.closeLargeIcon ? urlFor(siteAssets.closeLargeIcon).width(24).url() : Close}
-                        alt=""
-                        className="w-6 h-6 object-contain"
+                        src={siteAssets?.logoIcon ? urlFor(siteAssets.logoIcon).width(40).url() : logoMobile}
+                        alt="Logo"
                       />
-                    </button>
-                  </div>
+                    ) : (
+                      <img
+                        src={siteAssets?.logoFull ? urlFor(siteAssets.logoFull).width(200).url() : logo}
+                        alt="Logo"
+                      />
+                    )}
+                  </Link>
+                  <button
+                    className="flex items-center justify-center border border-gray-300 rounded h-10 w-10"
+                    aria-label="Close"
+                    onClick={toggleDrawer}
+                  >
+                    <img
+                      src={siteAssets?.closeLargeIcon ? urlFor(siteAssets.closeLargeIcon).width(24).url() : Close}
+                      alt=""
+                      className="w-6 h-6 object-contain"
+                    />
+                  </button>
                 </div>
 
                 {/* Search Bar */}
