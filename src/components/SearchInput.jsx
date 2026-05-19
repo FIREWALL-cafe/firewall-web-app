@@ -724,7 +724,7 @@ disabled={isLoading || isTranslating}
                     aria-label="Search query"
                   />
                   {isArchive && (translation || isLoadingTranslation) && query === searchParams.get('q') && (
-                    <div className="flex items-center gap-1 flex-1 min-w-0 text-neutral-400 font-body-02 overflow-hidden pr-2">
+                    <div className="flex items-center gap-1 flex-1 min-w-0 text-neutral-600 font-body-02 overflow-hidden pr-2">
                       <span className="flex-shrink-0">|</span>
                       <span className="truncate">{translation || '...'}</span>
                     </div>
