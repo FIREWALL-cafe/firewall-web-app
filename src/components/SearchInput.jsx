@@ -84,6 +84,8 @@ function SearchInput({ searchMode }) {
   const { suggestions } = useAutocomplete(query, language);
   const setResults = useCallback(results => setImageResults(results), []);
   const [username] = useCookie('username');
+  const usernameRef = useRef(username);
+  useEffect(() => { usernameRef.current = username; }, [username]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [isLoadingTranslation, setIsLoadingTranslation] = useState(false);
   const [countryNameMap, setCountryNameMap] = useState({});
@@ -363,7 +365,7 @@ function SearchInput({ searchMode }) {
               // Pass translation data to avoid duplicate translation
               const searchBody = {
                 query: urlQuery.trim(),
-                search_client_name: username,
+                search_client_name: usernameRef.current,
               };
 
               // If we got translation, pass it along to skip re-translating
@@ -430,10 +432,9 @@ function SearchInput({ searchMode }) {
     translateQuery,
     searchArchive,
     searchImages,
-    username,
     setResults,
     loadDefaultResults,
-  ]);
+  ]); // username intentionally omitted — tracked via usernameRef to avoid re-triggering searches when cookie initializes
 
   const handleLoadMore = async () => {
     setLoading(true);
