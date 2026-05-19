@@ -354,7 +354,7 @@ function SearchInput({ searchMode }) {
                 await new Promise(resolve => setTimeout(resolve, 300));
               } catch (translationError) {
                 console.warn('Translation failed:', translationError);
-                // Continue with search even if translation fails
+                setError(translationError.message || 'Translation failed');
                 setTranslation('');
               }
 
