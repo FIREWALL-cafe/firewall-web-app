@@ -427,8 +427,9 @@ function SearchInput({ searchMode }) {
       ranonce.current = true;
       loadDefaultResults();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    searchParams,
+    searchParams.toString(), // URLSearchParams is a new object reference every render; stringify for stable comparison
     isArchive,
     location.pathname,
     translateQuery,
