@@ -248,21 +248,20 @@ function SearchInput({ searchMode }) {
   }, [query, location.pathname, navigate]);
 
   const searchParamsStr = searchParams.toString();
+  const urlQuery = searchParams.get('q');
+  const urlSearchLocations = searchParams.getAll('search_locations');
+  const urlCountries = searchParams.getAll('countries');
+  const urlUsStates = searchParams.getAll('us_states');
+  const urlStartDate = searchParams.get('start_date');
+  const urlEndDate = searchParams.get('end_date');
+  const urlVoteIds = searchParams.getAll('vote_ids').map(Number).filter(Boolean);
+  const urlYears = searchParams.getAll('years');
+  const hasUrlFilters =
+    urlSearchLocations.length > 0 || urlCountries.length > 0 || urlUsStates.length > 0 ||
+    urlStartDate || urlEndDate || urlVoteIds.length > 0 || urlYears.length > 0;
 
   useEffect(() => {
     // Update the input field when query params change and perform search
-    const urlQuery = searchParams.get('q');
-    const urlSearchLocations = searchParams.getAll('search_locations');
-    const urlCountries = searchParams.getAll('countries');
-    const urlUsStates = searchParams.getAll('us_states');
-    const urlStartDate = searchParams.get('start_date');
-    const urlEndDate = searchParams.get('end_date');
-
-    // Check if any URL filters are present
-    const hasUrlFilters =
-      urlSearchLocations.length > 0 || urlCountries.length > 0 || urlUsStates.length > 0 ||
-      urlStartDate || urlEndDate ||
-      searchParams.getAll('vote_ids').length > 0 || searchParams.getAll('years').length > 0;
 
     if (urlQuery || (isArchive && hasUrlFilters)) {
       if (urlQuery) {
@@ -280,9 +279,6 @@ function SearchInput({ searchMode }) {
               setarchiveResults({ total: 0, page: 1, page_size: 10, data: [] });
               setFilteredResults({ total: 0, page: 1, page_size: 10, data: [] });
               setTranslation('');
-
-              const urlVoteIds = searchParams.getAll('vote_ids').map(Number).filter(Boolean);
-              const urlYears = searchParams.getAll('years');
 
               // Build filter params from URL
               const filterParams = {
@@ -429,8 +425,9 @@ function SearchInput({ searchMode }) {
       ranonce.current = true;
       loadDefaultResults();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    searchParamsStr,
+    searchParamsStr, // urlQuery/urlSearchLocations/etc. are all derived from searchParams; searchParamsStr captures all changes
     isArchive,
     location.pathname,
     translateQuery,
