@@ -15,9 +15,9 @@ function SearchProgressIndicator({ isActive, progress, caption }) {
           style={{ width: `${pct}%`, backgroundColor: fillColor }}
         />
       </div>
-      <div className="mt-2 flex items-center gap-2 text-sm text-neutral-700">
+      <div className="mt-2 flex items-center gap-2 text-neutral-700">
         <img src={Spinner} alt="" aria-hidden="true" className="w-4 h-4 animate-spin" />
-        <span>{caption}</span>
+        <span className="font-bitmap-song text-[13px]">{caption}</span>
       </div>
     </div>
   );

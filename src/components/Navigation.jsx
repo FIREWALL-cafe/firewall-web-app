@@ -178,7 +178,7 @@ function Navigation() {
                 transitionDuration: '500ms',
                 right: '0px',
                 transform: 'translate3d(100%, 0px, 0px)',
-                width: isMobile ? '100%' : '50%',
+                width: isMobile ? '100%' : '480px',
               }}
             >
               <nav className="flex flex-col h-full w-full bg-white">

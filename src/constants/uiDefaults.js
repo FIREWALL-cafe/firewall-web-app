@@ -60,7 +60,7 @@ export const UI_DEFAULTS = {
       translationLabel: 'Translation:',
       errorLabel: 'Error:',
       searchSessionHeading: 'Search Session',
-      compareButton: 'Search',
+      compareButton: 'Compare',
       searchComparisonLink: 'search Comparison',
     },
     zh: {
