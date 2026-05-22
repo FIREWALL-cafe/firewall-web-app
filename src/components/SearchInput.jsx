@@ -247,6 +247,8 @@ function SearchInput({ searchMode }) {
     }
   }, [query, location.pathname, navigate]);
 
+  const searchParamsStr = searchParams.toString();
+
   useEffect(() => {
     // Update the input field when query params change and perform search
     const urlQuery = searchParams.get('q');
@@ -427,9 +429,8 @@ function SearchInput({ searchMode }) {
       ranonce.current = true;
       loadDefaultResults();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    searchParams.toString(), // URLSearchParams is a new object reference every render; stringify for stable comparison
+    searchParamsStr,
     isArchive,
     location.pathname,
     translateQuery,
