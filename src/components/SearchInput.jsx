@@ -626,7 +626,7 @@ function SearchInput({ searchMode }) {
                 onClick={() => navigate(isArchive ? '/archive' : '/search')}
                 className={`
                   relative z-10
-                  flex items-center gap-2 px-4
+                  flex items-center gap-2 px-4 iphone:px-3 iphone:py-2
                   rounded-t border-t border-l border-r border-solid border-red-600
                   cursor-pointer
                   bg-[#F5F7F9] border-b-0 mb-[-1px]
@@ -697,7 +697,8 @@ function SearchInput({ searchMode }) {
                   <>
                     <img src={ArchiveGrayscale} alt="Archive" className="w-5 h-5" />
                     <span className="font-bitmap-song text-[18px] inline-flex items-center gap-1">
-                      {uiStrings.searchArchiveLink || getDefault('archive', 'searchArchiveLink', language)}
+                      <span className="md:hidden">{uiStrings.archiveButton || getDefault('archive', 'archiveButton', language)}</span>
+                      <span className="hidden md:inline">{uiStrings.searchArchiveLink || getDefault('archive', 'searchArchiveLink', language)}</span>
                       <ArrowRight fill="currentColor" className="w-4 h-4" />
                     </span>
                   </>
@@ -706,7 +707,7 @@ function SearchInput({ searchMode }) {
             </div>
             <Tooltip id="tooltip" border={'1px solid #e60011'} />
           </div>
-          <div className="flex justify-center p-5 gap-4 w-full rounded-tr rounded-br rounded-bl border-l border-r border-b border-solid bg-[#F5F7F9] border-red-600 iphone:max-w-full">
+          <div className="flex justify-center p-5 iphone:p-2 gap-4 w-full rounded-tr rounded-br rounded-bl border-l border-r border-b border-solid bg-[#F5F7F9] border-red-600 iphone:max-w-full">
             <Combobox value={query} onChange={setQuery}>
               <div className="relative flex w-full iphone:flex-1">
                 <div className="flex w-full bg-white rounded border border-solid border-neutral-500 h-[56px] overflow-hidden">
