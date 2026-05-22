@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useContext, useRef, useMemo } from 'react';
+import React, { useEffect, useLayoutEffect, useState, useCallback, useContext, useRef, useMemo } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 import { Combobox } from '@headlessui/react';
@@ -118,6 +118,8 @@ function SearchInput({ searchMode }) {
 
   const ranonce = useRef(false);
   const searchInProgress = useRef(false);
+  const mirrorRef = useRef(null);
+  const [inputTextWidth, setInputTextWidth] = useState(null);
 
   const isSearchActive = isLoading || isTranslating;
   const progressCaptions = useMemo(() => buildProgressCaptions(uiStrings), [uiStrings]);
@@ -611,6 +613,14 @@ function SearchInput({ searchMode }) {
     ? !!(translation || isLoadingTranslation) && query === searchParams.get('q')
     : !!(translation || isTranslating);
 
+  useLayoutEffect(() => {
+    if (!showInlineTranslation || !mirrorRef.current) {
+      setInputTextWidth(null);
+      return;
+    }
+    setInputTextWidth(mirrorRef.current.offsetWidth);
+  }, [query, showInlineTranslation]);
+
   const displaySearchIcon = !isArchive ? SearchIcon : ArchiveIcon;
   const displayTooltipContent = !isArchive
     ? `<span class="font-body-03">${uiStrings.searchModeTooltip || 'Your query will automatically translate into the other language. English queries will be searched in <b>Google</b>. Chinese queries will be searched in <b>Baidu</b>.'}</span>`
@@ -707,31 +717,47 @@ function SearchInput({ searchMode }) {
             </div>
             <Tooltip id="tooltip" border={'1px solid #e60011'} />
           </div>
-          <div className="flex justify-center p-5 iphone:p-2 gap-4 w-full rounded-tr rounded-br rounded-bl border-l border-r border-b border-solid bg-[#F5F7F9] border-red-600 iphone:max-w-full">
+          <div className="flex justify-center p-5 iphone:p-2 gap-4 w-full rounded-tr rounded-br rounded-bl border border-solid bg-[#F5F7F9] border-red-600 iphone:max-w-full">
             <Combobox value={query} onChange={setQuery}>
               <div className="relative flex w-full iphone:flex-1">
+                {/* Hidden mirror span for precise text width measurement */}
+                {showInlineTranslation && (
+                  <span
+                    ref={mirrorRef}
+                    aria-hidden="true"
+                    className="absolute invisible whitespace-pre font-body-02 pointer-events-none top-0 left-0"
+                  >
+                    {query}
+                  </span>
+                )}
                 <div className="flex w-full bg-white rounded border border-solid border-neutral-500 h-[56px] overflow-hidden">
-                  <Combobox.Input
-                    placeholder={inputPlaceholder}
-                    value={query}
-                    onChange={e => setQuery(e.target.value)}
-                    onKeyDown={handleKeyDown}
-disabled={isLoading || isTranslating}
-                    style={
-                      showInlineTranslation
-                        ? { width: `calc(${query.length}ch + 2rem)` }
-                        : undefined
-                    }
-                    className={`px-4 font-body-02 border-none h-[56px] text-neutral-600 focus:text-black placeholder:text-neutral-600 focus:ring-0 focus:outline-none iphone:text-lg ${
-                      showInlineTranslation ? 'flex-shrink-0' : 'flex-1'
-                    }`}
-                    aria-label="Search query"
-                  />
-                  {showInlineTranslation && (
-                    <div className="flex items-center gap-1 flex-1 min-w-0 text-neutral-600 font-body-02 overflow-hidden pr-2">
-                      <span className="flex-shrink-0">|</span>
-                      <span className="truncate">{translation || '...'}</span>
+                  {showInlineTranslation ? (
+                    <div className="flex flex-1 min-w-0 items-center gap-[10px] px-4 overflow-hidden">
+                      <Combobox.Input
+                        placeholder={inputPlaceholder}
+                        value={query}
+                        onChange={e => setQuery(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        disabled={isLoading || isTranslating}
+                        style={{ width: inputTextWidth != null ? `${inputTextWidth}px` : `${query.length}ch` }}
+                        className="flex-shrink-0 border-none h-[56px] p-0 text-neutral-900 font-body-02 focus:ring-0 focus:outline-none bg-transparent iphone:text-lg"
+                        aria-label="Search query"
+                      />
+                      <span className="flex-shrink-0 text-neutral-400 select-none">|</span>
+                      <span className="truncate text-neutral-600 font-body-02 flex-1 min-w-0">
+                        {translation || '...'}
+                      </span>
                     </div>
+                  ) : (
+                    <Combobox.Input
+                      placeholder={inputPlaceholder}
+                      value={query}
+                      onChange={e => setQuery(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      disabled={isLoading || isTranslating}
+                      className="flex-1 px-4 font-body-02 border-none h-[56px] text-neutral-900 placeholder:text-neutral-600 focus:ring-0 focus:outline-none iphone:text-lg"
+                      aria-label="Search query"
+                    />
                   )}
                   <div className="flex items-center bg-white">
                     {isArchive && searchParams.get('q') && (

@@ -158,7 +158,7 @@ function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle
     <button
       className={`
         flex flex-col items-start
-        w-full md:w-[190px]
+        w-full md:w-[220px]
         p-3
         rounded-lg
         border border-solid border-neutral-500
