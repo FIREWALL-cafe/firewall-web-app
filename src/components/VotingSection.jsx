@@ -135,30 +135,25 @@ function VotingSection({ query, searchId }) {
   };
 
   return (
-    <div className="flex overflow-hidden flex-col w-full bg-gray-50 border-t border-red-600 max-md:max-w-full">
+    <div className="flex flex-col w-full bg-gray-50 border-t border-red-600 max-md:max-w-full">
       <div className={`${isOpen ? 'visible' : 'hidden'}`}>
-        <div className="flex overflow-hidden flex-wrap gap-10 justify-center p-12 w-full max-md:px-5 max-md:max-w-full">
-          <div className="flex flex-col my-auto min-w-[240px] max-md:max-w-full">
-            <div className="flex gap-2.5 items-start w-full min-h-[61px] max-md:max-w-full">
-              <div className="flex flex-wrap flex-1 shrink gap-2.5 items-center w-full basis-0 min-w-[240px] max-md:max-w-full">
-                <div className="self-stretch my-auto max-md:max-w-full font-body-01">
-                  Vote on these search results.
-                </div>
-                <QuestionIcon
-                  fill="#b9c0c7"
-                  className="w-6 h-6 text-neutral-500"
-                  data-tooltip-id="tooltip-think"
-                  data-tooltip-content="Vote on if you think these results are censored or not, or if the search was mistranslated."
-                  data-tooltip-place="top"
-                />
-                <Tooltip id="tooltip-think" border={'1px solid #e60011'} />
-              </div>
+        <div className="flex flex-row gap-10 p-12 w-full max-md:px-5 max-md:max-w-full">
+          <div className="flex flex-col gap-8 shrink-0">
+            <div className="flex gap-2.5 items-center min-h-[61px]">
+              <div className="font-body-01">What do you think about these search results?</div>
+              <QuestionIcon
+                fill="#b9c0c7"
+                className="w-6 h-6 text-neutral-500"
+                data-tooltip-id="tooltip-think"
+                data-tooltip-content="Vote on if you think these results are censored or not, or if the search was mistranslated."
+                data-tooltip-place="top"
+              />
+              <Tooltip id="tooltip-think" border={'1px solid #e60011'} />
             </div>
-            <div className="flex flex-col md:flex-row gap-4 items-center md:items-stretch w-full rounded-md max-md:max-w-full">
+            <div className="flex flex-col md:flex-row gap-4 items-center md:items-stretch rounded-md">
               <VoteButton
                 voteCategory="votes_censored"
                 voteHandler={handleVote}
-
                 totalVotes={voteCounts.votes_censored}
                 hasVoted={hasVoted}
                 votedCategories={votedCategories}
@@ -166,7 +161,6 @@ function VotingSection({ query, searchId }) {
               <VoteButton
                 voteCategory="votes_uncensored"
                 voteHandler={handleVote}
-
                 totalVotes={voteCounts.votes_uncensored}
                 hasVoted={hasVoted}
                 votedCategories={votedCategories}
@@ -174,46 +168,39 @@ function VotingSection({ query, searchId }) {
               <VoteButton
                 voteCategory="votes_lost_in_translation"
                 voteHandler={handleVote}
-
                 totalVotes={voteCounts.votes_lost_in_translation}
                 hasVoted={hasVoted}
                 votedCategories={votedCategories}
               />
             </div>
           </div>
-          <div className="flex overflow-hidden justify-center items-start h-full min-w-[240px]">
-            <div className="flex flex-col min-w-[240px]">
-              <div className="flex gap-2.5 items-start w-full font-body-01 min-h-[61px]">
-                <div className="flex flex-1 shrink gap-2.5 items-center w-full basis-0 min-w-[240px]">
-                  <div className="self-stretch my-auto">Review this translation.</div>
-                  <QuestionIcon
-                    fill="#b9c0c7"
-                    className="w-6 h-6 text-neutral-500"
-                    data-tooltip-id="tooltip-how"
-                    data-tooltip-content="Bilingual users are invited to vote on the quality of the translation."
-                    data-tooltip-place="top"
-                  />
-                  <Tooltip id="tooltip-how" border={'1px solid #e60011'} />
-                </div>
-              </div>
-              <div className="flex flex-col md:flex-row gap-4 items-center md:items-stretch w-full rounded-md">
-                <VoteButton
-                  voteCategory="votes_bad_translation"
-                  voteHandler={handleVote}
-  
-                  totalVotes={voteCounts.votes_bad_translation}
-                  hasVoted={hasVoted}
-                  votedCategories={votedCategories}
-                />
-                <VoteButton
-                  voteCategory="votes_good_translation"
-                  voteHandler={handleVote}
-  
-                  totalVotes={voteCounts.votes_good_translation}
-                  hasVoted={hasVoted}
-                  votedCategories={votedCategories}
-                />
-              </div>
+          <div className="flex flex-col gap-8 shrink-0">
+            <div className="flex gap-2.5 items-center min-h-[61px]">
+              <div className="font-body-01">How is this translation?</div>
+              <QuestionIcon
+                fill="#b9c0c7"
+                className="w-6 h-6 text-neutral-500"
+                data-tooltip-id="tooltip-how"
+                data-tooltip-content="Bilingual users are invited to vote on the quality of the translation."
+                data-tooltip-place="top"
+              />
+              <Tooltip id="tooltip-how" border={'1px solid #e60011'} />
+            </div>
+            <div className="flex flex-col md:flex-row gap-4 items-center md:items-stretch rounded-md">
+              <VoteButton
+                voteCategory="votes_bad_translation"
+                voteHandler={handleVote}
+                totalVotes={voteCounts.votes_bad_translation}
+                hasVoted={hasVoted}
+                votedCategories={votedCategories}
+              />
+              <VoteButton
+                voteCategory="votes_good_translation"
+                voteHandler={handleVote}
+                totalVotes={voteCounts.votes_good_translation}
+                hasVoted={hasVoted}
+                votedCategories={votedCategories}
+              />
             </div>
           </div>
         </div>

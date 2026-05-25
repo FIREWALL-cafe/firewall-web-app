@@ -80,7 +80,7 @@ function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle
     },
     votes_uncensored: {
       id: metaKeyToId['votes_uncensored'],
-      name: voteLabels.voteButtonUncensored || 'Uncensored',
+      name: voteLabels.voteButtonUncensored || 'Not censored',
       img: Visibility,
     },
     votes_bad_translation: {
@@ -95,7 +95,7 @@ function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle
     },
     votes_lost_in_translation: {
       id: metaKeyToId['votes_lost_in_translation'],
-      name: voteLabels.voteButtonLostInTranslation || 'Lost in Translation',
+      name: voteLabels.voteButtonLostInTranslation || 'Lost in translation',
       img: LostInTranslation,
     },
     votes_nsfw: {
@@ -157,8 +157,8 @@ function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle
   return (
     <button
       className={`
-        flex flex-col items-start
-        w-full md:w-[220px]
+        flex flex-col items-start justify-between
+        w-full md:w-[190px] h-[124px]
         p-3
         rounded-lg
         border border-solid border-neutral-500
@@ -181,7 +181,7 @@ function VoteButton({ voteCategory, voteHandler, shouldReset, totalVotes, toggle
         )}
       </div>
       <input type="hidden" id={voteCategory} name={voteCategory} />
-      <div className="font-body-02-bold-sm mt-6">{displayName}</div>
+      <div className="font-body-02-bold-sm w-full text-left">{displayName}</div>
     </button>
   );
 }
