@@ -1,11 +1,11 @@
 import React from 'react';
 import Spinner from '../assets/spinner.svg';
 
-function SearchProgressIndicator({ isActive, progress, caption }) {
+function SearchProgressIndicator({ isActive, progress, caption, isRedStage = false }) {
   if (!isActive) return null;
 
   const pct = Math.min(Math.max(progress, 0), 1) * 100;
-  const fillColor = progress < 0.5 ? '#2563EB' : '#DC2626';
+  const fillColor = isRedStage ? '#DC2626' : '#2563EB';
 
   return (
     <div role="status" aria-live="polite" className="w-full max-w-2xl mx-auto mt-3">

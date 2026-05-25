@@ -843,6 +843,11 @@ function SearchInput({ searchMode }) {
               isActive={isSearchActive || progress > 0}
               progress={progress}
               caption={rotatingCaption}
+              isRedStage={
+                isSearchActive &&
+                rotatingCaption !== progressCaptions.translating &&
+                rotatingCaption !== progressCaptions.searchingGoogle
+              }
             />
           )}
 
