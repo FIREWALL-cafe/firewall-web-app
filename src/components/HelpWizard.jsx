@@ -260,7 +260,7 @@ function HelpWizard({ open, onClose }) {
       <div className="fixed inset-0 z-[90]" onClick={onClose} />
       {/* Dropdown panel */}
       <div
-        className="absolute top-full right-0 mt-2 z-[100] bg-white border border-[#b9c0c7] rounded-[8px] overflow-y-auto shadow-[0px_4px_20px_0px_rgba(0,17,42,0.15)]"
+        className="absolute top-full right-[44px] mt-2 z-[100] bg-white border border-[#b9c0c7] rounded-[8px] overflow-y-auto shadow-[0px_4px_20px_0px_rgba(0,17,42,0.15)]"
         style={{ width: 'min(360px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 80px)' }}
       >
         {renderScreen?.()}
