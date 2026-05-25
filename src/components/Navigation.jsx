@@ -249,10 +249,10 @@ function Navigation() {
                 </div>
               </nav>
             </Drawer>
+            <HelpWizard open={wizardOpen} onClose={() => setWizardOpen(false)} />
           </div>
         </div>
       </div>
-      <HelpWizard open={wizardOpen} onClose={() => setWizardOpen(false)} />
     </div>
   );
 }

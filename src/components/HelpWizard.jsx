@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import mugImage from '../assets/icons/assistant-mug.png';
 import iflIcon from '../assets/icons/ifl.png';
+import rollDice from '../assets/icons/roll-dice.png';
 import SearchIcon from '../assets/icons/search-grayscale.png';
 import ArchiveIcon from '../assets/icons/Archive_grayscale.png';
 import cloudAlert from '../assets/icons/cloud_alert.svg';
@@ -202,13 +203,18 @@ function HelpWizard({ open, onClose }) {
           Hi! I'm <span className="text-[#e81717]">Xin</span>, your search assistant.
         </h2>
       </div>
-      <p className="font-bitmap-song text-[32px] leading-none text-black">
-        I can suggest search terms and explain features. How can I help you get started?
-      </p>
+      <div className="flex flex-col gap-4">
+        <p className="font-bitmap-song text-[32px] leading-none text-black">
+          I can suggest search terms and explain features.
+        </p>
+        <p className="font-bitmap-song text-[32px] leading-none text-black">
+          How can I help you get started?
+        </p>
+      </div>
       <div className="flex flex-col gap-3">
         <WizardCard icon={logoOnly} title="What is FIREWALL Cafe?" subtitle="What we do and why we exist" onClick={() => handleCard('mission')} />
         <WizardCard icon={SearchIcon} title="How to Search" subtitle="Search, compare, and vote" onClick={() => handleCard('search')} />
-        <WizardCard icon={iflIcon} title="Roll a Term" subtitle="Suggest a search to get started" onClick={() => handleCard('roll')} />
+        <WizardCard icon={rollDice} title="Roll a Term" subtitle="Generate a curated topical search" onClick={() => handleCard('roll')} />
       </div>
     </div>
   );
@@ -218,7 +224,7 @@ function HelpWizard({ open, onClose }) {
       <MissionContent />
       <div className="flex flex-col gap-3">
         <WizardCard icon={SearchIcon} title="How to Search" subtitle="Search, compare, and vote" onClick={() => handleCard('search')} />
-        <WizardCard icon={iflIcon} title="Roll a Term" subtitle="Suggest a search to get started" onClick={() => handleCard('roll')} />
+        <WizardCard icon={rollDice} title="Roll a Term" subtitle="Generate a curated topical search" onClick={() => handleCard('roll')} />
       </div>
     </div>
   );
@@ -249,15 +255,17 @@ function HelpWizard({ open, onClose }) {
   const renderScreen = screens[branch]?.[screen];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+    <>
+      {/* Invisible click-catcher to close on outside click */}
+      <div className="fixed inset-0 z-[90]" onClick={onClose} />
+      {/* Dropdown panel */}
       <div
-        className="relative bg-white border border-black rounded-[8px] w-[360px] overflow-y-auto shadow-[0px_0px_8px_0px_rgba(0,17,42,0.15)]"
-        style={{ maxHeight: 'min(492px, calc(100vh - 32px))' }}
+        className="absolute top-full right-0 mt-2 z-[100] bg-white border border-[#b9c0c7] rounded-[8px] overflow-y-auto shadow-[0px_4px_20px_0px_rgba(0,17,42,0.15)]"
+        style={{ width: 'min(360px, calc(100vw - 32px))', maxHeight: 'calc(100vh - 80px)' }}
       >
         {renderScreen?.()}
       </div>
-    </div>
+    </>
   );
 }
 
