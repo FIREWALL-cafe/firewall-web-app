@@ -21,8 +21,8 @@ function InfoSection() {
         console.error('Failed to load homepage strings:', error);
         // Language-aware fallback
         setUiStrings({
-          infoCtaHeading: getDefault('homepage', 'infoCtaHeading', language),
-          infoCtaHeadingZh: getDefault('homepage', 'infoCtaHeadingZh', language),
+          infoCtaHeading: getDefault('homepage', 'infoCtaHeading', 'en'),
+          infoCtaHeadingZh: getDefault('homepage', 'infoCtaHeadingZh', 'en'),
           infoCtaParagraph1: getDefault('homepage', 'infoCtaParagraph1', language),
           infoCtaParagraph2: getDefault('homepage', 'infoCtaParagraph2', language),
           infoCtaButton: getDefault('homepage', 'infoCtaButton', language),
@@ -58,11 +58,11 @@ function InfoSection() {
         <div className="chinese text-center">
           <h2 className="font-display-04 font-medium leading-tight mb-2">
             <Link to="/search" className="hover:text-gray-800">
-              {uiStrings.infoCtaHeading || getDefault('homepage', 'infoCtaHeading', language)}
+              {uiStrings.infoCtaHeading || getDefault('homepage', 'infoCtaHeading', 'en')}
             </Link>
           </h2>
           <div className="font-display-04 font-medium leading-tight text-red-600">
-            {uiStrings.infoCtaHeadingZh || getDefault('homepage', 'infoCtaHeadingZh', language)}
+            {uiStrings.infoCtaHeadingZh || getDefault('homepage', 'infoCtaHeadingZh', 'en')}
           </div>
         </div>
         <div className="mt-8 space-y-6 font-body-01 text-center">

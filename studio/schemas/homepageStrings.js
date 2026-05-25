@@ -99,12 +99,18 @@ export default defineType({
       description: 'Accessibility label for the CTA button',
     },
 
-    // SearchTrendsSection (3 fields)
+    // SearchTrendsSection (4 fields)
     {
       name: 'searchTrendsSectionHeading',
-      title: 'Search Trends Section - Heading',
+      title: 'Search Trends Section - Heading (English)',
       type: 'localeString',
-      description: 'Heading for the search trends section',
+      description: 'English heading for the search trends section',
+    },
+    {
+      name: 'searchTrendsSectionHeadingZh',
+      title: 'Search Trends Section - Heading (Chinese)',
+      type: 'localeString',
+      description: 'Chinese sub-heading for the search trends section (always displayed in red below the English heading)',
     },
     {
       name: 'searchTrendsDescription',
@@ -150,7 +156,7 @@ export default defineType({
     prepare() {
       return {
         title: 'Homepage',
-        subtitle: 'Manage homepage UI text (20 fields)',
+        subtitle: 'Manage homepage UI text (21 fields)',
       }
     },
   },

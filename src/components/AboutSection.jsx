@@ -30,8 +30,8 @@ function AboutSection() {
         console.error('Failed to load homepage data:', error);
         // Language-aware fallback
         setUiStrings({
-          aboutMainHeading: getDefault('homepage', 'aboutMainHeading', language),
-          aboutMainHeadingZh: getDefault('homepage', 'aboutMainHeadingZh', language),
+          aboutMainHeading: getDefault('homepage', 'aboutMainHeading', 'en'),
+          aboutMainHeadingZh: getDefault('homepage', 'aboutMainHeadingZh', 'en'),
           aboutIntroParagraph1: getDefault('homepage', 'aboutIntroParagraph1', language),
           aboutIntroParagraph2: getDefault('homepage', 'aboutIntroParagraph2', language),
           aboutButtonText: getDefault('homepage', 'aboutButtonText', language),
@@ -83,11 +83,11 @@ function AboutSection() {
           <div className="font-bitmap-song">
             <h2 className="font-display-04 mb-2">
               <Link to="/about" className="hover:text-neutral-800">
-                {uiStrings.aboutMainHeading || getDefault('homepage', 'aboutMainHeading', language)}
+                {uiStrings.aboutMainHeading || getDefault('homepage', 'aboutMainHeading', 'en')}
               </Link>
             </h2>
             <div className="font-display-04 text-red-600">
-              {uiStrings.aboutMainHeadingZh || getDefault('homepage', 'aboutMainHeadingZh', language)}
+              {uiStrings.aboutMainHeadingZh || getDefault('homepage', 'aboutMainHeadingZh', 'en')}
             </div>
           </div>
           <div className="mt-8 space-y-6 font-body-01">

@@ -281,22 +281,34 @@ function buildLocalizedQuery(fields, lang = 'en') {
   return fields.map(field => `"${field}": ${localizeField(field, lang)}`).join(',\n        ')
 }
 
+// Helper for bilingual page headings — always EN for the primary heading,
+// always ZH for the sub-heading, regardless of the language toggle.
+function buildBilingualHeadingQuery(enFields, zhFields) {
+  const en = enFields.map(f => `"${f}": ${localizeField(f, 'en')}`).join(',\n        ')
+  const zh = zhFields.map(f => `"${f}": ${localizeField(f, 'zh')}`).join(',\n        ')
+  return [en, zh].filter(Boolean).join(',\n        ')
+}
+
 // Homepage Strings
 export async function getHomepageStrings(lang = 'en') {
   try {
     const fields = [
       'heroTitleAnimated', 'heroSubtitle',
-      'aboutMainHeading', 'aboutMainHeadingZh', 'aboutIntroParagraph1', 'aboutIntroParagraph2',
+      'aboutIntroParagraph1', 'aboutIntroParagraph2',
       'aboutButtonText', 'aboutButtonAriaLabel',
-      'infoCtaHeading', 'infoCtaHeadingZh', 'infoCtaParagraph1', 'infoCtaParagraph2',
+      'infoCtaParagraph1', 'infoCtaParagraph2',
       'infoCtaButton', 'infoCtaButtonAriaLabel',
-      'searchTrendsSectionHeading', 'searchTrendsDescription', 'searchTrendsViewArchiveCta',
+      'searchTrendsDescription', 'searchTrendsViewArchiveCta',
       'newsletterHeading', 'newsletterSubheading', 'newsletterEmailPlaceholder', 'newsletterSubscribeButton'
     ]
 
     const result = await client.fetch(
       `*[_type == "homepageStrings"][0] {
-        ${buildLocalizedQuery(fields, lang)}
+        ${buildLocalizedQuery(fields, lang)},
+        ${buildBilingualHeadingQuery(
+          ['aboutMainHeading', 'infoCtaHeading', 'searchTrendsSectionHeading'],
+          ['aboutMainHeadingZh', 'infoCtaHeadingZh', 'searchTrendsSectionHeadingZh']
+        )}
       }`,
       { lang }
     )
@@ -431,9 +443,8 @@ export async function getGlobalStrings(lang = 'en') {
 export async function getAboutPageStrings(lang = 'en') {
   try {
     const fields = [
-      'aboutPageHeading', 'aboutPageHeadingZh', 'aboutPageIntro',
-      'aboutRedSectionHeading', 'aboutRedSectionHeadingZh', 'aboutRedSectionBody',
-      'aboutArtistSectionHeading', 'aboutArtistSectionHeadingZh',
+      'aboutPageIntro',
+      'aboutRedSectionBody',
       'aboutArtistBioParagraph1', 'aboutArtistBioParagraph2', 'aboutArtistBioParagraph3',
       'aboutContributorsSectionHeading', 'aboutContributorsBody',
       'aboutCtaSectionHeading', 'aboutCtaSectionBody', 'aboutCtaButtonText',
@@ -442,7 +453,11 @@ export async function getAboutPageStrings(lang = 'en') {
 
     const result = await client.fetch(
       `*[_type == "aboutPageStrings"][0] {
-        ${buildLocalizedQuery(fields, lang)}
+        ${buildLocalizedQuery(fields, lang)},
+        ${buildBilingualHeadingQuery(
+          ['aboutPageHeading', 'aboutRedSectionHeading', 'aboutArtistSectionHeading'],
+          ['aboutPageHeadingZh', 'aboutRedSectionHeadingZh', 'aboutArtistSectionHeadingZh']
+        )}
       }`,
       { lang }
     )
@@ -457,14 +472,15 @@ export async function getAboutPageStrings(lang = 'en') {
 export async function getEditorialPageStrings(lang = 'en') {
   try {
     const fields = [
-      'editorialPageHeading', 'editorialPageHeadingZh', 'editorialIntroText',
+      'editorialIntroText',
       'editorialReadMoreButton', 'editorialListenButton', 'editorialFilterLabel',
       'editorialSortLabel', 'editorialNoArticlesMessage'
     ]
 
     const result = await client.fetch(
       `*[_type == "editorialPageStrings"][0] {
-        ${buildLocalizedQuery(fields, lang)}
+        ${buildLocalizedQuery(fields, lang)},
+        ${buildBilingualHeadingQuery(['editorialPageHeading'], ['editorialPageHeadingZh'])}
       }`,
       { lang }
     )
@@ -479,7 +495,7 @@ export async function getEditorialPageStrings(lang = 'en') {
 export async function getPressPageStrings(lang = 'en') {
   try {
     const fields = [
-      'pressPageHeading', 'pressPageHeadingZh', 'pressIntroText',
+      'pressIntroText',
       'pressPublishedLabel', 'pressSourceLabel', 'pressReadArticleButton',
       'pressExternalLinkLabel', 'pressNoArticlesMessage',
       'pressFilterLanguageLabel', 'pressAllLanguagesOption'
@@ -487,7 +503,8 @@ export async function getPressPageStrings(lang = 'en') {
 
     const result = await client.fetch(
       `*[_type == "pressPageStrings"][0] {
-        ${buildLocalizedQuery(fields, lang)}
+        ${buildLocalizedQuery(fields, lang)},
+        ${buildBilingualHeadingQuery(['pressPageHeading'], ['pressPageHeadingZh'])}
       }`,
       { lang }
     )
@@ -502,7 +519,7 @@ export async function getPressPageStrings(lang = 'en') {
 export async function getSupportPageStrings(lang = 'en') {
   try {
     const fields = [
-      'supportPageHeading', 'supportPageHeadingZh', 'supportIntroText',
+      'supportIntroText',
       'supportOption1Heading', 'supportOption1Description',
       'supportOption2Heading', 'supportOption2Description',
       'supportOption3Heading', 'supportOption3Description',
@@ -511,7 +528,8 @@ export async function getSupportPageStrings(lang = 'en') {
 
     const result = await client.fetch(
       `*[_type == "supportPageStrings"][0] {
-        ${buildLocalizedQuery(fields, lang)}
+        ${buildLocalizedQuery(fields, lang)},
+        ${buildBilingualHeadingQuery(['supportPageHeading'], ['supportPageHeadingZh'])}
       }`,
       { lang }
     )
@@ -526,7 +544,6 @@ export async function getSupportPageStrings(lang = 'en') {
 export async function getContactPageStrings(lang = 'en') {
   try {
     const fields = [
-      'contactPageHeading', 'contactPageHeadingZh',
       'contactFormNameLabel', 'contactFormEmailLabel', 'contactFormMessageLabel',
       'contactFormSubmitButton', 'contactFormSuccessMessage', 'contactFormErrorMessage',
       'contactPrivacyNotice'
@@ -534,7 +551,8 @@ export async function getContactPageStrings(lang = 'en') {
 
     const result = await client.fetch(
       `*[_type == "contactPageStrings"][0] {
-        ${buildLocalizedQuery(fields, lang)}
+        ${buildLocalizedQuery(fields, lang)},
+        ${buildBilingualHeadingQuery(['contactPageHeading'], ['contactPageHeadingZh'])}
       }`,
       { lang }
     )

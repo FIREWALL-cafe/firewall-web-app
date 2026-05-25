@@ -30,8 +30,8 @@ function SearchTrendsSection() {
         console.error('Failed to load homepage data:', error);
         // Language-aware fallback
         setUiStrings({
-          searchTrendsSectionHeading: getDefault('homepage', 'searchTrendsSectionHeading', language),
-          searchTrendsSectionHeadingZh: getDefault('homepage', 'searchTrendsSectionHeadingZh', language),
+          searchTrendsSectionHeading: getDefault('homepage', 'searchTrendsSectionHeading', 'en'),
+          searchTrendsSectionHeadingZh: getDefault('homepage', 'searchTrendsSectionHeadingZh', 'en'),
         });
         setImages(null); // Will fallback to static image
       } finally {
@@ -80,10 +80,10 @@ function SearchTrendsSection() {
         <div className="w-full md:w-1/2 order-2 md:order-1">
           <div className="font-bitmap-song">
             <h2 className="font-display-04 mb-2">
-              {uiStrings.searchTrendsSectionHeading || getDefault('homepage', 'searchTrendsSectionHeading', language)}
+              {uiStrings.searchTrendsSectionHeading || getDefault('homepage', 'searchTrendsSectionHeading', 'en')}
             </h2>
             <div className="font-display-04 text-red-600">
-              {uiStrings.searchTrendsSectionHeadingZh || getDefault('homepage', 'searchTrendsSectionHeadingZh', language)}
+              {uiStrings.searchTrendsSectionHeadingZh || getDefault('homepage', 'searchTrendsSectionHeadingZh', 'en')}
             </div>
           </div>
           <div className="flex flex-wrap gap-4 mt-8">
