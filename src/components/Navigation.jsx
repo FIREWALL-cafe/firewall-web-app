@@ -21,9 +21,10 @@ import ArchiveIcon from '../assets/icons/Archive_grayscale.png';
 import CommentaryIcon from '../assets/icons/expert-commentary_grayscale.png';
 import EventsIcon from '../assets/icons/events_grayscale.png';
 import PressIcon from '../assets/icons/press_grayscale.png';
-import AboutIcon from '../assets/icons/logo_only.svg';
+import AboutIcon from '../assets/icons/about_grayscale.png';
+import AboutColorIcon from '../assets/icons/about.png';
 import SupportIcon from '../assets/icons/support_grayscale.png';
-import ContactIcon from '../assets/icons/Envelope_icon_gray.png';
+import ContactIcon from '../assets/icons/contact_grayscale.png';
 import TimelineIcon from '../assets/icons/Timeline_grayscale.png';
 
 import SearchColorIcon from '../assets/icons/search-color.png';
@@ -32,7 +33,7 @@ import CommentaryColorIcon from '../assets/icons/expert-commentary.png';
 import EventsColorIcon from '../assets/icons/events.png';
 import PressColorIcon from '../assets/icons/press.png';
 import SupportColorIcon from '../assets/icons/support.png';
-import ContactRedIcon from '../assets/icons/Envelope_icon_red.png';
+import ContactRedIcon from '../assets/icons/contact.png';
 import TimelineColorIcon from '../assets/icons/Timeline.png';
 
 // Icon mapping for Sanity CMS
@@ -54,7 +55,7 @@ const HOVER_ICON_MAP = {
   Commentary: CommentaryColorIcon,
   Events: EventsColorIcon,
   Press: PressColorIcon,
-  About: AboutIcon,
+  About: AboutColorIcon,
   Support: SupportColorIcon,
   Contact: ContactRedIcon,
   Timeline: TimelineColorIcon,
@@ -67,7 +68,7 @@ const DEFAULT_MENU_LINKS = [
   { to: '/editorial', title: 'Expert Commentary', icon: CommentaryIcon, hoverIcon: CommentaryColorIcon },
   { to: '/events', title: 'Events', icon: EventsIcon, hoverIcon: EventsColorIcon },
   { to: '/press', title: 'Press', icon: PressIcon, hoverIcon: PressColorIcon },
-  { to: '/about', title: 'About', icon: AboutIcon, hoverIcon: AboutIcon },
+  { to: '/about', title: 'About', icon: AboutIcon, hoverIcon: AboutColorIcon },
   { to: '/support', title: 'Support Us', icon: SupportIcon, hoverIcon: SupportColorIcon },
   { to: '/contact', title: 'Contact', icon: ContactIcon, hoverIcon: ContactRedIcon },
   { to: '/timeline', title: 'Timeline', icon: TimelineIcon, hoverIcon: TimelineColorIcon },
