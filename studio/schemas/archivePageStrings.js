@@ -15,9 +15,15 @@ export default defineType({
     },
     {
       name: 'archiveButton',
-      title: 'Archive Input - Archive Button',
+      title: 'Archive Input - Archive Tab Label',
       type: 'localeString',
-      description: 'Text for the Archive tab/button',
+      description: 'Label for the Archive tab (short, shown on mobile)',
+    },
+    {
+      name: 'searchArchiveLink',
+      title: 'Archive Input - Search Archive Tab Label',
+      type: 'localeString',
+      description: 'Label for the Archive tab (long, shown on desktop)',
     },
     {
       name: 'archiveModeTooltip',
@@ -92,7 +98,7 @@ export default defineType({
     prepare() {
       return {
         title: 'Archive Page',
-        subtitle: 'Manage archive page UI text (13 fields)',
+        subtitle: 'Manage archive page UI text (14 fields)',
       }
     },
   },

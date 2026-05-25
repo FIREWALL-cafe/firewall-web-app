@@ -21,6 +21,18 @@ export default defineType({
       description: 'Text for the Search button',
     },
     {
+      name: 'compareButton',
+      title: 'Search Input - Compare Tab Label',
+      type: 'localeString',
+      description: 'Label for the Compare tab (short, shown on mobile)',
+    },
+    {
+      name: 'searchComparisonLink',
+      title: 'Search Input - Search Comparison Tab Label',
+      type: 'localeString',
+      description: 'Label for the Compare tab (long, shown on desktop)',
+    },
+    {
       name: 'searchModeTooltip',
       title: 'Search Mode - Tooltip Content',
       type: 'localeText',
@@ -107,7 +119,7 @@ export default defineType({
     prepare() {
       return {
         title: 'Search Page',
-        subtitle: 'Manage search page UI text (15 fields)',
+        subtitle: 'Manage search page UI text (17 fields)',
       }
     },
   },

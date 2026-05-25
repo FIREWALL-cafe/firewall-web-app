@@ -311,7 +311,8 @@ export async function getHomepageStrings(lang = 'en') {
 export async function getSearchPageStrings(lang = 'en') {
   try {
     const fields = [
-      'searchInputPlaceholder', 'searchButton', 'searchModeTooltip',
+      'searchInputPlaceholder', 'searchButton', 'compareButton', 'searchComparisonLink',
+      'searchModeTooltip',
       'searchErrorEmptyQuery', 'searchErrorNetwork', 'searchErrorGeneric',
       'searchLoadingText', 'translatingText', 'translationLabel', 'errorLabel',
       'searchSessionHeading',
@@ -336,7 +337,7 @@ export async function getSearchPageStrings(lang = 'en') {
 export async function getArchivePageStrings(lang = 'en') {
   try {
     const fields = [
-      'archiveInputPlaceholder', 'archiveButton', 'archiveModeTooltip',
+      'archiveInputPlaceholder', 'archiveButton', 'searchArchiveLink', 'archiveModeTooltip',
       'queryListHeaderVotes', 'queryListHeaderQueryEn', 'queryListHeaderQueryZh',
       'queryListHeaderLocation', 'queryListHeaderDate',
       'queryListTotalResults', 'queryListNoResults', 'queryListLoadingText', 'queryListLoadMoreButton',
