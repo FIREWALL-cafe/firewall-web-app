@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import AssistantButton from './AssistantButton';
+import HelpWizard from './HelpWizard';
 import MenuLink from './MenuLink';
 import LanguageSwitcher from './LanguageSwitcher';
 import SubscribeForm from './SubscribeForm';
@@ -77,6 +79,7 @@ const DEFAULT_MENU_LINKS = [
 function Navigation() {
   const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false);
   const [menuLinks, setMenuLinks] = useState(DEFAULT_MENU_LINKS);
   const [newsletterTitle, setNewsletterTitle] = useState(getDefault('navigation', 'newsletterTitle', language));
   const [newsletterSubtitle, setNewsletterSubtitle] = useState(getDefault('navigation', 'newsletterSubtitle', language));
@@ -159,7 +162,8 @@ function Navigation() {
               )}
             </Link>
           </div>
-          <div className="flex items-center relative">
+          <div className="flex items-center gap-2 relative">
+            <AssistantButton onClick={() => setWizardOpen(true)} />
             <button
               onClick={toggleDrawer}
               className="flex items-center justify-center bg-red-600 size-[36px] rounded-[4.5px]"
@@ -248,6 +252,7 @@ function Navigation() {
           </div>
         </div>
       </div>
+      <HelpWizard open={wizardOpen} onClose={() => setWizardOpen(false)} />
     </div>
   );
 }
