@@ -584,33 +584,8 @@ export async function getFooterStrings(lang = 'en') {
   }
 }
 
-// Terms and Conditions Strings
-export async function getTermsStrings(lang = 'en') {
-  try {
-    const fields = [
-      'modalTitle', 'buttonAccept', 'buttonReject', 'buttonAccessFirewall',
-      'errorMustAccept', 'errorUsernameTooLong', 'errorUsernameInvalidChars',
-      'usernamePrompt', 'usernamePlaceholder',
-      'termsParagraph1Bold', 'termsParagraph1',
-      'termsParagraph2Bold', 'termsParagraph2',
-      'termsParagraph3', 'termsParagraph4'
-    ]
-
-    const result = await client.fetch(
-      `*[_type == "termsStrings"][0] {
-        ${buildLocalizedQuery(fields, lang)}
-      }`,
-      { lang }
-    )
-    return result || {}
-  } catch (error) {
-    console.error('Error fetching terms strings from Sanity:', error)
-    return {}
-  }
-}
-
 // Composite function: Get all UI strings (backward compatible)
-// Fetches all 13 documents in parallel and combines into single flat object
+// Fetches all 12 documents in parallel and combines into single flat object
 export async function getAllUIStrings(lang = 'en') {
   try {
     const [
@@ -625,8 +600,7 @@ export async function getAllUIStrings(lang = 'en') {
       press,
       support,
       contact,
-      footer,
-      terms
+      footer
     ] = await Promise.all([
       getHomepageStrings(lang),
       getSearchPageStrings(lang),
@@ -639,8 +613,7 @@ export async function getAllUIStrings(lang = 'en') {
       getPressPageStrings(lang),
       getSupportPageStrings(lang),
       getContactPageStrings(lang),
-      getFooterStrings(lang),
-      getTermsStrings(lang)
+      getFooterStrings(lang)
     ])
 
     // Combine all into single flat object
@@ -656,8 +629,7 @@ export async function getAllUIStrings(lang = 'en') {
       ...press,
       ...support,
       ...contact,
-      ...footer,
-      ...terms
+      ...footer
     }
   } catch (error) {
     console.error('Error fetching all UI strings from Sanity:', error)

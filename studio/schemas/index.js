@@ -22,7 +22,6 @@ import filterStrings from './filterStrings'
 import voteStrings from './voteStrings'
 import globalStrings from './globalStrings'
 import footerStrings from './footerStrings'
-import termsStrings from './termsStrings'
 import homepageImages from './homepageImages'
 import siteAssets from './siteAssets'
 
@@ -44,7 +43,7 @@ export const schemaTypes = [
   // Settings/Singletons
   navigationSettings,
 
-  // UI String Singletons (13 documents)
+  // UI String Singletons (12 documents)
   homepageStrings,
   searchPageStrings,
   archivePageStrings,
@@ -57,7 +56,6 @@ export const schemaTypes = [
   voteStrings,
   globalStrings,
   footerStrings,
-  termsStrings,
 
   // Reusable components
   featureCard,

@@ -144,7 +144,6 @@ export const deskStructure = (S) =>
                 ),
               S.documentTypeListItem('filterStrings').title('Filter Controls').icon(() => '🧩'),
               S.documentTypeListItem('voteStrings').title('Vote Categories').icon(() => '🧩'),
-              S.documentTypeListItem('termsStrings').title('Terms and Conditions').icon(() => '🧩'),
               S.listItem()
                 .title('Navigation Menu')
                 .icon(() => '🧩')

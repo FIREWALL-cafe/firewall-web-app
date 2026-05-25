@@ -207,44 +207,6 @@ export const UI_DEFAULTS = {
     },
   },
 
-  // Terms and Conditions strings
-  terms: {
-    en: {
-      modalTitle: 'Terms',
-      buttonAccept: 'Accept',
-      buttonReject: 'Reject',
-      buttonAccessFirewall: 'Access Firewall',
-      errorMustAccept: 'In order to access FIREWALL CAFE, you must accept the terms to continue.',
-      errorUsernameTooLong: 'Username must be 30 characters or less',
-      errorUsernameInvalidChars: 'Username can only contain letters, numbers, and underscores',
-      usernamePrompt: 'Enter an optional username for your FIREWALL session:',
-      usernamePlaceholder: 'Username (optional)',
-      termsParagraph1Bold: 'Your participation in FIREWALL provides your consent.',
-      termsParagraph1: 'Please review the following terms and conditions, before your FIREWALL Search Session.',
-      termsParagraph2Bold: 'FIREWALL does not monitor or review the content of your Search Session.',
-      termsParagraph2: 'Opinions expressed or material appearing on your searches are not necessarily shared or endorsed by FIREWALL, and we should not be regarded as the publisher of such opinions or material. Please be aware that we are not responsible for the privacy practices, or content, of these sites.',
-      termsParagraph3: 'We encourage our users to be aware when they search to read the privacy statements of these sites. You should evaluate the security and trustworthiness of any other site connected to this site or accessed through this site yourself, before disclosing any personal information to them.',
-      termsParagraph4: 'FIREWALL will not accept any responsibility for any loss or damage in whatever manner, howsoever caused, resulting from your Search Session, nor any disclosure to third parties of personal information. We record all IP addresses for all transactions, investigate and prosecute all credit card frauds to the fullest extent of the International law.',
-    },
-    zh: {
-      modalTitle: '条款',
-      buttonAccept: '接受',
-      buttonReject: '拒绝',
-      buttonAccessFirewall: '访问防火墙',
-      errorMustAccept: '要访问防火墙咖啡馆，您必须接受条款才能继续。',
-      errorUsernameTooLong: '用户名必须不超过30个字符',
-      errorUsernameInvalidChars: '用户名只能包含字母、数字和下划线',
-      usernamePrompt: '为您的防火墙会话输入可选用户名：',
-      usernamePlaceholder: '用户名（可选）',
-      termsParagraph1Bold: '您参与防火墙即表示您同意。',
-      termsParagraph1: '在您的防火墙搜索会话之前，请查看以下条款和条件。',
-      termsParagraph2Bold: '防火墙不监控或审查您的搜索会话内容。',
-      termsParagraph2: '您的搜索中表达的意见或出现的材料不一定为防火墙共享或认可，我们不应被视为此类意见或材料的发布者。请注意，我们不对这些网站的隐私惯例或内容负责。',
-      termsParagraph3: '我们鼓励用户在搜索时注意阅读这些网站的隐私声明。在向他们披露任何个人信息之前，您应该自己评估与本网站连接或通过本网站访问的任何其他网站的安全性和可信度。',
-      termsParagraph4: '防火墙不对因您的搜索会话而造成的任何损失或损害承担任何责任，也不对向第三方披露个人信息承担责任。我们记录所有交易的所有IP地址，在国际法的最大范围内调查和起诉所有信用卡欺诈。',
-    },
-  },
-
   // Navigation strings
   navigation: {
     en: {
