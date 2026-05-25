@@ -645,7 +645,7 @@ function SearchInput({ searchMode }) {
                   {isArchive ? (
                     <>
                       <img src={Archive} alt="Archive" className="w-6 h-6" />
-                      <span className="font-bitmap-song text-[13px] text-neutral-700">
+                      <span className="font-bitmap-song text-[18px] text-red-600">
                         {uiStrings.archiveButton || getDefault('archive', 'archiveButton', language)}
                       </span>
                     </>
@@ -665,7 +665,7 @@ function SearchInput({ searchMode }) {
                           className="object-contain w-full h-full"
                         />
                       </div>
-                      <span className="font-bitmap-song text-[13px] text-neutral-700">
+                      <span className="font-bitmap-song text-[18px] text-red-600">
                         {uiStrings.compareButton || getDefault('search', 'compareButton', language)}
                       </span>
                     </>
