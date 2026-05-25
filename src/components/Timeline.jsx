@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getTimelineEvents, urlFor } from '../lib/sanity';
 import { useLanguage } from '../context/LanguageContext';
+import ExpandCircleDown from '../assets/icons/expand_circle_down.svg';
 
 function Timeline() {
   const { language } = useLanguage();
@@ -135,37 +136,30 @@ function Timeline() {
 
         {/* Top navigation arrow */}
         <button
-          className="absolute left-[72px] top-[50px] w-6 h-6 rounded-full bg-white border border-neutral-400 hover:border-red-600 flex items-center justify-center z-30 transition-colors group"
-          style={{ transform: 'rotate(180deg)' }}
+          className="absolute left-[72px] top-[50px] w-6 h-6 z-30 group"
           aria-label="Previous event"
           onClick={handlePrevious}
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M7 10L12 15L17 10"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              className="stroke-neutral-600 group-hover:stroke-red-600"
-            />
-          </svg>
+          <div className="w-full h-full rounded-full bg-white border border-neutral-400 flex items-center justify-center group-hover:hidden">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ transform: 'rotate(180deg)' }}>
+              <path d="M7 10L12 15L17 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="stroke-neutral-600" />
+            </svg>
+          </div>
+          <img src={ExpandCircleDown} className="w-full h-full hidden group-hover:block" style={{ transform: 'rotate(180deg)' }} alt="" />
         </button>
 
         {/* Bottom navigation arrow */}
         <button
-          className="absolute left-[72px] top-[470px] w-6 h-6 rounded-full bg-white border border-neutral-400 hover:border-red-600 flex items-center justify-center z-30 transition-colors group"
+          className="absolute left-[72px] top-[470px] w-6 h-6 z-30 group"
           aria-label="Next event"
           onClick={handleNext}
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M7 10L12 15L17 10"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              className="stroke-neutral-600 group-hover:stroke-red-600"
-            />
-          </svg>
+          <div className="w-full h-full rounded-full bg-white border border-neutral-400 flex items-center justify-center group-hover:hidden">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 10L12 15L17 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="stroke-neutral-600" />
+            </svg>
+          </div>
+          <img src={ExpandCircleDown} className="w-full h-full hidden group-hover:block" alt="" />
         </button>
 
         {/* Content card */}
