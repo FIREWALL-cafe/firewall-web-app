@@ -16,8 +16,8 @@ function ArticleGrid() {
 
         // Transform Sanity data to match ArticleCard props
         const transformedArticles = data.map(article => ({
-          image: article.image ? urlFor(article.image).width(300).url() : null,
-          imageHover: article.imageHover ? urlFor(article.imageHover).width(300).url() : null,
+          image: article.image ? urlFor(article.image).width(512).url() : null,
+          imageHover: article.imageHover ? urlFor(article.imageHover).width(512).url() : null,
           title: article.title,
           url: article.url,
           date: article.date,
