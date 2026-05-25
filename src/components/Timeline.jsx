@@ -182,8 +182,8 @@ function Timeline() {
         {/* Image cards */}
         <div className="flex gap-4 mt-6">
           {/* Google image card */}
-          <div className="flex-1 border-2 border-blue-500 rounded-lg overflow-hidden bg-white">
-            <div className="flex items-center justify-center overflow-hidden aspect-[4/3]">
+          <div className="flex-1 flex flex-col gap-2">
+            <div className="border-2 border-blue-500 rounded-lg overflow-hidden aspect-[4/3] bg-white">
               {timelineEvents[displayIndex].googleImage?.image ? (
                 <img
                   src={urlFor(timelineEvents[displayIndex].googleImage.image).width(400).url()}
@@ -197,22 +197,24 @@ function Timeline() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-gray-400">
-                  {timelineEvents[displayIndex].googleImage?.placeholder || 'No image'}
-                </span>
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="text-gray-400">
+                    {timelineEvents[displayIndex].googleImage?.placeholder || 'No image'}
+                  </span>
+                </div>
               )}
             </div>
-            <div className="p-3 flex items-center justify-between">
-              <div className="text-blue-500 font-bold text-sm">G</div>
-              <div className="text-xs text-gray-500">
+            <div className="flex items-center justify-between">
+              <div className="text-blue-500 font-bold text-[18px]">G</div>
+              <div className="text-[15px] text-neutral-600">
                 {timelineEvents[displayIndex].googleImage?.date || ''}
               </div>
             </div>
           </div>
 
           {/* Baidu image card */}
-          <div className="flex-1 border-2 border-pink-400 rounded-lg overflow-hidden bg-white">
-            <div className="flex items-center justify-center overflow-hidden aspect-[4/3]">
+          <div className="flex-1 flex flex-col gap-2">
+            <div className="border-2 border-pink-400 rounded-lg overflow-hidden aspect-[4/3] bg-white">
               {timelineEvents[displayIndex].baiduImage?.image ? (
                 <img
                   src={urlFor(timelineEvents[displayIndex].baiduImage.image).width(400).url()}
@@ -226,14 +228,16 @@ function Timeline() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-gray-400">
-                  {timelineEvents[displayIndex].baiduImage?.placeholder || 'No image'}
-                </span>
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="text-gray-400">
+                    {timelineEvents[displayIndex].baiduImage?.placeholder || 'No image'}
+                  </span>
+                </div>
               )}
             </div>
-            <div className="p-3 flex items-center justify-between">
-              <div className="text-red-600 font-bold text-sm">百</div>
-              <div className="text-xs text-gray-500">
+            <div className="flex items-center justify-between">
+              <div className="text-red-600 font-bold text-[18px]">百</div>
+              <div className="text-[15px] text-neutral-600">
                 {timelineEvents[displayIndex].baiduImage?.date || ''}
               </div>
             </div>
