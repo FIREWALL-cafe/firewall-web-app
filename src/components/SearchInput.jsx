@@ -63,6 +63,7 @@ function SearchInput({ searchMode }) {
   const [progress, setProgress] = useState(0);
   const progressStartedAt = useRef(null);
   const [imageResults, setImageResults] = useState({});
+  const [retryCounter, setRetryCounter] = useState(0);
   const [archiveResults, setarchiveResults] = useState({
     total: 0,
     page: 1,
@@ -435,6 +436,7 @@ function SearchInput({ searchMode }) {
     searchImages,
     setResults,
     loadDefaultResults,
+    retryCounter,
   ]); // username intentionally omitted — tracked via usernameRef to avoid re-triggering searches when cookie initializes
 
   const handleLoadMore = async () => {
@@ -912,6 +914,7 @@ function SearchInput({ searchMode }) {
               query={query}
               searchId={currentSearchId || ''}
               isLoading={isLoading}
+              onRetry={() => setRetryCounter(c => c + 1)}
             />
           )}
       </div>

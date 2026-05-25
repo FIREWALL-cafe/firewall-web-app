@@ -6,6 +6,7 @@ import 'yet-another-react-lightbox/plugins/thumbnails.css';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
+import cloudAlert from '../assets/icons/cloud_alert.svg';
 import googleLogo from '../assets/icons/Google-logo_long.svg';
 import baiduLogo from '../assets/icons/baidu_logo_long.svg';
 import CarouselLeft from '../assets/icons/carousel-left.svg';
@@ -14,9 +15,15 @@ import QuestionIcon from './icons/QuestionIcon';
 import BrokenImagePadding from '../assets/icons/broken-image-placeholder_padding.svg';
 import CensoredBrokenImage from '../assets/icons/censored-image-placeholder_padding.svg';
 
-function ImageCarousel({ images, searchId, isLoading = false, isBanned = false }) {
+function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, onRetry }) {
   const [currentIndex, setCurrentIndex] = useState(null); // Start with no selection
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
+  const baiduEmpty =
+    !isLoading &&
+    !isBanned &&
+    !images?.baiduResults?.length &&
+    (images?.googleResults?.length ?? 0) > 0;
 
   const handleOnError = (e, isBaidu = false) => {
     if (isBaidu && images?.baiduResults?.length === 0) {
@@ -184,7 +191,7 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false }
                     )
                   )}
                 </div>
-                {!isLoading && (
+                {!isLoading && !baiduEmpty && (
                   <div className="absolute right-0 h-full w-[60px] flex justify-center items-center">
                     <button
                       onClick={goToNext}
@@ -236,8 +243,32 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false }
                 </button>
               ))}
         </div>
-        <div className="w-1/2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 bg-neutral-100">
-          {isLoading
+        <div className={`w-1/2 bg-neutral-100 ${baiduEmpty ? 'flex items-center justify-center p-8' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4'}`}>
+          {baiduEmpty ? (
+            <div className="flex flex-col items-center justify-center gap-4 text-center">
+              <img src={cloudAlert} alt="" className="w-16 h-16" />
+              <h3 className="text-xl font-bold text-neutral-800">Unable to Connect</h3>
+              <div className="flex items-center gap-1.5 text-sm text-neutral-500">
+                <span>We were unable to complete your search</span>
+                <QuestionIcon
+                  fill="#8d969e"
+                  className="w-4 h-4 flex-shrink-0"
+                  data-tooltip-id="tooltip-baidu-error"
+                  data-tooltip-content="Baidu search results could not be retrieved. This may be a temporary connection issue."
+                  data-tooltip-place="top"
+                />
+                <Tooltip id="tooltip-baidu-error" border={'1px solid #e60011'} />
+              </div>
+              {onRetry && (
+                <button
+                  onClick={onRetry}
+                  className="mt-2 px-8 py-2 border border-neutral-400 rounded text-neutral-700 hover:bg-neutral-200 transition-colors text-sm"
+                >
+                  Retry
+                </button>
+              )}
+            </div>
+          ) : isLoading
             ? Array(9)
                 .fill(0)
                 .map((_, index) => (
@@ -328,14 +359,14 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false }
                       className="w-full h-full p-2 object-contain"
                       alt="Search term is banned in China"
                     />
-                  ) : (
+                  ) : slide.baidu ? (
                     <img
                       src={slide.baidu}
                       className="w-full h-full p-2 object-cover shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
                       onError={e => handleOnError(e, true)}
                       alt="Baidu search result"
                     />
-                  )}
+                  ) : null}
                 </div>
                 <div className="flex justify-between w-full pl-2 mt-4">
                   <img src={baiduLogo} alt="Baidu" className="w-12 pt-1" />
