@@ -102,7 +102,7 @@ function MissionContent() {
         that shines a light on internet censorship in the U.S. and China.
       </p>
       <p className="font-bitmap-song text-[32px] leading-none text-black">
-        <span className="text-[#e81717]">Our mission</span> is to spread awareness about the dangers of technocratic control enabled by emerging technologies.
+        <span className="text-[#e81717]">Our mission</span> is to spread awareness about the dangers of technocratic control online.
       </p>
     </div>
   );
