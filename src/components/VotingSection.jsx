@@ -137,8 +137,8 @@ function VotingSection({ query, searchId }) {
   return (
     <div className="flex flex-col w-full bg-gray-50 border-t border-red-600 max-md:max-w-full">
       <div className={`${isOpen ? 'visible' : 'hidden'}`}>
-        <div className="flex flex-row gap-10 p-12 w-full max-md:px-5 max-md:max-w-full">
-          <div className="flex flex-col gap-8 shrink-0">
+        <div className="flex flex-row flex-wrap gap-10 p-12 w-full max-md:px-5 max-md:max-w-full">
+          <div className="flex flex-col gap-8">
             <div className="flex gap-2.5 items-center min-h-[61px]">
               <div className="font-body-01">What do you think about these search results?</div>
               <QuestionIcon
@@ -174,7 +174,7 @@ function VotingSection({ query, searchId }) {
               />
             </div>
           </div>
-          <div className="flex flex-col gap-8 shrink-0">
+          <div className="flex flex-col gap-8">
             <div className="flex gap-2.5 items-center min-h-[61px]">
               <div className="font-body-01">How is this translation?</div>
               <QuestionIcon
