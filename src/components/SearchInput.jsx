@@ -733,7 +733,7 @@ function SearchInput({ searchMode }) {
                 )}
                 <div className="flex w-full bg-white rounded border border-solid border-neutral-500 h-[56px] overflow-hidden">
                   {showInlineTranslation ? (
-                    <div className="flex flex-1 min-w-0 items-center gap-[10px] px-4 overflow-hidden">
+                    <div className="flex flex-1 min-w-0 items-center px-4 overflow-hidden">
                       <Combobox.Input
                         placeholder={inputPlaceholder}
                         value={query}
@@ -744,7 +744,7 @@ function SearchInput({ searchMode }) {
                         className="flex-shrink-0 border-none h-[56px] p-0 text-neutral-900 font-body-02 focus:ring-0 focus:outline-none bg-transparent iphone:text-lg"
                         aria-label="Search query"
                       />
-                      <span className="flex-shrink-0 text-neutral-400 select-none">|</span>
+                      <span className="flex-shrink-0 text-neutral-400 select-none mx-5">|</span>
                       <span className="truncate text-neutral-600 font-body-02 flex-1 min-w-0">
                         {translation || '...'}
                       </span>
