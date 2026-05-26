@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getTimelineEvents, urlFor } from '../lib/sanity';
 import { useLanguage } from '../context/LanguageContext';
 import ExpandCircleDown from '../assets/icons/expand_circle_down.svg';
+import BaiduPaw from '../assets/icons/baidu_logo_red.svg';
 
 function Timeline() {
   const { language } = useLanguage();
@@ -230,7 +231,7 @@ function Timeline() {
               )}
             </div>
             <div className="flex items-center justify-between">
-              <div className="text-red-600 font-bold text-[18px]">百</div>
+              <img src={BaiduPaw} alt="Baidu" className="w-6 h-6" />
               <div className="text-[15px] text-neutral-600">
                 {timelineEvents[displayIndex].baiduImage?.date || ''}
               </div>
