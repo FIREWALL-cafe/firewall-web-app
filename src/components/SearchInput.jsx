@@ -647,7 +647,7 @@ function SearchInput({ searchMode }) {
                   {isArchive ? (
                     <>
                       <img src={Archive} alt="Archive" className="w-6 h-6" />
-                      <span className="font-bitmap-song text-[18px] text-red-600">
+                      <span className="font-bitmap-song text-[22px] text-red-600">
                         {uiStrings.archiveButton || getDefault('archive', 'archiveButton', language)}
                       </span>
                     </>
@@ -667,7 +667,7 @@ function SearchInput({ searchMode }) {
                           className="object-contain w-full h-full"
                         />
                       </div>
-                      <span className="font-bitmap-song text-[18px] text-red-600">
+                      <span className="font-bitmap-song text-[22px] text-red-600">
                         {uiStrings.compareButton || getDefault('search', 'compareButton', language)}
                       </span>
                     </>
@@ -699,7 +699,7 @@ function SearchInput({ searchMode }) {
                         className="w-6 h-6 grayscale opacity-60"
                       />
                     </div>
-                    <span className="font-bitmap-song text-[18px] inline-flex items-center gap-1">
+                    <span className="font-bitmap-song text-[22px] inline-flex items-center gap-1">
                       {uiStrings.searchComparisonLink || getDefault('search', 'searchComparisonLink', language)}
                       <ArrowRight fill="currentColor" className="w-4 h-4" />
                     </span>
@@ -707,7 +707,7 @@ function SearchInput({ searchMode }) {
                 ) : (
                   <>
                     <img src={ArchiveGrayscale} alt="Archive" className="w-5 h-5" />
-                    <span className="font-bitmap-song text-[18px] inline-flex items-center gap-1">
+                    <span className="font-bitmap-song text-[22px] inline-flex items-center gap-1">
                       <span className="md:hidden">{uiStrings.archiveButton || getDefault('archive', 'archiveButton', language)}</span>
                       <span className="hidden md:inline">{uiStrings.searchArchiveLink || getDefault('archive', 'searchArchiveLink', language)}</span>
                       <ArrowRight fill="currentColor" className="w-4 h-4" />
