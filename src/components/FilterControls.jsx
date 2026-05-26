@@ -52,7 +52,7 @@ function FilterControls({ filters, onChange, isLoading }) {
 
     async function fetchLocations() {
       try {
-        const r = await fetch('/searches/search-locations?sort=count');
+        const r = await fetch('/searches/search-locations');
         if (!r.ok) return;
         const data = await r.json();
         setSearchLocations(
