@@ -45,18 +45,14 @@ function FilterControls({ filters, onChange, isLoading }) {
         setCountries(
           data
             .filter(c => c.code && c.name)
-            .sort((a, b) => {
-              if (a.code === 'US') return -1;
-              if (b.code === 'US') return 1;
-              return a.name.localeCompare(b.name);
-            })
+            .sort((a, b) => Number(b.search_count) - Number(a.search_count))
         );
       } catch {}
     }
 
     async function fetchLocations() {
       try {
-        const r = await fetch('/searches/search-locations');
+        const r = await fetch('/searches/search-locations?sort=count');
         if (!r.ok) return;
         const data = await r.json();
         setSearchLocations(
@@ -73,7 +69,6 @@ function FilterControls({ filters, onChange, isLoading }) {
               search_count: l.search_count,
               year: l.year,
             }))
-          // already sorted by year desc from backend
         );
       } catch {}
     }
@@ -103,7 +98,7 @@ function FilterControls({ filters, onChange, isLoading }) {
         const r = await fetch('/api/analytics/us-states');
         if (r.ok) {
           const data = await r.json();
-          setUsStatesData(data.sort((a, b) => (a.state || '').localeCompare(b.state || '')));
+          setUsStatesData(data.sort((a, b) => Number(b.search_count) - Number(a.search_count)));
         }
       } catch {}
       finally { setLoadingStates(false); }
