@@ -16,7 +16,7 @@ import 'react-modern-drawer/dist/index.css';
 // Static imports as fallbacks
 import logo from '../assets/icons/logo_name.svg';
 import logoMobile from '../assets/icons/logo_only.svg';
-import NavMenu from '../assets/icons/nav-menu.svg';
+import NavMenu from '../assets/icons/menu-default.svg';
 import Close from '../assets/icons/close_large.svg';
 
 import SearchIcon from '../assets/icons/search-grayscale.png';
@@ -168,12 +168,12 @@ function Navigation() {
             <AssistantButton onClick={() => setWizardOpen(true)} />
             <button
               onClick={toggleDrawer}
-              className="flex items-center justify-center bg-red-600 size-[36px] rounded-[4.5px]"
+              className="flex items-center justify-center size-[36px]"
             >
               <img
-                src={siteAssets?.menuIcon ? urlFor(siteAssets.menuIcon).width(24).url() : NavMenu}
+                src={siteAssets?.menuIcon ? urlFor(siteAssets.menuIcon).width(36).url() : NavMenu}
                 alt="Menu"
-                className="w-6 h-6 object-contain"
+                className="size-[36px] object-contain"
               />
             </button>
             <Drawer
