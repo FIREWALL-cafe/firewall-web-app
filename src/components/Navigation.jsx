@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import AssistantButton from './AssistantButton';
 import HelpWizard from './HelpWizard';
+import SearchTutorialModal from './SearchTutorialModal';
 import MenuLink from './MenuLink';
 import LanguageSwitcher from './LanguageSwitcher';
 import SubscribeForm from './SubscribeForm';
@@ -80,6 +81,7 @@ function Navigation() {
   const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [menuLinks, setMenuLinks] = useState(DEFAULT_MENU_LINKS);
   const [newsletterTitle, setNewsletterTitle] = useState(getDefault('navigation', 'newsletterTitle', language));
   const [newsletterSubtitle, setNewsletterSubtitle] = useState(getDefault('navigation', 'newsletterSubtitle', language));
@@ -249,7 +251,12 @@ function Navigation() {
                 </div>
               </nav>
             </Drawer>
-            <HelpWizard open={wizardOpen} onClose={() => setWizardOpen(false)} />
+            <HelpWizard
+              open={wizardOpen}
+              onClose={() => setWizardOpen(false)}
+              onStartTutorial={() => { setWizardOpen(false); setTutorialOpen(true); }}
+            />
+            <SearchTutorialModal open={tutorialOpen} onClose={() => setTutorialOpen(false)} />
           </div>
         </div>
       </div>

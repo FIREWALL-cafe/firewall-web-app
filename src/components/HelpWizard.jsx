@@ -108,7 +108,7 @@ function MissionContent() {
   );
 }
 
-function HelpWizard({ open, onClose }) {
+function HelpWizard({ open, onClose, onStartTutorial }) {
   const navigate = useNavigate();
   const [branch, setBranch] = useState('default');
   const [screen, setScreen] = useState('main');
@@ -140,7 +140,6 @@ function HelpWizard({ open, onClose }) {
       case 'mission': setScreen('mission'); break;
       case 'about':   setScreen('about'); break;
       case 'roll':    setScreen('roll'); break;
-      case 'search':  navigate('/search'); onClose(); break;
       case 'archive': navigate('/archive'); onClose(); break;
       default: break;
     }
@@ -160,7 +159,7 @@ function HelpWizard({ open, onClose }) {
       </div>
       <RollInput rolledTerm={rolledTerm} onRoll={handleRoll} isRolling={isRolling} onCopy={handleCopy} />
       <div className="flex flex-col gap-3">
-        <WizardCard icon={SearchIcon} title="How to Search" subtitle="Search, compare, and vote" onClick={() => handleCard('search')} />
+        <WizardCard icon={SearchIcon} title="How to Search" subtitle="Search, compare, and vote" onClick={() => { onStartTutorial?.(); onClose(); }} />
         <WizardCard icon={ArchiveIcon} title="Using the Archive" subtitle="Browse community results" onClick={() => handleCard('archive')} />
         <WizardCard icon={logoOnly} title="What is FIREWALL Cafe?" subtitle="What we do and why we exist" onClick={() => handleCard('mission')} />
         <WizardCard icon={cloudAlert} title="Why am I seeing this?" subtitle="Why images don't turn up" onClick={() => handleCard('about')} iconBg="bg-[#eff2f5]" />
@@ -213,7 +212,7 @@ function HelpWizard({ open, onClose }) {
       </div>
       <div className="flex flex-col gap-3">
         <WizardCard icon={logoOnly} title="What is FIREWALL Cafe?" subtitle="What we do and why we exist" onClick={() => handleCard('mission')} />
-        <WizardCard icon={SearchIcon} title="How to Search" subtitle="Search, compare, and vote" onClick={() => handleCard('search')} />
+        <WizardCard icon={SearchIcon} title="How to Search" subtitle="Search, compare, and vote" onClick={() => { onStartTutorial?.(); onClose(); }} />
         <WizardCard icon={rollDice} title="Roll a Term" subtitle="Generate a curated topical search" onClick={() => handleCard('roll')} />
       </div>
     </div>
@@ -223,7 +222,7 @@ function HelpWizard({ open, onClose }) {
     <div className="flex flex-col gap-8 px-6 py-8">
       <MissionContent />
       <div className="flex flex-col gap-3">
-        <WizardCard icon={SearchIcon} title="How to Search" subtitle="Search, compare, and vote" onClick={() => handleCard('search')} />
+        <WizardCard icon={SearchIcon} title="How to Search" subtitle="Search, compare, and vote" onClick={() => { onStartTutorial?.(); onClose(); }} />
         <WizardCard icon={rollDice} title="Roll a Term" subtitle="Generate a curated topical search" onClick={() => handleCard('roll')} />
       </div>
     </div>
