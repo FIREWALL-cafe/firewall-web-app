@@ -11,7 +11,12 @@ function AssistantButton({ onClick }) {
 
     const trigger = () => {
       setAnimate(true);
-      setTimeout(() => setAnimate(false), 400);
+      setTimeout(() => setAnimate(false), 300);
+    };
+
+    const cancel = () => {
+      clearTimeout(timeoutRef.current);
+      clearInterval(intervalRef.current);
     };
 
     timeoutRef.current = setTimeout(() => {
@@ -19,9 +24,10 @@ function AssistantButton({ onClick }) {
       intervalRef.current = setInterval(trigger, 60000);
     }, 5000);
 
+    window.addEventListener('wizard-dismissed', cancel);
     return () => {
-      clearTimeout(timeoutRef.current);
-      clearInterval(intervalRef.current);
+      cancel();
+      window.removeEventListener('wizard-dismissed', cancel);
     };
   }, []);
 

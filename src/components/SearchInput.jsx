@@ -238,6 +238,10 @@ function SearchInput({ searchMode }) {
       return;
     }
     setError('');
+    if (!localStorage.getItem('hasSeenWizard')) {
+      localStorage.setItem('hasSeenWizard', 'true');
+      window.dispatchEvent(new CustomEvent('wizard-dismissed'));
+    }
 
     // Always update the URL query parameter - this will trigger the useEffect to perform the search
     if (location.pathname === '/') {
