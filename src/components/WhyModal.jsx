@@ -1,6 +1,6 @@
 import React from 'react';
 import visibilityOff from '../assets/icons/visibility_off.svg';
-import brokenImage from '../assets/icons/broken-image.png';
+import brokenImage from '../assets/icons/broken_link.jpg';
 import cloudAlert from '../assets/icons/cloud_alert.svg';
 
 const ROWS = [
