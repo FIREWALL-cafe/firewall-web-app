@@ -102,13 +102,13 @@ function MissionContent() {
         that shines a light on internet censorship in the U.S. and China.
       </p>
       <p className="font-bitmap-song text-[32px] leading-none text-black">
-        <span className="text-[#e81717]">Our mission</span> is to spread awareness about the dangers of technocratic control online.
+        <span className="text-[#e81717]">Our mission</span> is to spread awareness about the dangers of authoritarian and technocratic control online.
       </p>
     </div>
   );
 }
 
-function HelpWizard({ open, onClose, onStartTutorial }) {
+function HelpWizard({ open, onClose, onStartTutorial, onWhyModal }) {
   const navigate = useNavigate();
   const [branch, setBranch] = useState('default');
   const [screen, setScreen] = useState('main');
@@ -162,7 +162,7 @@ function HelpWizard({ open, onClose, onStartTutorial }) {
         <WizardCard icon={SearchIcon} title="How to Search" subtitle="Search, compare, and vote" onClick={() => { onStartTutorial?.(); onClose(); }} />
         <WizardCard icon={ArchiveIcon} title="Using the Archive" subtitle="Browse community results" onClick={() => handleCard('archive')} />
         <WizardCard icon={logoOnly} title="What is FIREWALL Cafe?" subtitle="What we do and why we exist" onClick={() => handleCard('mission')} />
-        <WizardCard icon={cloudAlert} title="Why am I seeing this?" subtitle="Why images don't turn up" onClick={() => handleCard('about')} iconBg="bg-[#eff2f5]" />
+        <WizardCard icon={cloudAlert} title="Why am I seeing this?" subtitle="Why images don't turn up" onClick={() => onWhyModal?.()} iconBg="bg-[#eff2f5]" />
       </div>
     </div>
   );

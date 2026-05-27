@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import AssistantButton from './AssistantButton';
 import HelpWizard from './HelpWizard';
 import SearchTutorialModal from './SearchTutorialModal';
+import WhyModal from './WhyModal';
 import MenuLink from './MenuLink';
 import LanguageSwitcher from './LanguageSwitcher';
 import SubscribeForm from './SubscribeForm';
@@ -82,6 +83,7 @@ function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [whyModalOpen, setWhyModalOpen] = useState(false);
   const [menuLinks, setMenuLinks] = useState(DEFAULT_MENU_LINKS);
   const [newsletterTitle, setNewsletterTitle] = useState(getDefault('navigation', 'newsletterTitle', language));
   const [newsletterSubtitle, setNewsletterSubtitle] = useState(getDefault('navigation', 'newsletterSubtitle', language));
@@ -137,6 +139,12 @@ function Navigation() {
 
     loadNavigationSettings();
   }, [language]);
+
+  useEffect(() => {
+    const handler = () => setWhyModalOpen(true);
+    window.addEventListener('open-why-modal', handler);
+    return () => window.removeEventListener('open-why-modal', handler);
+  }, []);
 
   const toggleDrawer = () => {
     setIsOpen(prevState => !prevState);
@@ -255,8 +263,10 @@ function Navigation() {
               open={wizardOpen}
               onClose={() => setWizardOpen(false)}
               onStartTutorial={() => { setWizardOpen(false); setTutorialOpen(true); }}
+              onWhyModal={() => { setWizardOpen(false); setWhyModalOpen(true); }}
             />
             <SearchTutorialModal open={tutorialOpen} onClose={() => setTutorialOpen(false)} />
+            <WhyModal open={whyModalOpen} onClose={() => setWhyModalOpen(false)} />
           </div>
         </div>
       </div>
