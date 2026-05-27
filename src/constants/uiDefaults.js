@@ -23,7 +23,7 @@ export const UI_DEFAULTS = {
       infoCtaButtonAriaLabel: 'Start Searching',
       searchTrendsSectionHeading: 'Search Trends',
       searchTrendsSectionHeadingZh: '搜索趋势',
-      newsletterHeading: 'Stay connected',
+      newsletterHeading: '保持联系',
       newsletterSubheading: 'Get updates about upcoming events',
       newsletterEmailPlaceholder: 'Email',
       newsletterSubscribeButton: 'Submit',
@@ -212,7 +212,7 @@ export const UI_DEFAULTS = {
     en: {
       searchPlaceholder: 'Search Google + Baidu',
       newsletterTitle: 'Subscribe to our newsletter',
-      newsletterSubtitle: 'Stay connected',
+      newsletterSubtitle: '保持联系',
       menuLinkArchive: 'Query Archive',
       menuLinkEditorial: 'Expert Commentary',
       menuLinkEvents: 'Events',
