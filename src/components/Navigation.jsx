@@ -83,6 +83,7 @@ function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [tutorialScreen, setTutorialScreen] = useState(0);
   const [whyModalOpen, setWhyModalOpen] = useState(false);
   const [menuLinks, setMenuLinks] = useState(DEFAULT_MENU_LINKS);
   const [newsletterTitle, setNewsletterTitle] = useState(getDefault('navigation', 'newsletterTitle', language));
@@ -262,10 +263,10 @@ function Navigation() {
             <HelpWizard
               open={wizardOpen}
               onClose={() => setWizardOpen(false)}
-              onStartTutorial={() => { setWizardOpen(false); setTutorialOpen(true); }}
+              onStartTutorial={(screen = 0) => { setTutorialScreen(screen); setWizardOpen(false); setTutorialOpen(true); }}
               onWhyModal={() => { setWizardOpen(false); setWhyModalOpen(true); }}
             />
-            <SearchTutorialModal open={tutorialOpen} onClose={() => setTutorialOpen(false)} />
+            <SearchTutorialModal open={tutorialOpen} onClose={() => setTutorialOpen(false)} initialScreen={tutorialScreen} />
             <WhyModal open={whyModalOpen} onClose={() => setWhyModalOpen(false)} />
           </div>
         </div>

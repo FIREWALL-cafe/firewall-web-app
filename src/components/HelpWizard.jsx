@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import mugImage from '../assets/icons/assistant-mug.png';
 import iflIcon from '../assets/icons/ifl.png';
 import rollDice from '../assets/icons/roll-dice.png';
@@ -109,7 +109,6 @@ function MissionContent() {
 }
 
 function HelpWizard({ open, onClose, onStartTutorial, onWhyModal }) {
-  const navigate = useNavigate();
   const [branch, setBranch] = useState('default');
   const [screen, setScreen] = useState('main');
   const [rolledTerm, setRolledTerm] = useState('');
@@ -140,10 +139,10 @@ function HelpWizard({ open, onClose, onStartTutorial, onWhyModal }) {
       case 'mission': setScreen('mission'); break;
       case 'about':   setScreen('about'); break;
       case 'roll':    setScreen('roll'); break;
-      case 'archive': navigate('/archive'); onClose(); break;
+      case 'archive': onStartTutorial?.(2); onClose(); break;
       default: break;
     }
-  }, [navigate, onClose]);
+  }, [onClose, onStartTutorial]);
 
   if (!open) return null;
 

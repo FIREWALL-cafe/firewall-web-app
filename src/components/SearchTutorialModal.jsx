@@ -270,13 +270,13 @@ function ArchiveScreen() {
   );
 }
 
-function SearchTutorialModal({ open, onClose }) {
+function SearchTutorialModal({ open, onClose, initialScreen = 0 }) {
   const navigate = useNavigate();
-  const [screen, setScreen] = useState(0);
+  const [screen, setScreen] = useState(initialScreen);
 
   useEffect(() => {
-    if (open) setScreen(0);
-  }, [open]);
+    if (open) setScreen(initialScreen);
+  }, [open, initialScreen]);
 
   if (!open) return null;
 
