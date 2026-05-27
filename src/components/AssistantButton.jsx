@@ -34,10 +34,14 @@ function AssistantButton({ onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center justify-center h-[36px] w-[56px] rounded-full bg-[#f5f7f9] border border-[#dde3e8] hover:border-[#b9c0c7] transition-colors${animate ? ' animate-assistant-wiggle' : ''}`}
+      className="assistant-btn flex items-center justify-center h-[36px] w-[56px] rounded-full bg-[#f5f7f9] border border-[#dde3e8] hover:border-[#b9c0c7] transition-colors"
       aria-label="Open Help"
     >
-      <img src={mugImage} alt="" className="h-[26px] w-auto" />
+      <img
+        src={mugImage}
+        alt=""
+        className={`h-[26px] w-auto${animate ? ' animate-assistant-wiggle' : ''}`}
+      />
     </button>
   );
 }
