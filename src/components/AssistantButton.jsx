@@ -21,7 +21,7 @@ function AssistantButton({ onClick }) {
 
     timeoutRef.current = setTimeout(() => {
       trigger();
-      intervalRef.current = setInterval(trigger, 60000);
+      intervalRef.current = setInterval(trigger, 90000);
     }, 5000);
 
     window.addEventListener('wizard-dismissed', cancel);
