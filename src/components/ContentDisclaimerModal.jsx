@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import arrowRightAlt from '../assets/icons/arrow_right_alt.svg';
 
 function ContentDisclaimerModal({ open, onAccept, onReject }) {
@@ -18,7 +19,7 @@ function ContentDisclaimerModal({ open, onAccept, onReject }) {
           <p className="mt-6 text-[15px] leading-[1.5] text-black">
             <strong>Your consent is required to continue. </strong>
             By accepting the{' '}
-            <span className="underline">terms and conditions</span>
+            <Link to="/terms" className="underline" onClick={onReject}>terms and conditions</Link>
             , you acknowledge that FIREWALL Cafe is not responsible for what you search for, or what you see.
           </p>
         </div>

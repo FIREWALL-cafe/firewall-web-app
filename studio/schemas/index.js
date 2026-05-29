@@ -24,6 +24,7 @@ import globalStrings from './globalStrings'
 import footerStrings from './footerStrings'
 import eventsPageStrings from './eventsPageStrings'
 import partnersPageStrings from './partnersPageStrings'
+import termsPageStrings from './termsPageStrings'
 import featuredPressArticle from './featuredPressArticle'
 import homepageImages from './homepageImages'
 import siteAssets from './siteAssets'
@@ -52,6 +53,7 @@ export const schemaTypes = [
   archivePageStrings,
   eventsPageStrings,
   partnersPageStrings,
+  termsPageStrings,
   aboutPageStrings,
   editorialPageStrings,
   pressPageStrings,

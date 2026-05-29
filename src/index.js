@@ -18,6 +18,7 @@ import Partners from './components/Partners';
 import Contributors from './components/Contributors';
 import Dashboard from './components/Dashboard';
 import WhyDidThisHappen from './components/WhyDidThisHappen';
+import TermsAndConditions from './components/TermsAndConditions';
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
@@ -90,6 +91,10 @@ const router = createBrowserRouter([
       {
         path: 'dashboard',
         element: <Dashboard />,
+      },
+      {
+        path: 'terms',
+        element: <TermsAndConditions />,
       },
     ],
   },

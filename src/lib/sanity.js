@@ -391,6 +391,26 @@ export async function getEventsPageStrings(lang = 'en') {
   }
 }
 
+// Terms & Conditions Page Strings
+export async function getTermsPageStrings(lang = 'en') {
+  try {
+    const result = await client.fetch(
+      `*[_type == "termsPageStrings"][0] {
+        ${buildBilingualHeadingQuery(['pageHeading'], ['pageHeadingZh'])},
+        "sections": sections[]{
+          "sectionHeading": coalesce(sectionHeading.${lang}, sectionHeading.en),
+          "sectionBody": coalesce(sectionBody.${lang}, sectionBody.en)
+        }
+      }`,
+      { lang }
+    )
+    return result || {}
+  } catch (error) {
+    console.error('Error fetching terms page strings from Sanity:', error)
+    return {}
+  }
+}
+
 // Partners Page Strings
 export async function getPartnersPageStrings(lang = 'en') {
   try {
