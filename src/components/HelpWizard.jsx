@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
 import mugImage from '../assets/icons/assistant-mug.png';
-import iflIcon from '../assets/icons/ifl.png';
+import whiteDie from '../assets/icons/white_die.svg';
+import frameIcon from '../assets/icons/frame.svg';
+import frameHoverIcon from '../assets/icons/frame_hover.svg';
 import rollDice from '../assets/icons/roll-dice.png';
 import SearchIcon from '../assets/icons/search-grayscale.png';
 import ArchiveIcon from '../assets/icons/Archive_grayscale.png';
@@ -57,12 +59,11 @@ function RollInput({ rolledTerm, onRoll, isRolling, onCopy }) {
         <button
           onClick={onCopy}
           disabled={!rolledTerm}
-          className="shrink-0 ml-2 disabled:opacity-30 hover:opacity-70 transition-opacity"
+          className="group shrink-0 ml-2 disabled:opacity-30"
           aria-label="Copy term"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM15 5H8C6.9 5 6.01 5.9 6.01 7L6 21C6 22.1 6.89 23 7.99 23H19C20.1 23 21 22.1 21 21V11L15 5ZM8 21V7H14V12H19V21H8Z" fill="#8d969e"/>
-          </svg>
+          <img src={frameIcon} alt="" className="w-[26px] h-[26px] group-hover:hidden" />
+          <img src={frameHoverIcon} alt="" className="w-6 h-6 hidden group-hover:block" />
         </button>
       </div>
       <button
@@ -71,7 +72,7 @@ function RollInput({ rolledTerm, onRoll, isRolling, onCopy }) {
         className="flex items-center gap-1.5 bg-[#e81717] text-white px-4 h-full rounded text-[17px] font-medium shrink-0 hover:bg-[#c01010] transition-colors disabled:opacity-60"
         aria-label="Roll a term"
       >
-        <img src={iflIcon} alt="" className="w-6 h-6" />
+        <img src={whiteDie} alt="" className="w-6 h-6" />
         Roll
       </button>
     </div>
