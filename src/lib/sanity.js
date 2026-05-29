@@ -236,7 +236,7 @@ export async function getNavigationSettings(lang = 'en') {
         visible
       },
       "searchPlaceholder": ${localizeField('searchPlaceholder', lang)},
-      "newsletterTitle": ${localizeField('newsletterTitle', 'zh')},
+      "newsletterTitle": ${localizeField('newsletterTitle', lang)},
       "newsletterSubtitle": ${localizeField('newsletterSubtitle', 'zh')}
     }`,
     { lang }

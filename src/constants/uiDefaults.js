@@ -211,7 +211,7 @@ export const UI_DEFAULTS = {
   navigation: {
     en: {
       searchPlaceholder: 'Search Google + Baidu',
-      newsletterTitle: '订阅我们的通讯',
+      newsletterTitle: 'Subscribe to our newsletter',
       newsletterSubtitle: '保持联系',
       menuLinkArchive: 'Query Archive',
       menuLinkEditorial: 'Expert Commentary',
