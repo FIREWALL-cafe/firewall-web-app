@@ -628,14 +628,15 @@ export async function getContactPageStrings(lang = 'en') {
 // Footer Strings
 export async function getFooterStrings(lang = 'en') {
   try {
-    const fields = [
-      'navLinkAbout', 'navLinkPress', 'navLinkEvents', 'navLinkSearch',
-      'navLinkArchive', 'navLinkEditorial', 'navLinkPartner', 'navLinkContact'
-    ]
-
     const result = await client.fetch(
       `*[_type == "footerStrings"][0] {
-        ${buildLocalizedQuery(fields, lang)}
+        "linkGroups": linkGroups[]{
+          "links": links[]{
+            "label": coalesce(label[$lang], label.en),
+            path
+          }
+        },
+        "socialLinks": socialLinks[]{ platform, url }
       }`,
       { lang }
     )
