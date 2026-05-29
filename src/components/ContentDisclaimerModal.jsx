@@ -18,7 +18,7 @@ function ContentDisclaimerModal({ open, onAccept, onReject }) {
           <p className="mt-6 text-[15px] leading-[1.5] text-black">
             <strong>Your consent is required to continue. </strong>
             By accepting the{' '}
-            <a href="#" className="underline">terms and conditions</a>
+            <span className="underline">terms and conditions</span>
             , you acknowledge that FIREWALL Cafe is not responsible for what you search for, or what you see.
           </p>
         </div>
