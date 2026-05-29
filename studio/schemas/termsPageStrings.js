@@ -32,8 +32,7 @@ export default defineType({
               name: 'sectionHeading',
               title: 'Section Heading',
               type: 'localeString',
-              description: 'Bold heading for this section',
-              validation: (Rule) => Rule.required(),
+              description: 'Bold heading for this section (optional)',
             },
             {
               name: 'sectionBody',
