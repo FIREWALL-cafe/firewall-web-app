@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 import mugImage from '../assets/icons/assistant-mug.png';
 import whiteDie from '../assets/icons/white_die.svg';
@@ -8,6 +8,10 @@ import rollDice from '../assets/icons/roll-dice.png';
 import SearchIcon from '../assets/icons/search-grayscale.png';
 import ArchiveIcon from '../assets/icons/Archive_grayscale.png';
 import cloudAlert from '../assets/icons/cloud_alert.svg';
+import brokenLink from '../assets/icons/broken_link.jpg';
+import censoredIcon from '../assets/icons/censored.jpg';
+import cloudBang from '../assets/icons/cloud_bang.jpg';
+import worldProblem from '../assets/icons/world_problem.jpg';
 import logoOnly from '../assets/icons/logo_only.svg';
 import QuestionIcon from './icons/QuestionIcon';
 
@@ -32,14 +36,36 @@ async function fetchRollTerm() {
   return FALLBACK_TERMS[Math.floor(Math.random() * FALLBACK_TERMS.length)];
 }
 
-function WizardCard({ icon, title, subtitle, onClick, iconBg = 'bg-[#f5f7f9]' }) {
+function WizardCard({ icon, hoverIcons, title, subtitle, onClick, iconBg = 'bg-[#f5f7f9]' }) {
+  const [hoverIndex, setHoverIndex] = useState(null);
+  const intervalRef = useRef(null);
+
+  const handleMouseEnter = () => {
+    if (!hoverIcons?.length) return;
+    let i = 0;
+    setHoverIndex(i);
+    intervalRef.current = setInterval(() => {
+      i = (i + 1) % hoverIcons.length;
+      setHoverIndex(i);
+    }, 700);
+  };
+
+  const handleMouseLeave = () => {
+    clearInterval(intervalRef.current);
+    setHoverIndex(null);
+  };
+
+  const displayIcon = hoverIndex !== null && hoverIcons?.length ? hoverIcons[hoverIndex] : icon;
+
   return (
     <button
       onClick={onClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className="flex items-center w-full min-h-[64px] bg-white border border-[#b9c0c7] rounded-[8px] overflow-hidden text-left hover:bg-[#f5f7f9] transition-colors shrink-0"
     >
       <div className={`flex items-center justify-center self-stretch ${iconBg} p-3 shrink-0 w-[64px]`}>
-        <img src={icon} alt="" className="w-10 h-10 object-contain" />
+        <img src={displayIcon} alt="" className={`w-10 h-10 object-contain ${hoverIndex !== null ? 'scale-[1.4]' : ''}`} />
       </div>
       <div className="flex flex-col gap-1 px-4 py-3 min-w-0">
         <span className="font-semibold text-[15px] text-black leading-none">{title}</span>
@@ -162,7 +188,7 @@ function HelpWizard({ open, onClose, onStartTutorial, onWhyModal }) {
         <WizardCard icon={SearchIcon} title="How to Search" subtitle="Search, compare, and vote" onClick={() => { onStartTutorial?.(); onClose(); }} />
         <WizardCard icon={ArchiveIcon} title="Using the Archive" subtitle="Browse community results" onClick={() => handleCard('archive')} />
         <WizardCard icon={logoOnly} title="What is FIREWALL Cafe?" subtitle="What we do and why we exist" onClick={() => handleCard('mission')} />
-        <WizardCard icon={cloudAlert} title="Why am I seeing this?" subtitle="Why images don't turn up" onClick={() => onWhyModal?.()} iconBg="bg-[#eff2f5]" />
+        <WizardCard icon={cloudAlert} hoverIcons={[brokenLink, censoredIcon, cloudBang, worldProblem]} title="Why am I seeing this?" subtitle="Why images don't turn up" onClick={() => onWhyModal?.()} iconBg="bg-[#eff2f5]" />
       </div>
     </div>
   );
