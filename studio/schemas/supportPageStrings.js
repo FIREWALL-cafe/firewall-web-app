@@ -79,13 +79,25 @@ export default defineType({
       type: 'localeString',
       description: 'Text for "Learn More" button',
     },
+    {
+      name: 'supportersHeading',
+      title: 'Supporters Section - Main Heading (English)',
+      type: 'localeString',
+      description: 'Heading for the Supporters section',
+    },
+    {
+      name: 'supportersHeadingZh',
+      title: 'Supporters Section - Main Heading (Chinese)',
+      type: 'localeString',
+      description: 'Chinese version of the Supporters section heading',
+    },
   ],
 
   preview: {
     prepare() {
       return {
         title: 'Support Page',
-        subtitle: 'Manage support page UI text (12 fields)',
+        subtitle: 'Manage support page UI text (14 fields)',
       }
     },
   },

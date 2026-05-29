@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getEvents } from '../lib/sanity';
+import { getEvents, getEventsPageStrings } from '../lib/sanity';
 import { useLanguage } from '../context/LanguageContext';
 import EventCard from './EventCard';
 
@@ -11,6 +11,27 @@ function Events() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [headings, setHeadings] = useState({
+    eventsPageHeading: 'Events',
+    eventsPageHeadingZh: '活动',
+    eventsIntroText: 'FIREWALL Cafe has appeared at venues and events around the world',
+  });
+
+  useEffect(() => {
+    async function fetchStrings() {
+      try {
+        const strings = await getEventsPageStrings('en');
+        if (strings && (strings.eventsPageHeading || strings.eventsPageHeadingZh)) {
+          setHeadings({
+            eventsPageHeading: strings.eventsPageHeading || 'Events',
+            eventsPageHeadingZh: strings.eventsPageHeadingZh || '活动',
+            eventsIntroText: strings.eventsIntroText || 'FIREWALL Cafe has appeared at venues and events around the world',
+          });
+        }
+      } catch (_) {}
+    }
+    fetchStrings();
+  }, []);
 
   useEffect(() => {
     async function fetchEvents() {
@@ -52,13 +73,12 @@ function Events() {
     <section className="flex overflow-hidden flex-col bg-white">
       <div className="flex flex-col justify-center items-center py-32 w-full max-md:py-24 px-8">
         <div className="flex flex-col items-center w-full max-w-[1080px]">
-          <h1 className="text-5xl font-medium text-center mb-8">
-            {language === 'en' ? 'Events' : '活动'}
-          </h1>
+          <div className="font-bitmap-song font-display-03 text-center mb-8">
+            <h1 className="leading-tight text-black">{headings.eventsPageHeading}</h1>
+            <div className="leading-tight text-red-600">{headings.eventsPageHeadingZh}</div>
+          </div>
           <p className="text-xl text-center text-gray-600 mb-12">
-            {language === 'en'
-              ? 'FIREWALL Cafe has appeared at venues and events around the world'
-              : 'FIREWALL Cafe 已在世界各地的场所和活动中亮相'}
+            {headings.eventsIntroText}
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">

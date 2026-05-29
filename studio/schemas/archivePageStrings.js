@@ -8,6 +8,24 @@ export default defineType({
   // Singleton - only one document should exist
   fields: [
     {
+      name: 'archivePageHeading',
+      title: 'Archive Page - Main Heading (English)',
+      type: 'localeString',
+      description: 'Main heading for the Archive page',
+    },
+    {
+      name: 'archivePageHeadingZh',
+      title: 'Archive Page - Main Heading (Chinese)',
+      type: 'localeString',
+      description: 'Chinese version of the Archive page heading',
+    },
+    {
+      name: 'archiveBodyText',
+      title: 'Archive Page - Body Text',
+      type: 'localeText',
+      description: 'Introductory paragraph below the archive heading',
+    },
+    {
       name: 'archiveInputPlaceholder',
       title: 'Archive Input - Placeholder Text',
       type: 'localeString',
@@ -98,7 +116,7 @@ export default defineType({
     prepare() {
       return {
         title: 'Archive Page',
-        subtitle: 'Manage archive page UI text (14 fields)',
+        subtitle: 'Manage archive page UI text (17 fields)',
       }
     },
   },

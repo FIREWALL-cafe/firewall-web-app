@@ -22,6 +22,9 @@ import filterStrings from './filterStrings'
 import voteStrings from './voteStrings'
 import globalStrings from './globalStrings'
 import footerStrings from './footerStrings'
+import eventsPageStrings from './eventsPageStrings'
+import partnersPageStrings from './partnersPageStrings'
+import featuredPressArticle from './featuredPressArticle'
 import homepageImages from './homepageImages'
 import siteAssets from './siteAssets'
 
@@ -43,10 +46,12 @@ export const schemaTypes = [
   // Settings/Singletons
   navigationSettings,
 
-  // UI String Singletons (12 documents)
+  // UI String Singletons (14 documents)
   homepageStrings,
   searchPageStrings,
   archivePageStrings,
+  eventsPageStrings,
+  partnersPageStrings,
   aboutPageStrings,
   editorialPageStrings,
   pressPageStrings,
@@ -56,6 +61,9 @@ export const schemaTypes = [
   voteStrings,
   globalStrings,
   footerStrings,
+
+  // Content Singletons
+  featuredPressArticle,
 
   // Reusable components
   featureCard,

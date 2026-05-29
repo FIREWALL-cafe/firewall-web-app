@@ -1,9 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import SearchInput from './SearchInput';
+import { getArchivePageStrings } from '../lib/sanity';
 
 import Archive from '../assets/icons/Archive.png';
 
 const HeroArchive = () => {
+  const [headings, setHeadings] = useState({
+    archivePageHeading: 'Archive Search',
+    archivePageHeadingZh: '搜索结果存档',
+    archiveBodyText: 'Browse what others are searching, vote on their results, and see how they voted too.',
+  });
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const strings = await getArchivePageStrings('en');
+        if (strings && (strings.archivePageHeading || strings.archivePageHeadingZh)) {
+          setHeadings({
+            archivePageHeading: strings.archivePageHeading || 'Archive Search',
+            archivePageHeadingZh: strings.archivePageHeadingZh || '搜索结果存档',
+            archiveBodyText: strings.archiveBodyText || 'Browse what others are searching, vote on their results, and see how they voted too.',
+          });
+        }
+      } catch (_) {}
+    }
+    load();
+  }, []);
+
   return (
     <section className="flex overflow-hidden flex-col justify-center py-16 w-full bg-white max-md:py-24 max-md:max-w-full">
       <div className="flex flex-col justify-center w-full text-center max-md:max-w-full">
@@ -15,15 +38,15 @@ const HeroArchive = () => {
               className="object-contain shrink-0 self-stretch my-auto aspect-square w-[52px]"
             />
             <div className="self-stretch my-auto border-black max-md:max-w-full max-md:text-4xl">
-              Archive Search
+              {headings.archivePageHeading}
             </div>
           </div>
           <div className="text-red-600 border-red-600 max-md:max-w-full max-md:text-4xl">
-            搜索结果存档
+            {headings.archivePageHeadingZh}
           </div>
         </div>
         <div className="mt-5 text-lg text-black max-md:max-w-full">
-          Browse what others are searching, vote on their results, and see how they voted too.
+          {headings.archiveBodyText}
         </div>
       </div>
       <SearchInput searchMode="archive" />

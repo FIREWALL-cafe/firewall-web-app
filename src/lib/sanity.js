@@ -236,8 +236,8 @@ export async function getNavigationSettings(lang = 'en') {
         visible
       },
       "searchPlaceholder": ${localizeField('searchPlaceholder', lang)},
-      "newsletterTitle": ${localizeField('newsletterTitle', lang)},
-      "newsletterSubtitle": ${localizeField('newsletterSubtitle', lang)}
+      "newsletterTitle": ${localizeField('newsletterTitle', 'zh')},
+      "newsletterSubtitle": ${localizeField('newsletterSubtitle', 'zh')}
     }`,
     { lang }
   )
@@ -349,6 +349,7 @@ export async function getSearchPageStrings(lang = 'en') {
 export async function getArchivePageStrings(lang = 'en') {
   try {
     const fields = [
+      'archiveBodyText',
       'archiveInputPlaceholder', 'archiveButton', 'searchArchiveLink', 'archiveModeTooltip',
       'queryListHeaderVotes', 'queryListHeaderQueryEn', 'queryListHeaderQueryZh',
       'queryListHeaderLocation', 'queryListHeaderDate',
@@ -358,13 +359,51 @@ export async function getArchivePageStrings(lang = 'en') {
 
     const result = await client.fetch(
       `*[_type == "archivePageStrings"][0] {
-        ${buildLocalizedQuery(fields, lang)}
+        ${buildLocalizedQuery(fields, lang)},
+        ${buildBilingualHeadingQuery(['archivePageHeading'], ['archivePageHeadingZh'])}
       }`,
       { lang }
     )
     return result || {}
   } catch (error) {
     console.error('Error fetching archive page strings from Sanity:', error)
+    return {}
+  }
+}
+
+// Events Page Strings
+export async function getEventsPageStrings(lang = 'en') {
+  try {
+    const result = await client.fetch(
+      `*[_type == "eventsPageStrings"][0] {
+        "eventsIntroText": ${localizeField('eventsIntroText', lang)},
+        ${buildBilingualHeadingQuery(
+          ['eventsPageHeading', 'pastEventsPageHeading'],
+          ['eventsPageHeadingZh', 'pastEventsPageHeadingZh']
+        )}
+      }`,
+      { lang }
+    )
+    return result || {}
+  } catch (error) {
+    console.error('Error fetching events page strings from Sanity:', error)
+    return {}
+  }
+}
+
+// Partners Page Strings
+export async function getPartnersPageStrings(lang = 'en') {
+  try {
+    const result = await client.fetch(
+      `*[_type == "partnersPageStrings"][0] {
+        "partnersIntroText": ${localizeField('partnersIntroText', lang)},
+        ${buildBilingualHeadingQuery(['partnersPageHeading'], ['partnersPageHeadingZh'])}
+      }`,
+      { lang }
+    )
+    return result || {}
+  } catch (error) {
+    console.error('Error fetching partners page strings from Sanity:', error)
     return {}
   }
 }
@@ -529,7 +568,10 @@ export async function getSupportPageStrings(lang = 'en') {
     const result = await client.fetch(
       `*[_type == "supportPageStrings"][0] {
         ${buildLocalizedQuery(fields, lang)},
-        ${buildBilingualHeadingQuery(['supportPageHeading'], ['supportPageHeadingZh'])}
+        ${buildBilingualHeadingQuery(
+          ['supportPageHeading', 'supportersHeading'],
+          ['supportPageHeadingZh', 'supportersHeadingZh']
+        )}
       }`,
       { lang }
     )
@@ -985,6 +1027,35 @@ export async function getEditorialArticleBySlug(slug) {
     return client.fetch(query, { slug })
   } catch (error) {
     console.error('Error fetching editorial article:', error)
+    return null
+  }
+}
+
+// ========== FEATURED PRESS ARTICLE ==========
+
+export async function getFeaturedPressArticle(lang = 'en') {
+  try {
+    const result = await client.fetch(
+      `*[_type == "featuredPressArticle"][0] {
+        "featuredLabel": ${localizeField('featuredLabel', lang)},
+        "articleTitle": ${localizeField('articleTitle', 'en')},
+        "articleTitleZh": ${localizeField('articleTitleZh', 'zh')},
+        "excerpt": ${localizeField('excerpt', lang)},
+        externalUrl,
+        publication,
+        "readArticleLabel": ${localizeField('readArticleLabel', lang)},
+        image {
+          asset->,
+          hotspot,
+          crop,
+          alt
+        }
+      }`,
+      { lang }
+    )
+    return result || null
+  } catch (error) {
+    console.error('Error fetching featured press article from Sanity:', error)
     return null
   }
 }
