@@ -183,7 +183,7 @@ function HelpWizard({ open, onClose, onStartTutorial, onWhyModal }) {
           </p>
         </div>
         <p className="font-bitmap-song text-[32px] leading-none text-black">
-          Anywhere you see a <span className="inline-flex items-center justify-center w-6 h-6 border border-neutral-400 rounded text-[16px] font-sans">?</span>, I'll be there to provide support.
+          Anywhere you see a <span className="whitespace-nowrap"><span className="inline-flex items-center justify-center w-6 h-6 border border-neutral-400 rounded text-[16px] font-sans">?</span>,</span> I'll be there to provide support.
         </p>
         <p className="font-bitmap-song text-[32px] leading-none text-black">
           <span className="text-[#e81717]">Don't know what to search?</span> Surface a relevant topic instantly by rolling a term.

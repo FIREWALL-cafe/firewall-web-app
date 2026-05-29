@@ -232,15 +232,27 @@ function SearchInput({ searchMode }) {
     setFilteredResults(results);
   }, [searchArchive]);
 
+  const handleSearchFocus = useCallback(() => {
+    if (!localStorage.getItem('hasAcceptedDisclaimer')) {
+      if (!isArchive && !localStorage.getItem('hasSeenWizard')) {
+        window.dispatchEvent(new CustomEvent('show-welcome-modal'));
+      } else {
+        window.dispatchEvent(new CustomEvent('show-disclaimer-modal'));
+      }
+    } else if (isArchive && !localStorage.getItem('hasSeenTutorial')) {
+      window.dispatchEvent(new CustomEvent('show-archive-tutorial'));
+    }
+  }, [isArchive]);
+
   const handleSubmit = useCallback(() => {
     if (!query || query.trim() === '') {
       setTranslation('Please enter a search query');
       return;
     }
     setError('');
-    if (!localStorage.getItem('hasSeenWizard')) {
-      localStorage.setItem('hasSeenWizard', 'true');
-      window.dispatchEvent(new CustomEvent('wizard-dismissed'));
+    if (!localStorage.getItem('hasAcceptedDisclaimer')) {
+      window.dispatchEvent(new CustomEvent('show-disclaimer-modal'));
+      return;
     }
 
     // Always update the URL query parameter - this will trigger the useEffect to perform the search
@@ -743,6 +755,7 @@ function SearchInput({ searchMode }) {
                         value={query}
                         onChange={e => setQuery(e.target.value)}
                         onKeyDown={handleKeyDown}
+                        onFocus={handleSearchFocus}
                         disabled={isLoading || isTranslating}
                         style={{ width: inputTextWidth != null ? `${inputTextWidth}px` : `${query.length}ch` }}
                         className="flex-shrink-0 border-none h-[56px] p-0 text-neutral-900 font-body-02 focus:ring-0 focus:outline-none bg-transparent iphone:text-lg"
@@ -759,6 +772,7 @@ function SearchInput({ searchMode }) {
                       value={query}
                       onChange={e => setQuery(e.target.value)}
                       onKeyDown={handleKeyDown}
+                      onFocus={handleSearchFocus}
                       disabled={isLoading || isTranslating}
                       className="flex-1 px-4 font-body-02 border-none h-[56px] text-neutral-900 placeholder:text-neutral-600 focus:ring-0 focus:outline-none iphone:text-lg"
                       aria-label="Search query"

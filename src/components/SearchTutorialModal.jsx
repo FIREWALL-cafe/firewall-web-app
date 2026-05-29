@@ -270,12 +270,15 @@ function ArchiveScreen() {
   );
 }
 
-function SearchTutorialModal({ open, onClose, initialScreen = 0 }) {
+function SearchTutorialModal({ open, onClose, initialScreen = 0, onComplete, hideBack = false }) {
   const navigate = useNavigate();
   const [screen, setScreen] = useState(initialScreen);
 
   useEffect(() => {
-    if (open) setScreen(initialScreen);
+    if (open) {
+      setScreen(initialScreen);
+      localStorage.setItem('hasSeenTutorial', 'true');
+    }
   }, [open, initialScreen]);
 
   if (!open) return null;
@@ -283,6 +286,7 @@ function SearchTutorialModal({ open, onClose, initialScreen = 0 }) {
   const handleNext = () => {
     if (screen === 0) setScreen(1);
     else if (screen === 1) setScreen(2);
+    else if (onComplete) { onComplete(); }
     else { navigate('/search'); onClose(); }
   };
 
@@ -333,13 +337,15 @@ function SearchTutorialModal({ open, onClose, initialScreen = 0 }) {
           {screen === 0 ? <SearchScreen /> : screen === 1 ? <ResultsScreen /> : <ArchiveScreen />}
 
           {/* Footer */}
-          <div className="flex items-center justify-between px-8 py-6">
-            <button
-              onClick={handleBack}
-              className="flex items-center justify-center h-[40px] w-[108px] border border-[#484e55] rounded-[4px] text-[#484e55] text-[17px] font-medium"
-            >
-              Back
-            </button>
+          <div className={`flex items-center px-8 py-6 ${hideBack ? 'justify-center' : 'justify-between'}`}>
+            {!hideBack && (
+              <button
+                onClick={handleBack}
+                className="flex items-center justify-center h-[40px] w-[108px] border border-[#484e55] rounded-[4px] text-[#484e55] text-[17px] font-medium"
+              >
+                Back
+              </button>
+            )}
             <button
               onClick={handleNext}
               className={`flex items-center justify-center gap-1 h-[40px] bg-black border border-black rounded-[4px] text-white text-[17px] font-medium ${screen === 2 ? 'px-4' : 'w-[108px]'}`}

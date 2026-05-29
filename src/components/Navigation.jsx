@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AssistantButton from './AssistantButton';
 import HelpWizard from './HelpWizard';
 import SearchTutorialModal from './SearchTutorialModal';
 import WhyModal from './WhyModal';
+import WelcomeModal from './WelcomeModal';
+import ContentDisclaimerModal from './ContentDisclaimerModal';
 import MenuLink from './MenuLink';
 import LanguageSwitcher from './LanguageSwitcher';
 import SubscribeForm from './SubscribeForm';
@@ -80,11 +82,16 @@ const DEFAULT_MENU_LINKS = [
 
 function Navigation() {
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [tutorialScreen, setTutorialScreen] = useState(0);
   const [whyModalOpen, setWhyModalOpen] = useState(false);
+  const [welcomeModalOpen, setWelcomeModalOpen] = useState(false);
+  const [disclaimerModalOpen, setDisclaimerModalOpen] = useState(false);
+  const [postDisclaimerNav, setPostDisclaimerNav] = useState(null);
+  const [tutorialHideBack, setTutorialHideBack] = useState(false);
   const [menuLinks, setMenuLinks] = useState(DEFAULT_MENU_LINKS);
   const [newsletterTitle, setNewsletterTitle] = useState(getDefault('navigation', 'newsletterTitle', language));
   const [newsletterSubtitle, setNewsletterSubtitle] = useState(getDefault('navigation', 'newsletterSubtitle', language));
@@ -145,6 +152,24 @@ function Navigation() {
     const handler = () => setWhyModalOpen(true);
     window.addEventListener('open-why-modal', handler);
     return () => window.removeEventListener('open-why-modal', handler);
+  }, []);
+
+  useEffect(() => {
+    const handler = () => setWelcomeModalOpen(true);
+    window.addEventListener('show-welcome-modal', handler);
+    return () => window.removeEventListener('show-welcome-modal', handler);
+  }, []);
+
+  useEffect(() => {
+    const handler = () => setDisclaimerModalOpen(true);
+    window.addEventListener('show-disclaimer-modal', handler);
+    return () => window.removeEventListener('show-disclaimer-modal', handler);
+  }, []);
+
+  useEffect(() => {
+    const handler = () => { setTutorialScreen(2); setTutorialHideBack(true); setTutorialOpen(true); };
+    window.addEventListener('show-archive-tutorial', handler);
+    return () => window.removeEventListener('show-archive-tutorial', handler);
   }, []);
 
   const toggleDrawer = () => {
@@ -263,11 +288,57 @@ function Navigation() {
             <HelpWizard
               open={wizardOpen}
               onClose={() => setWizardOpen(false)}
-              onStartTutorial={(screen = 0) => { setTutorialScreen(screen); setWizardOpen(false); setTutorialOpen(true); }}
+              onStartTutorial={(screen = 0) => { setTutorialScreen(screen); setTutorialHideBack(false); setWizardOpen(false); setTutorialOpen(true); }}
               onWhyModal={() => { setWizardOpen(false); setWhyModalOpen(true); }}
             />
-            <SearchTutorialModal open={tutorialOpen} onClose={() => setTutorialOpen(false)} initialScreen={tutorialScreen} />
+            <SearchTutorialModal
+              open={tutorialOpen}
+              onClose={() => setTutorialOpen(false)}
+              initialScreen={tutorialScreen}
+              hideBack={tutorialHideBack}
+              onComplete={() => {
+                setTutorialOpen(false);
+                if (localStorage.getItem('hasAcceptedDisclaimer')) {
+                  navigate('/search');
+                } else {
+                  setPostDisclaimerNav('/search');
+                  setDisclaimerModalOpen(true);
+                }
+              }}
+            />
             <WhyModal open={whyModalOpen} onClose={() => setWhyModalOpen(false)} />
+            <WelcomeModal
+              open={welcomeModalOpen}
+              onClose={() => setWelcomeModalOpen(false)}
+              onStart={() => {
+                localStorage.setItem('hasSeenWizard', 'true');
+                setWelcomeModalOpen(false);
+                setTutorialScreen(0);
+                setTutorialHideBack(false);
+                setTutorialOpen(true);
+              }}
+              onSkip={() => {
+                localStorage.setItem('hasSeenWizard', 'true');
+                setWelcomeModalOpen(false);
+                setDisclaimerModalOpen(true);
+              }}
+            />
+            <ContentDisclaimerModal
+              open={disclaimerModalOpen}
+              onAccept={() => {
+                localStorage.setItem('hasAcceptedDisclaimer', 'true');
+                setDisclaimerModalOpen(false);
+                if (postDisclaimerNav) {
+                  navigate(postDisclaimerNav);
+                  setPostDisclaimerNav(null);
+                } else if (location.pathname === '/archive' && !localStorage.getItem('hasSeenTutorial')) {
+                  setTutorialScreen(2);
+                  setTutorialHideBack(true);
+                  setTutorialOpen(true);
+                }
+              }}
+              onReject={() => setDisclaimerModalOpen(false)}
+            />
           </div>
         </div>
       </div>
