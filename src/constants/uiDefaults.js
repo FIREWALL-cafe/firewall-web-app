@@ -223,7 +223,7 @@ export const UI_DEFAULTS = {
     },
     zh: {
       searchPlaceholder: '搜索谷歌和百度',
-      newsletterTitle: '订阅我们的通讯',
+      newsletterTitle: 'Subscribe to our newsletter',
       newsletterSubtitle: '保持联系',
       menuLinkArchive: '查询存档',
       menuLinkEditorial: '专家点评',
