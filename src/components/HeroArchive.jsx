@@ -6,8 +6,8 @@ import Archive from '../assets/icons/Archive.png';
 
 const HeroArchive = () => {
   const [headings, setHeadings] = useState({
-    archivePageHeading: 'Archive Search',
-    archivePageHeadingZh: '搜索结果存档',
+    archivePageHeading: 'Archive',
+    archivePageHeadingZh: '存档',
     archiveBodyText: 'Browse what others are searching, vote on their results, and see how they voted too.',
   });
 
@@ -17,8 +17,8 @@ const HeroArchive = () => {
         const strings = await getArchivePageStrings('en');
         if (strings && (strings.archivePageHeading || strings.archivePageHeadingZh)) {
           setHeadings({
-            archivePageHeading: strings.archivePageHeading || 'Archive Search',
-            archivePageHeadingZh: strings.archivePageHeadingZh || '搜索结果存档',
+            archivePageHeading: strings.archivePageHeading || 'Archive',
+            archivePageHeadingZh: strings.archivePageHeadingZh || '存档',
             archiveBodyText: strings.archiveBodyText || 'Browse what others are searching, vote on their results, and see how they voted too.',
           });
         }
