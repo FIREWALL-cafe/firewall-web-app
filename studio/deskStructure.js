@@ -85,15 +85,25 @@ export const deskStructure = (S) =>
           S.list()
             .title('Page Content')
             .items([
-              // Editorial Articles
+              // Editorial
               S.listItem()
-                .title('Editorial Articles')
+                .title('Editorial')
                 .icon(() => '📰')
                 .child(
-                  S.documentTypeList('editorialArticle')
-                    .title('All Editorial Articles')
-              ),
-              
+                  S.list()
+                    .title('Editorial')
+                    .items([
+                      S.listItem()
+                        .title('Articles')
+                        .icon(() => '📰')
+                        .child(
+                          S.documentTypeList('editorialArticle')
+                            .title('All Editorial Articles')
+                        ),
+                      S.documentTypeListItem('editorialPageStrings').title('Page Settings').icon(() => '📄'),
+                    ])
+                ),
+
               // Events
               S.listItem()
                 .title('Events')
@@ -108,8 +118,18 @@ export const deskStructure = (S) =>
                 .title('Press')
                 .icon(() => '📰')
                 .child(
-                  S.documentTypeList('pressArticle')
-                    .title('Press Articles')
+                  S.list()
+                    .title('Press')
+                    .items([
+                      S.listItem()
+                        .title('Articles')
+                        .icon(() => '📰')
+                        .child(
+                          S.documentTypeList('pressArticle')
+                            .title('Press Articles')
+                        ),
+                      S.documentTypeListItem('pressPageStrings').title('Page Settings').icon(() => '📄'),
+                    ])
                 ),
 
               // Contributors
@@ -137,8 +157,6 @@ export const deskStructure = (S) =>
               S.documentTypeListItem('searchPageStrings').title('Search Page').icon(() => '📄'),
               S.documentTypeListItem('archivePageStrings').title('Archive Page').icon(() => '📄'),
               S.documentTypeListItem('aboutPageStrings').title('About Page').icon(() => '📄'),
-              S.documentTypeListItem('editorialPageStrings').title('Editorial Page').icon(() => '📄'),
-              S.documentTypeListItem('pressPageStrings').title('Press Page').icon(() => '📄'),
               S.documentTypeListItem('supportPageStrings').title('Support Page').icon(() => '📄'),
               S.documentTypeListItem('contactPageStrings').title('Contact Page').icon(() => '📄'),
             ])
