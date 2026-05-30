@@ -4,6 +4,13 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
     "./src/components/**/*.{js,jsx,ts,tsx}",
   ],
+  safelist: [
+    // FeatureCard colors sourced dynamically from Sanity CMS
+    'bg-red-100', 'bg-red-200', 'bg-red-300', 'bg-red-500', 'bg-red-600',
+    'bg-white', 'bg-black',
+    'text-white', 'text-black', 'text-red-600',
+    'border-transparent', 'border-red-500', 'border-red-600', 'border-black',
+  ],
   theme: {
     extend: {
       backgroundImage: {
