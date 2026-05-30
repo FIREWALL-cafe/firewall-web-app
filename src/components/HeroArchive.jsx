@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import SearchInput from './SearchInput';
+import { useLanguage } from '../context/LanguageContext';
 import { getArchivePageStrings } from '../lib/sanity';
 
 import Archive from '../assets/icons/Archive.png';
 
 const HeroArchive = () => {
+  const { language } = useLanguage();
   const [headings, setHeadings] = useState({
     archivePageHeading: 'Archive',
     archivePageHeadingZh: '存档',
@@ -14,7 +16,7 @@ const HeroArchive = () => {
   useEffect(() => {
     async function load() {
       try {
-        const strings = await getArchivePageStrings('en');
+        const strings = await getArchivePageStrings(language);
         if (strings && (strings.archivePageHeading || strings.archivePageHeadingZh)) {
           setHeadings({
             archivePageHeading: strings.archivePageHeading || 'Archive',
@@ -25,7 +27,7 @@ const HeroArchive = () => {
       } catch (_) {}
     }
     load();
-  }, []);
+  }, [language]);
 
   return (
     <section className="flex overflow-hidden flex-col justify-center py-16 w-full bg-white max-md:py-24 max-md:max-w-full">

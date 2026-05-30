@@ -55,6 +55,12 @@ export default defineType({
       type: 'localeString',
       description: 'Message displayed when no articles are available',
     },
+    {
+      name: 'editorialFeaturedLabel',
+      title: 'Editorial Page - Featured Label',
+      type: 'localeString',
+      description: 'Label text for the featured article section (e.g., "Featured" / "精选")',
+    },
   ],
 
   preview: {

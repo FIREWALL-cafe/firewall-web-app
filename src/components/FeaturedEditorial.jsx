@@ -1,12 +1,12 @@
 import React from 'react';
 
-function FeaturedEditorial() {
+function FeaturedEditorial({ featuredLabel }) {
   return (
     <section className="flex overflow-hidden justify-center items-start pb-16 w-full bg-white max-md:pb-24 max-md:max-w-full">
       <div className="flex flex-wrap flex-1 shrink gap-10 justify-center w-full basis-0 max-md:max-w-full">
         <div className="flex flex-col flex-1 shrink my-auto basis-0">
           <div className="flex flex-col w-full max-md:max-w-full">
-            <div className="font-body-01 text-neutral-600">Featured</div>
+            <div className="font-body-01 text-neutral-600">{featuredLabel || 'Featured'}</div>
             <div className="font-bitmap-song flex flex-col mt-10 w-full font-medium max-md:max-w-full">
               <h2 className="font-display-04 leading-[58px] max-md:max-w-full max-md:leading-[54px]">
                 Lan Yu

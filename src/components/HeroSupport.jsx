@@ -82,18 +82,23 @@ function HeroSupport() {
           <p className="w-full">
             {uiStrings.supportIntroText || 'FIREWALL Cafe is sustained through individual donations, corporate sponsorships, and foundation grants. Your contributions help maintain our dual-image browser and enable us to continue our growth internationally.'}
           </p>
-          <p className="mt-5">
-            Donate to our cause through{' '}
-            <a
-              href="https://www.nyfa.org/#button=45138"
-              className="underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              NYFA
-            </a>
-            , a 501(c)3 supporting the arts in NY.
-          </p>
+          {uiStrings.supportDonateText && (
+            <p className="mt-5">{uiStrings.supportDonateText}</p>
+          )}
+          {!uiStrings.supportDonateText && (
+            <p className="mt-5">
+              Donate to our cause through{' '}
+              <a
+                href="https://www.nyfa.org/#button=45138"
+                className="underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                NYFA
+              </a>
+              , a 501(c)3 supporting the arts in NY.
+            </p>
+          )}
         </div>
         <div className="flex justify-center items-center w-1/2">
           <img

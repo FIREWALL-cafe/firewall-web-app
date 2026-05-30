@@ -80,6 +80,12 @@ export default defineType({
       description: 'Text for "Learn More" button',
     },
     {
+      name: 'supportDonateText',
+      title: 'Support Page - Donation Callout Text',
+      type: 'localeText',
+      description: 'Text for the NYFA donation callout below the intro paragraph (e.g., "Donate to our cause through NYFA, a 501(c)3 supporting the arts in NY.")',
+    },
+    {
       name: 'supportersHeading',
       title: 'Supporters Section - Main Heading (English)',
       type: 'localeString',

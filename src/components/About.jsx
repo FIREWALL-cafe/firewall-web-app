@@ -90,9 +90,14 @@ function About() {
               <div className="flex flex-col flex-1 basis-[300px] md:order-1 order-2">
                 <p className="mb-4">
                   {uiStrings.aboutPageIntro ? (
-                    <>
-                      <span className="font-medium">FIREWALL Cafe</span> {uiStrings.aboutPageIntro.replace('FIREWALL Cafe ', '')}
-                    </>
+                    language === 'en' ? (
+                      <>
+                        <span className="font-medium">FIREWALL Cafe</span>{' '}
+                        {uiStrings.aboutPageIntro.replace(/^FIREWALL Cafe\s*/i, '')}
+                      </>
+                    ) : (
+                      uiStrings.aboutPageIntro
+                    )
                   ) : (
                     <>
                       <span className="font-medium">FIREWALL Cafe</span> exists to advocate for freedom
@@ -137,7 +142,12 @@ function About() {
       </section>
       <Artist />
       <Contributors />
-      <CallToAction />
+      <CallToAction
+        headingEn={uiStrings.aboutCtaSectionHeadingEn}
+        headingZh={uiStrings.aboutCtaSectionHeadingZh}
+        body={uiStrings.aboutCtaSectionBody}
+        buttonText={uiStrings.aboutCtaButtonText}
+      />
     </>
   );
 }

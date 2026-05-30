@@ -83,9 +83,15 @@ export default defineType({
     },
     {
       name: 'searchSessionHeading',
-      title: 'Search Page - Session Heading',
+      title: 'Search Page - Heading (English)',
       type: 'localeString',
-      description: 'Main heading text for the search page (e.g., "Search Session")',
+      description: 'Main heading for the search page — always displayed in English (e.g., "Search Session")',
+    },
+    {
+      name: 'searchHeadingZh',
+      title: 'Search Page - Heading (Chinese)',
+      type: 'localeString',
+      description: 'Chinese subtitle shown below the English heading — always displayed regardless of language toggle (e.g., "搜索结果")',
     },
     {
       name: 'progressTranslatingCaption',

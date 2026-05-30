@@ -327,13 +327,13 @@ export async function getSearchPageStrings(lang = 'en') {
       'searchModeTooltip',
       'searchErrorEmptyQuery', 'searchErrorNetwork', 'searchErrorGeneric',
       'searchLoadingText', 'translatingText', 'translationLabel', 'errorLabel',
-      'searchSessionHeading',
       'progressTranslatingCaption', 'progressSearchingGoogleCaption', 'progressSearchingBaiduCaption'
     ]
 
     const result = await client.fetch(
       `*[_type == "searchPageStrings"][0] {
         ${buildLocalizedQuery(fields, lang)},
+        ${buildBilingualHeadingQuery(['searchSessionHeading'], ['searchHeadingZh'])},
         "progressFillerCaptions": progressFillerCaptions[]{ "value": coalesce(@.${lang}, @.en) }.value
       }`,
       { lang }
@@ -506,7 +506,7 @@ export async function getAboutPageStrings(lang = 'en') {
       'aboutRedSectionBody',
       'aboutArtistBioParagraph1', 'aboutArtistBioParagraph2', 'aboutArtistBioParagraph3',
       'aboutContributorsSectionHeading', 'aboutContributorsBody',
-      'aboutCtaSectionHeading', 'aboutCtaSectionBody', 'aboutCtaButtonText',
+      'aboutCtaSectionBody', 'aboutCtaButtonText',
       'aboutLearnMoreButton', 'aboutBackToTopButton'
     ]
 
@@ -516,7 +516,9 @@ export async function getAboutPageStrings(lang = 'en') {
         ${buildBilingualHeadingQuery(
           ['aboutPageHeading', 'aboutRedSectionHeading', 'aboutArtistSectionHeading'],
           ['aboutPageHeadingZh', 'aboutRedSectionHeadingZh', 'aboutArtistSectionHeadingZh']
-        )}
+        )},
+        "aboutCtaSectionHeadingEn": coalesce(aboutCtaSectionHeading.en, aboutCtaSectionHeading.en),
+        "aboutCtaSectionHeadingZh": coalesce(aboutCtaSectionHeading.zh, aboutCtaSectionHeading.en)
       }`,
       { lang }
     )
@@ -533,7 +535,7 @@ export async function getEditorialPageStrings(lang = 'en') {
     const fields = [
       'editorialIntroText',
       'editorialReadMoreButton', 'editorialListenButton', 'editorialFilterLabel',
-      'editorialSortLabel', 'editorialNoArticlesMessage'
+      'editorialSortLabel', 'editorialNoArticlesMessage', 'editorialFeaturedLabel'
     ]
 
     const result = await client.fetch(
@@ -578,10 +580,10 @@ export async function getPressPageStrings(lang = 'en') {
 export async function getSupportPageStrings(lang = 'en') {
   try {
     const fields = [
-      'supportIntroText',
-      'supportOption1Heading', 'supportOption1Description',
-      'supportOption2Heading', 'supportOption2Description',
-      'supportOption3Heading', 'supportOption3Description',
+      'supportIntroText', 'supportDonateText',
+      'supportOption1Description',
+      'supportOption2Description',
+      'supportOption3Description',
       'supportDonationButton', 'supportThankYouMessage', 'supportLearnMoreButton'
     ]
 
@@ -591,7 +593,13 @@ export async function getSupportPageStrings(lang = 'en') {
         ${buildBilingualHeadingQuery(
           ['supportPageHeading', 'supportersHeading'],
           ['supportPageHeadingZh', 'supportersHeadingZh']
-        )}
+        )},
+        "supportOption1HeadingEn": coalesce(supportOption1Heading.en, supportOption1Heading.en),
+        "supportOption1HeadingZh": coalesce(supportOption1Heading.zh, supportOption1Heading.en),
+        "supportOption2HeadingEn": coalesce(supportOption2Heading.en, supportOption2Heading.en),
+        "supportOption2HeadingZh": coalesce(supportOption2Heading.zh, supportOption2Heading.en),
+        "supportOption3HeadingEn": coalesce(supportOption3Heading.en, supportOption3Heading.en),
+        "supportOption3HeadingZh": coalesce(supportOption3Heading.zh, supportOption3Heading.en)
       }`,
       { lang }
     )

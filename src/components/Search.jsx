@@ -3,7 +3,6 @@ import SearchInput from './SearchInput';
 import FeatureCards from './FeatureCards';
 import { useLanguage } from '../context/LanguageContext';
 import { getFeatureCards, getSearchPageStrings } from '../lib/sanity';
-import { getDefault } from '../constants/uiDefaults';
 
 import Archive from '../assets/icons/Archive_grayscale.png';
 import ArchiveHover from '../assets/icons/Archive.png';
@@ -28,27 +27,19 @@ function Search() {
   const { language } = useLanguage();
   const [features, setFeatures] = useState([]);
   const [loading, setLoading] = useState(true);
-  // Initialize uiStrings with defaults immediately to prevent layout shift
-  const [uiStrings, setUiStrings] = useState(() => ({
-    searchSessionHeading: getDefault('search', 'searchSessionHeading', language),
-  }));
+  // Headings use bilingual pattern: always show EN + ZH regardless of language toggle
+  const [uiStrings, setUiStrings] = useState({
+    searchSessionHeading: 'Search Session',
+    searchHeadingZh: '搜索结果',
+  });
 
-  // Load UI strings from Sanity
-  // Update defaults immediately when language changes to prevent layout shift
   useEffect(() => {
-    // Immediately update with defaults for current language to prevent layout shift
-    setUiStrings({
-      searchSessionHeading: getDefault('search', 'searchSessionHeading', language),
-    });
-
-    // Then fetch from Sanity and merge
     async function loadStrings() {
       try {
         const strings = await getSearchPageStrings(language);
         setUiStrings(prev => ({ ...prev, ...strings }));
       } catch (error) {
         console.error('Failed to load search page strings:', error);
-        // Already have defaults set above
       }
     }
     loadStrings();
@@ -96,9 +87,9 @@ function Search() {
                 alt=""
                 className="w-8 h-8 md:w-[52px] md:h-[52px] object-contain"
               />
-              <div className="text-black">{uiStrings.searchSessionHeading || getDefault('search', 'searchSessionHeading', language)}</div>
+              <div className="text-black">{uiStrings.searchSessionHeading || 'Search Session'}</div>
             </div>
-            <div className="text-red-600 border-red-600">搜索结果</div>
+            <div className="text-red-600 border-red-600">{uiStrings.searchHeadingZh || '搜索结果'}</div>
           </div>
         </div>
         <SearchInput searchMode="compare" />

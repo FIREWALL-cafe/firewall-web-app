@@ -112,6 +112,24 @@ export const deskStructure = (S) =>
                     .title('Press Articles')
                 ),
 
+              // Contributors
+              S.listItem()
+                .title('Contributors')
+                .icon(() => '👥')
+                .child(
+                  S.documentTypeList('contributor')
+                    .title('All Contributors')
+                ),
+
+              // Feature Cards
+              S.listItem()
+                .title('Feature Cards')
+                .icon(() => '🃏')
+                .child(
+                  S.documentTypeList('featureCard')
+                    .title('All Feature Cards')
+                ),
+
               S.divider(),
 
               // Page UI Strings (direct children)
@@ -155,15 +173,6 @@ export const deskStructure = (S) =>
         ),
 
       S.divider(),
-
-      // Contributors
-      S.listItem()
-        .title('Contributors')
-        .icon(() => '👥')
-        .child(
-          S.documentTypeList('contributor')
-            .title('All Contributors')
-        ),
 
       // Partners
       S.listItem()

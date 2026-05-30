@@ -122,6 +122,7 @@ export default defineType({
           {title: 'Search Page', value: 'search'},
           {title: 'Editorial Page', value: 'editorial'},
           {title: 'Events Page', value: 'events'},
+          {title: 'Support Page', value: 'support'},
         ],
       },
       validation: (Rule) => Rule.required().min(1),
