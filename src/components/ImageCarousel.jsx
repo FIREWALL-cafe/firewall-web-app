@@ -15,6 +15,14 @@ import QuestionIcon from './icons/QuestionIcon';
 import BrokenImagePadding from '../assets/icons/broken-image-placeholder_padding.svg';
 import CensoredBrokenImage from '../assets/icons/censored-image-placeholder_padding.svg';
 
+const getDisplayUrl = url => {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return url.slice(0, 40);
+  }
+};
+
 function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, onRetry }) {
   const [currentIndex, setCurrentIndex] = useState(null); // Start with no selection
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -136,12 +144,22 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                     <Skeleton height={320} width="80%" />
                   ) : (
                     images?.googleResults?.[currentIndex] && (
-                      <img
-                        src={images.googleResults[currentIndex]}
-                        className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
-                        onError={handleOnError}
-                        alt={`Google search result ${currentIndex + 1}`}
-                      />
+                      <a
+                        href={images.googleResults[currentIndex]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group relative max-h-full max-w-full flex items-center justify-center"
+                      >
+                        <img
+                          src={images.googleResults[currentIndex]}
+                          className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
+                          onError={handleOnError}
+                          alt={`Google search result ${currentIndex + 1}`}
+                        />
+                        <div className="absolute bottom-0 right-0 hidden group-hover:block bg-black/70 text-white text-[10px] px-1.5 py-0.5 max-w-xs truncate pointer-events-none">
+                          {getDisplayUrl(images.googleResults[currentIndex])}
+                        </div>
+                      </a>
                     )
                   )}
                 </div>
@@ -182,12 +200,22 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                     />
                   ) : (
                     images?.baiduResults?.[currentIndex] && (
-                      <img
-                        src={images.baiduResults[currentIndex]}
-                        className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
-                        onError={e => handleOnError(e, true)}
-                        alt={`Baidu search result ${currentIndex + 1}`}
-                      />
+                      <a
+                        href={images.baiduResults[currentIndex]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group relative max-h-full max-w-full flex items-center justify-center"
+                      >
+                        <img
+                          src={images.baiduResults[currentIndex]}
+                          className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
+                          onError={e => handleOnError(e, true)}
+                          alt={`Baidu search result ${currentIndex + 1}`}
+                        />
+                        <div className="absolute bottom-0 right-0 hidden group-hover:block bg-black/70 text-white text-[10px] px-1.5 py-0.5 max-w-xs truncate pointer-events-none">
+                          {getDisplayUrl(images.baiduResults[currentIndex])}
+                        </div>
+                      </a>
                     )
                   )}
                 </div>
@@ -220,10 +248,13 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                   </div>
                 ))
             : images?.googleResults?.map((image, index) => (
-                <button
+                <a
                   key={index}
+                  href={image}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() => handleThumbnailClick(index)}
-                  className={`relative aspect-square overflow-visible ${
+                  className={`group relative block aspect-square overflow-visible ${
                     currentIndex !== null && currentIndex === index
                       ? 'opacity-60 bg-[#0084CC]'
                       : 'opacity-100'
@@ -237,10 +268,13 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                       alt={`Google thumbnail ${index + 1}`}
                     />
                   </div>
+                  <div className="absolute bottom-0 right-0 hidden group-hover:block bg-black/70 text-white text-[10px] px-1 py-0.5 max-w-full truncate pointer-events-none z-10">
+                    {getDisplayUrl(image)}
+                  </div>
                   {currentIndex !== null && currentIndex === index && (
                     <div className="absolute inset-[-4px] border border-blue-600 rounded-[6px] bg-blue-300/30 pointer-events-none" />
                   )}
-                </button>
+                </a>
               ))}
         </div>
         <div className={`w-1/2 bg-neutral-100 ${baiduEmpty ? 'flex items-center justify-center p-8' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4'}`}>
@@ -292,10 +326,13 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                     </div>
                   ))
               : images?.baiduResults?.map((image, index) => (
-                <button
+                <a
                   key={index}
+                  href={image}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   onClick={() => handleThumbnailClick(index)}
-                  className={`relative aspect-square overflow-visible ${
+                  className={`group relative block aspect-square overflow-visible ${
                     currentIndex !== null && currentIndex === index
                       ? 'opacity-60 bg-red-900'
                       : 'opacity-100'
@@ -309,10 +346,13 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                       alt={`Baidu thumbnail ${index + 1}`}
                     />
                   </div>
+                  <div className="absolute bottom-0 right-0 hidden group-hover:block bg-black/70 text-white text-[10px] px-1 py-0.5 max-w-full truncate pointer-events-none z-10">
+                    {getDisplayUrl(image)}
+                  </div>
                   {currentIndex !== null && currentIndex === index && (
                     <div className="absolute inset-[-4px] border border-red-600 rounded-[6px] bg-red-300/30 pointer-events-none" />
                   )}
-                </button>
+                </a>
               ))}
         </div>
       </div>
