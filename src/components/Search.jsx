@@ -10,6 +10,8 @@ import ArchiveHover from '../assets/icons/Archive.png';
 import SearchIcon from '../assets/icons/search-color.png';
 import Commentary from '../assets/icons/expert-commentary_grayscale.png';
 import CommentaryHover from '../assets/icons/expert-commentary.png';
+import Timeline from '../assets/icons/Timeline_grayscale.png';
+import TimelineHover from '../assets/icons/Timeline.png';
 
 const iconMap = {
   Archive: Archive,
@@ -18,6 +20,8 @@ const iconMap = {
   'expert-commentary_grayscale': Commentary,
   'expert-commentary': CommentaryHover,
   'search-color': SearchIcon,
+  Timeline_grayscale: Timeline,
+  Timeline: TimelineHover,
 };
 
 function Search() {
