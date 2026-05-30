@@ -1,6 +1,6 @@
 import React from 'react';
 
-function FeaturedEditorial({ featuredLabel }) {
+function FeaturedEditorial({ featuredLabel, featuredSectionBody }) {
   return (
     <section className="flex overflow-hidden justify-center items-start pb-16 w-full bg-white max-md:pb-24 max-md:max-w-full">
       <div className="flex flex-wrap flex-1 shrink gap-10 justify-center w-full basis-0 max-md:max-w-full">
@@ -16,13 +16,7 @@ function FeaturedEditorial({ featuredLabel }) {
               </div>
             </div>
             <p className="mt-10 leading-9 text-black max-md:max-w-full font-body-01">
-              A shadow journalist with years of on-the-ground reporting experience in China and the
-              SOPA Awards recognition.
-            </p>
-            <p className="mt-5 leading-9 text-black max-md:max-w-full font-body-01">
-              Is internet censorship solely a China problem? Recent legal challenges against Google
-              in the U.S. highlight a broader issue: while state-driven censorship is prevalent,
-              corporate censorship also poses real threats.
+              {featuredSectionBody || 'A shadow journalist with years of on-the-ground reporting experience in China and the SOPA Awards recognition.'}
             </p>
             <a
               href="/editorial/lan-yu"

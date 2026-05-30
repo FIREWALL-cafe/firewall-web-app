@@ -86,6 +86,11 @@ function HeroPress() {
         <div className="mt-5 font-body-01 leading-8 text-black">
           {uiStrings.pressIntroText || 'Since its inception, FIREWALL Cafe has garnered media attention, including coverage by major outlets like the BBC and The Washington Post.'}
         </div>
+        {uiStrings.pressFeaturedSectionBody && (
+          <div className="mt-5 font-body-01 leading-8 text-black">
+            {uiStrings.pressFeaturedSectionBody}
+          </div>
+        )}
       </div>
     </section>
   );

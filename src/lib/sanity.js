@@ -535,7 +535,8 @@ export async function getEditorialPageStrings(lang = 'en') {
     const fields = [
       'editorialIntroText',
       'editorialReadMoreButton', 'editorialListenButton', 'editorialFilterLabel',
-      'editorialSortLabel', 'editorialNoArticlesMessage', 'editorialFeaturedLabel'
+      'editorialSortLabel', 'editorialNoArticlesMessage', 'editorialFeaturedLabel',
+      'editorialFeaturedSectionBody'
     ]
 
     const result = await client.fetch(
@@ -556,7 +557,7 @@ export async function getEditorialPageStrings(lang = 'en') {
 export async function getPressPageStrings(lang = 'en') {
   try {
     const fields = [
-      'pressIntroText',
+      'pressIntroText', 'pressFeaturedSectionBody',
       'pressPublishedLabel', 'pressSourceLabel', 'pressReadArticleButton',
       'pressExternalLinkLabel', 'pressNoArticlesMessage',
       'pressFilterLanguageLabel', 'pressAllLanguagesOption'

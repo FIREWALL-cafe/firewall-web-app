@@ -96,7 +96,10 @@ function Experts() {
             </p>
           </div>
         </section>
-        <FeaturedEditorial featuredLabel={uiStrings.editorialFeaturedLabel} />
+        <FeaturedEditorial
+          featuredLabel={uiStrings.editorialFeaturedLabel}
+          featuredSectionBody={uiStrings.editorialFeaturedSectionBody}
+        />
         <ExpertArticles />
       </main>
       <NewsletterSection image={image} title={newsletterTitle} />

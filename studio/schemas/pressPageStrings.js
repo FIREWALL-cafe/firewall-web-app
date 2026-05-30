@@ -67,13 +67,19 @@ export default defineType({
       type: 'localeString',
       description: 'Option text for "All Languages" filter',
     },
+    {
+      name: 'pressFeaturedSectionBody',
+      title: 'Press Page - Featured Section Body',
+      type: 'localeText',
+      description: 'Body copy for the featured press article section',
+    },
   ],
 
   preview: {
     prepare() {
       return {
         title: 'Press Page',
-        subtitle: 'Manage press page UI text (10 fields)',
+        subtitle: 'Manage press page UI text (11 fields)',
       }
     },
   },

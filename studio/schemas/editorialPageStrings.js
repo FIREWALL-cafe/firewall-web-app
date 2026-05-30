@@ -61,13 +61,19 @@ export default defineType({
       type: 'localeString',
       description: 'Label text for the featured article section (e.g., "Featured" / "精选")',
     },
+    {
+      name: 'editorialFeaturedSectionBody',
+      title: 'Editorial Page - Featured Section Body',
+      type: 'localeText',
+      description: 'Body copy for the featured editorial article section',
+    },
   ],
 
   preview: {
     prepare() {
       return {
         title: 'Editorial Page',
-        subtitle: 'Manage editorial page UI text (8 fields)',
+        subtitle: 'Manage editorial page UI text (9 fields)',
       }
     },
   },
