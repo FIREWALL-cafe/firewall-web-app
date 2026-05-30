@@ -7,9 +7,9 @@ function ContentDisclaimerModal({ open, onAccept, onReject }) {
 
   return (
     <>
-      <div className="fixed inset-0 z-[110] bg-black/30" onClick={onReject} />
+      <div className="fixed inset-0 z-[9998] bg-black/30" onClick={onReject} />
       <div
-        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[120] bg-white border border-black rounded-[8px] shadow-[0px_4px_12px_0px_rgba(0,0,0,0.25)] overflow-hidden"
+        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] bg-white border border-black rounded-[8px] shadow-[0px_4px_12px_0px_rgba(0,0,0,0.25)] overflow-hidden"
         style={{ width: 'min(500px, calc(100vw - 32px))' }}
       >
         <div className="flex flex-col pt-8 px-8">
