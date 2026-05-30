@@ -4,7 +4,7 @@ import Location from '../assets/icons/location_on.svg';
 
 function EventCard({ image, imageHover, link, title, date, location }) {
   return (
-    <article className="flex overflow-hidden flex-col self-stretch my-auto w-full rounded border border-black border-solid min-h-[440px]">
+    <article className="flex overflow-hidden flex-col self-stretch my-auto w-full rounded border border-black border-solid h-[400px]">
       <div className="w-full h-[220px] overflow-hidden">
         <Link to={link} className="block w-full h-full">
           <img
@@ -17,8 +17,8 @@ function EventCard({ image, imageHover, link, title, date, location }) {
           />
         </Link>
       </div>
-      <div className="flex flex-col justify-between px-5 py-6 w-full bg-white min-h-[220px]">
-        <h3 className="flex-1 text-lg leading-8 text-black text-ellipsis">{title}</h3>
+      <div className="flex flex-col justify-between px-5 py-6 w-full bg-white flex-1">
+        <h3 className="flex-1 text-lg leading-8 text-black line-clamp-3 overflow-hidden">{title}</h3>
         <div className="flex flex-col w-full text-zinc-400">
           <div className="flex gap-1 items-start self-start">
             <time>{date}</time>

@@ -5,7 +5,7 @@ function ArticleCard({ image, imageHover, title, date, tag, url }) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <article className="flex overflow-hidden flex-col shrink self-stretch my-auto w-64 rounded border border-black border-solid min-h-[320px] min-w-[240px] relative bg-white">
+    <article className="flex overflow-hidden flex-col shrink self-stretch my-auto w-64 rounded border border-black border-solid h-[400px] min-w-[240px] relative bg-white">
       <Link to={url} target="_blank" className="block">
         <img
           src={isHovered && imageHover ? imageHover : image}
@@ -16,7 +16,7 @@ function ArticleCard({ image, imageHover, title, date, tag, url }) {
         />
       </Link>
       <div className="flex flex-col justify-between px-5 py-4 w-full flex-1">
-        <h3 className="flex-1 text-lg leading-6 text-black text-ellipsis">
+        <h3 className="flex-1 text-lg leading-6 text-black line-clamp-4 overflow-hidden">
           <Link to={url} target="_blank">
             {title}
           </Link>

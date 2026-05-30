@@ -20,7 +20,7 @@ function FeatureCard({
         hoverBgColor || 'hover:brightness-90'
       } group`}
     >
-      <div className="flex flex-col p-6 ipad-landscape:p-5 macbook:p-6 h-[320px] ipad-landscape:h-[280px] macbook:h-[320px]">
+      <div className="flex flex-col p-6 ipad-landscape:p-5 macbook:p-6 h-[400px]">
         <div className="flex items-start justify-between mb-4">
           <div className="flex flex-col gap-2">
             <h2

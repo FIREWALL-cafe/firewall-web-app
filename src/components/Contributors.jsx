@@ -73,7 +73,7 @@ function Contributors() {
 
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
             {contributors.map((contributor, index) => (
-              <div key={contributor._id || index} className="flex flex-col gap-1 border border-black">
+              <div key={contributor._id || index} className="flex flex-col gap-1 border border-black h-[400px] overflow-hidden">
                 {contributor.url ? (
                   <a
                     href={contributor.url}
@@ -84,7 +84,7 @@ function Contributors() {
                     <img
                       src={getImageSrc(contributor)}
                       alt={contributor.name}
-                      className="w-full h-[300px] object-cover"
+                      className="w-full h-[200px] object-cover"
                     />
                   </a>
                 ) : (
@@ -92,7 +92,7 @@ function Contributors() {
                     <img
                       src={getImageSrc(contributor)}
                       alt={contributor.name}
-                      className="w-full h-[300px] object-cover"
+                      className="w-full h-[200px] object-cover"
                     />
                   </div>
                 )}
@@ -107,7 +107,7 @@ function Contributors() {
                     )}
                   </h3>
                   <i className="font-body-03 mb-3">{contributor.role}</i>
-                  <p className="font-body-04">{contributor.bio}</p>
+                  <p className="font-body-04 line-clamp-4 overflow-hidden">{contributor.bio}</p>
                 </div>
               </div>
             ))}
