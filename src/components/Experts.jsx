@@ -59,22 +59,19 @@ function Experts() {
   if (loading) {
     // Loading skeleton
     return (
-      <main className="flex overflow-hidden flex-col bg-white min-h-[200px]">
-        <div className="container mx-auto px-2 md:px-4 py-32">
-          <div className="animate-pulse space-y-6">
-            <div className="h-16 bg-gray-200 rounded w-2/3 mx-auto"></div>
-            <div className="h-12 bg-gray-200 rounded w-1/2 mx-auto"></div>
-            <div className="h-24 bg-gray-200 rounded"></div>
-          </div>
+      <div className="container mx-auto px-2 md:px-4 py-32">
+        <div className="animate-pulse space-y-6">
+          <div className="h-16 bg-gray-200 rounded w-2/3 mx-auto"></div>
+          <div className="h-12 bg-gray-200 rounded w-1/2 mx-auto"></div>
+          <div className="h-24 bg-gray-200 rounded"></div>
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
     <>
-      <main className="flex overflow-hidden flex-col bg-white min-h-[200px]">
-        <section className="flex flex-col justify-center items-center py-32 w-full max-md:py-24 is-medium-width-content">
+      <section className="flex flex-col justify-center items-center py-32 w-full max-md:py-24 is-medium-width-content">
           <div className="flex flex-col items-center w-full max-w-[1080px]">
             <div className="font-bitmap-song flex flex-col items-center gap-2">
               <div className="flex justify-center items-start gap-4">
@@ -101,7 +98,6 @@ function Experts() {
           featuredSectionBody={uiStrings.editorialFeaturedSectionBody}
         />
         <ExpertArticles />
-      </main>
       <NewsletterSection image={image} title={newsletterTitle} />
     </>
   );
