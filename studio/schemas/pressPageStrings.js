@@ -16,7 +16,7 @@ export default defineType({
     {
       name: 'pressPageHeadingZh',
       title: 'Press Page - Main Heading (Chinese)',
-      type: 'string',
+      type: 'localeString',
       description: 'Chinese heading displayed below the English heading (always shown in Chinese, not language-toggled)',
     },
     {

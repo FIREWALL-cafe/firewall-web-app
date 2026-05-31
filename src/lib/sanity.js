@@ -559,7 +559,7 @@ export async function getPressPageStrings(lang = 'en') {
     const result = await client.fetch(
       `*[_type == "pressPageStrings"][0] {
         "pressPageHeading": coalesce(pressPageHeading.en, pressPageHeading.en),
-        "pressPageHeadingZh": pressPageHeadingZh,
+        "pressPageHeadingZh": coalesce(pressPageHeadingZh.zh, pressPageHeadingZh.en),
         ${buildLocalizedQuery(['pressIntroText', 'pressFeaturedSectionBody', 'pressReadArticleButton'], lang)}
       }`,
       { lang }
