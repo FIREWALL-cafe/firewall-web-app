@@ -10,6 +10,7 @@ function Timeline() {
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayIndex, setDisplayIndex] = useState(0);
+  const [contentVisible, setContentVisible] = useState(true);
 
   useEffect(() => {
     async function fetchEvents() {
@@ -48,9 +49,10 @@ function Timeline() {
   const navigateToIndex = (newIndex) => {
     if (newIndex !== currentIndex && newIndex >= 0 && newIndex < years.length) {
       setCurrentIndex(newIndex);
-      // Delay the visual selection change until animation completes
+      setContentVisible(false);
       setTimeout(() => {
         setDisplayIndex(newIndex);
+        setContentVisible(true);
       }, 300);
     }
   };
@@ -164,7 +166,10 @@ function Timeline() {
         </button>
 
         {/* Content card */}
-        <div className="absolute left-[145px] top-1/2 -translate-y-1/2 w-[480px]">
+        <div
+          className="absolute left-[145px] top-1/2 -translate-y-1/2 w-[480px] transition-opacity duration-300"
+          style={{ opacity: contentVisible ? 1 : 0 }}
+        >
         <div className="border-2 border-red-600 rounded-lg p-6 bg-neutral-50">
           <h3 className="text-xl font-bold text-neutral-900 mb-3">
             {timelineEvents[displayIndex].title}
