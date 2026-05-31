@@ -21,7 +21,6 @@ const ContactForm = () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        to: 'info@firewallcafe.com',
         subject: 'Firewall Cafe NYC 2024',
         text: text,
       }),

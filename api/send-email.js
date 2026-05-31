@@ -12,9 +12,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { to, subject, text } = req.body;
+  const { subject, text } = req.body;
 
-  if (!to || !subject || !text) {
+  if (!subject || !text) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     const client = new postmark.ServerClient(process.env.POSTMARK_API_TOKEN);
     await client.sendEmail({
       From: 'info@firewallcafe.com',
-      To: to,
+      To: 'firewallcafenyc@gmail.com',
       Subject: subject,
       TextBody: text,
     });
