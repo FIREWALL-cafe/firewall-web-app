@@ -3,7 +3,6 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import mugImage from '../assets/icons/assistant-mug.png';
 import whiteDie from '../assets/icons/white_die.svg';
 import frameIcon from '../assets/icons/frame.svg';
-import frameHoverIcon from '../assets/icons/frame_hover.svg';
 import rollDice from '../assets/icons/roll-dice.png';
 import SearchIcon from '../assets/icons/search-color.png';
 import ArchiveIcon from '../assets/icons/Archive.png';
