@@ -88,8 +88,7 @@ function RollInput({ rolledTerm, onRoll, isRolling, onCopy }) {
           className="group shrink-0 ml-2 disabled:opacity-30"
           aria-label="Copy term"
         >
-          <img src={frameIcon} alt="" className="w-[26px] h-[26px] group-hover:hidden" />
-          <img src={frameHoverIcon} alt="" className="w-6 h-6 hidden group-hover:block" />
+          <img src={frameIcon} alt="" className="w-[26px] h-[26px] opacity-40 group-hover:opacity-100 transition-opacity" />
         </button>
       </div>
       <button
