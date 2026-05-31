@@ -864,7 +864,6 @@ function SearchInput({ searchMode }) {
               progress={progress}
               caption={rotatingCaption}
               isRedStage={
-                isSearchActive &&
                 rotatingCaption !== progressCaptions.translating &&
                 rotatingCaption !== progressCaptions.searchingGoogle
               }
