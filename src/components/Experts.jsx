@@ -96,8 +96,12 @@ function Experts() {
         <FeaturedEditorial
           featuredLabel={uiStrings.editorialFeaturedLabel}
           featuredSectionBody={uiStrings.editorialFeaturedSectionBody}
+          readMoreLabel={uiStrings.editorialReadMoreButton}
         />
-        <ExpertArticles />
+        <ExpertArticles
+          heading={uiStrings.editorialArticlesHeading}
+          noArticlesMessage={uiStrings.editorialNoArticlesMessage}
+        />
       <NewsletterSection image={image} title={newsletterTitle} />
     </>
   );

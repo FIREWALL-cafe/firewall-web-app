@@ -16,7 +16,7 @@ function PastEvents() {
   useEffect(() => {
     async function fetchStrings() {
       try {
-        const strings = await getEventsPageStrings('en');
+        const strings = await getEventsPageStrings(language);
         if (strings && (strings.pastEventsPageHeading || strings.pastEventsPageHeadingZh)) {
           setHeadings({
             pastEventsPageHeading: strings.pastEventsPageHeading || 'Past events',
@@ -26,7 +26,7 @@ function PastEvents() {
       } catch (_) {}
     }
     fetchStrings();
-  }, []);
+  }, [language]);
 
   useEffect(() => {
     async function fetchEvents() {

@@ -20,7 +20,7 @@ function Events() {
   useEffect(() => {
     async function fetchStrings() {
       try {
-        const strings = await getEventsPageStrings('en');
+        const strings = await getEventsPageStrings(language);
         if (strings && (strings.eventsPageHeading || strings.eventsPageHeadingZh)) {
           setHeadings({
             eventsPageHeading: strings.eventsPageHeading || 'Events',
@@ -31,7 +31,7 @@ function Events() {
       } catch (_) {}
     }
     fetchStrings();
-  }, []);
+  }, [language]);
 
   useEffect(() => {
     async function fetchEvents() {

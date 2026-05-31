@@ -1,12 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import ArticleCard from './ArticleCard';
-import { getPressArticles, urlFor } from '../lib/sanity';
+import { useLanguage } from '../context/LanguageContext';
+import { getPressArticles, getPressPageStrings, urlFor } from '../lib/sanity';
 
 function ArticleGrid() {
+  const { language } = useLanguage();
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [filterLabels, setFilterLabels] = useState({
+    all: 'All articles',
+    english: 'English',
+    chinese: '中文',
+  });
+
+  useEffect(() => {
+    async function loadStrings() {
+      try {
+        const strings = await getPressPageStrings(language);
+        setFilterLabels({
+          all: strings?.pressFilterAllButton || 'All articles',
+          english: strings?.pressFilterEnglishButton || 'English',
+          chinese: strings?.pressFilterChineseButton || '中文',
+        });
+      } catch (_) {}
+    }
+    loadStrings();
+  }, [language]);
 
   useEffect(() => {
     async function fetchArticles() {
@@ -78,7 +99,7 @@ function ArticleGrid() {
                 : 'bg-white text-gray-700 border-gray-300 hover:border-red-600'
             }`}
           >
-            All articles
+            {filterLabels.all}
           </button>
           <button
             onClick={() => setActiveFilter('english')}
@@ -88,7 +109,7 @@ function ArticleGrid() {
                 : 'bg-white text-gray-700 border-gray-300 hover:border-red-600'
             }`}
           >
-            English
+            {filterLabels.english}
           </button>
           <button
             onClick={() => setActiveFilter('chinese')}
@@ -98,7 +119,7 @@ function ArticleGrid() {
                 : 'bg-white text-gray-700 border-gray-300 hover:border-red-600'
             }`}
           >
-            中文
+            {filterLabels.chinese}
           </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mt-16 w-full max-md:mt-10 justify-items-center">

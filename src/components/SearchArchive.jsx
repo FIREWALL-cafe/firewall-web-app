@@ -22,7 +22,7 @@ const defaultCards = [
   {
     title: 'Search',
     url: '/search',
-    chineseTitle: { text: '专家点评', color: 'border-red-600' },
+    chineseTitle: { text: '搜索', color: 'border-red-600' },
     description: 'Search Google and Baidu and compare the results.',
     iconSrc: Search,
     iconSrcHover: SearchHover,

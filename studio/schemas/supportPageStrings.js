@@ -9,21 +9,21 @@ export default defineType({
   fields: [
     {
       name: 'supportPageHeading',
-      title: 'Support Page - Main Heading (English)',
+      title: 'Pixelated Header — English line (black)',
       type: 'localeString',
-      description: 'Main heading for the Support page',
+      description: 'The large black English line of the Support page pixelated header (e.g. "Support the frontline of internet freedom advocates"). Fill in the English value — the Chinese value on this field is not used.',
     },
     {
       name: 'supportPageHeadingZh',
-      title: 'Support Page - Main Heading (Chinese)',
+      title: 'Pixelated Header — Chinese line (red)',
       type: 'localeString',
-      description: 'Chinese version of the Support page heading',
+      description: 'The red Chinese line shown directly below the English header. Fill in the Chinese value — this line is always shown in Chinese regardless of the language toggle.',
     },
     {
       name: 'supportIntroText',
-      title: 'Support Page - Introduction Text',
+      title: 'Description (under page header)',
       type: 'localeText',
-      description: 'Introduction text for the Support page',
+      description: 'Introductory paragraph shown directly below the pixelated header. Provide both English and Chinese; it follows the language toggle.',
     },
     {
       name: 'supportOption1Heading',

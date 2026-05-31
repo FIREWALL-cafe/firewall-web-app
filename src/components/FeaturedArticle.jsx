@@ -17,6 +17,7 @@ function FeaturedArticle() {
   const { language } = useLanguage();
   const [article, setArticle] = useState(null);
   const [readArticleLabel, setReadArticleLabel] = useState('');
+  const [featuredSectionBody, setFeaturedSectionBody] = useState('');
 
   useEffect(() => {
     async function load() {
@@ -27,6 +28,7 @@ function FeaturedArticle() {
         ]);
         if (data) setArticle(data);
         if (strings?.pressReadArticleButton) setReadArticleLabel(strings.pressReadArticleButton);
+        if (strings?.pressFeaturedSectionBody) setFeaturedSectionBody(strings.pressFeaturedSectionBody);
       } catch (_) {}
     }
     load();
@@ -53,7 +55,7 @@ function FeaturedArticle() {
               <h2 className="">{data.articleTitle}</h2>
               <div className="leading-tight text-red-600 max-md:text-4xl">{data.articleTitleZh}</div>
             </div>
-            <p className="mt-10 leading-9 text-black">{data.excerpt}</p>
+            <p className="mt-10 leading-9 text-black">{featuredSectionBody || data.excerpt}</p>
             <a
               href={data.externalUrl}
               target="_blank"

@@ -536,7 +536,7 @@ export async function getEditorialPageStrings(lang = 'en') {
       'editorialIntroText',
       'editorialReadMoreButton', 'editorialListenButton', 'editorialFilterLabel',
       'editorialSortLabel', 'editorialNoArticlesMessage', 'editorialFeaturedLabel',
-      'editorialFeaturedSectionBody'
+      'editorialFeaturedSectionBody', 'editorialArticlesHeading'
     ]
 
     const result = await client.fetch(
@@ -560,7 +560,7 @@ export async function getPressPageStrings(lang = 'en') {
       `*[_type == "pressPageStrings"][0] {
         "pressPageHeading": coalesce(pressPageHeading.en, pressPageHeading.en),
         "pressPageHeadingZh": coalesce(pressPageHeadingZh.zh, pressPageHeadingZh.en),
-        ${buildLocalizedQuery(['pressIntroText', 'pressFeaturedSectionBody', 'pressReadArticleButton'], lang)}
+        ${buildLocalizedQuery(['pressIntroText', 'pressFeaturedSectionBody', 'pressReadArticleButton', 'pressFilterAllButton', 'pressFilterEnglishButton', 'pressFilterChineseButton'], lang)}
       }`,
       { lang }
     )

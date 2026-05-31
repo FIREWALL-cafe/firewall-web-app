@@ -9,21 +9,21 @@ export default defineType({
   fields: [
     {
       name: 'pressPageHeading',
-      title: 'Press Page - Main Heading (English)',
+      title: 'Pixelated Header — English line (black)',
       type: 'localeString',
-      description: 'Main heading for the Press page',
+      description: 'The large black English line of the pixelated page header (e.g. "In the Press"). Fill in the English value — the Chinese value on this field is not used.',
     },
     {
       name: 'pressPageHeadingZh',
-      title: 'Press Page - Main Heading (Chinese)',
+      title: 'Pixelated Header — Chinese line (red)',
       type: 'localeString',
-      description: 'Chinese heading displayed below the English heading (always shown in Chinese, not language-toggled)',
+      description: 'The red Chinese line shown directly below the English header (e.g. "媒体报道"). Fill in the Chinese value — this line is always shown in Chinese regardless of the language toggle.',
     },
     {
       name: 'pressIntroText',
-      title: 'Press Page - Introduction Text',
+      title: 'Description (under page header)',
       type: 'localeText',
-      description: 'Introduction text for press coverage section',
+      description: 'Introductory paragraph shown directly below the pixelated header. Provide both English and Chinese; it follows the language toggle.',
     },
     {
       name: 'pressFeaturedSectionBody',
@@ -37,13 +37,31 @@ export default defineType({
       type: 'localeString',
       description: 'Text for the "Read Article" button on the featured article (e.g., "Read article" / "阅读文章")',
     },
+    {
+      name: 'pressFilterAllButton',
+      title: 'Article Filter - All Articles Button',
+      type: 'localeString',
+      description: 'Label for the "All articles" filter button above the press article grid',
+    },
+    {
+      name: 'pressFilterEnglishButton',
+      title: 'Article Filter - English Button',
+      type: 'localeString',
+      description: 'Label for the "English" filter button above the press article grid',
+    },
+    {
+      name: 'pressFilterChineseButton',
+      title: 'Article Filter - Chinese Button',
+      type: 'localeString',
+      description: 'Label for the "中文" (Chinese) filter button above the press article grid',
+    },
   ],
 
   preview: {
     prepare() {
       return {
         title: 'Press Page',
-        subtitle: 'Manage press page UI text (4 fields)',
+        subtitle: 'Manage press page UI text',
       }
     },
   },

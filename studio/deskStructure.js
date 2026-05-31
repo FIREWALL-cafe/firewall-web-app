@@ -109,8 +109,18 @@ export const deskStructure = (S) =>
                 .title('Events')
                 .icon(() => '📅')
                 .child(
-                  S.documentTypeList('event')
-                    .title('All Events')
+                  S.list()
+                    .title('Events')
+                    .items([
+                      S.listItem()
+                        .title('Events')
+                        .icon(() => '📅')
+                        .child(
+                          S.documentTypeList('event')
+                            .title('All Events')
+                        ),
+                      S.documentTypeListItem('eventsPageStrings').title('Page Settings').icon(() => '📄'),
+                    ])
                 ),
 
               // Press
@@ -141,13 +151,53 @@ export const deskStructure = (S) =>
                     .title('All Contributors')
                 ),
 
-              // Feature Cards
+              // Feature Cards — grouped by the page they appear on. The same
+              // concept (e.g. Archive) intentionally has a separate, differently
+              // styled card per page, so group by `visibleOn` to make that clear
+              // rather than showing one flat list that looks like duplicates.
               S.listItem()
                 .title('Feature Cards')
                 .icon(() => '🃏')
                 .child(
-                  S.documentTypeList('featureCard')
-                    .title('All Feature Cards')
+                  S.list()
+                    .title('Feature Cards by Page')
+                    .items([
+                      S.listItem()
+                        .title('Homepage')
+                        .icon(() => '🏠')
+                        .child(
+                          S.documentList()
+                            .title('Homepage Cards')
+                            .filter('_type == "featureCard" && "homepage" in visibleOn')
+                            .defaultOrdering([{ field: 'displayOrder', direction: 'asc' }])
+                        ),
+                      S.listItem()
+                        .title('Search Session Page')
+                        .icon(() => '🔍')
+                        .child(
+                          S.documentList()
+                            .title('Search Session Cards')
+                            .filter('_type == "featureCard" && "search" in visibleOn')
+                            .defaultOrdering([{ field: 'displayOrder', direction: 'asc' }])
+                        ),
+                      S.listItem()
+                        .title('Archive Page')
+                        .icon(() => '🗄️')
+                        .child(
+                          S.documentList()
+                            .title('Archive Cards')
+                            .filter('_type == "featureCard" && "archive" in visibleOn')
+                            .defaultOrdering([{ field: 'displayOrder', direction: 'asc' }])
+                        ),
+                      S.divider(),
+                      S.listItem()
+                        .title('All Feature Cards')
+                        .icon(() => '🃏')
+                        .child(
+                          S.documentTypeList('featureCard')
+                            .title('All Feature Cards')
+                        ),
+                    ])
                 ),
 
               S.divider(),

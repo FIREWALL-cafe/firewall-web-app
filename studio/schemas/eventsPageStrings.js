@@ -9,33 +9,33 @@ export default defineType({
   fields: [
     {
       name: 'eventsPageHeading',
-      title: 'Events Page - Main Heading (English)',
+      title: 'Pixelated Header — English line (black)',
       type: 'localeString',
-      description: 'Main heading for the Events page',
+      description: 'The large black English line of the Events page pixelated header (e.g. "Events"). Fill in the English value — the Chinese value on this field is not used.',
     },
     {
       name: 'eventsPageHeadingZh',
-      title: 'Events Page - Main Heading (Chinese)',
+      title: 'Pixelated Header — Chinese line (red)',
       type: 'localeString',
-      description: 'Chinese version of the Events page heading',
+      description: 'The red Chinese line shown directly below the English header (e.g. "活动"). Fill in the Chinese value — this line is always shown in Chinese regardless of the language toggle.',
     },
     {
       name: 'eventsIntroText',
-      title: 'Events Page - Introduction Text',
+      title: 'Description (under page header)',
       type: 'localeText',
-      description: 'Introductory paragraph below the events heading',
+      description: 'Introductory paragraph shown directly below the pixelated header. Provide both English and Chinese; it follows the language toggle.',
     },
     {
       name: 'pastEventsPageHeading',
-      title: 'Past Events Section - Main Heading (English)',
+      title: 'Past Events — Header English line (black)',
       type: 'localeString',
-      description: 'Main heading for the Past Events section',
+      description: 'The black English line of the Past Events section header. Fill in the English value.',
     },
     {
       name: 'pastEventsPageHeadingZh',
-      title: 'Past Events Section - Main Heading (Chinese)',
+      title: 'Past Events — Header Chinese line (red)',
       type: 'localeString',
-      description: 'Chinese version of the Past Events section heading',
+      description: 'The red Chinese line of the Past Events section header. Fill in the Chinese value.',
     },
   ],
 

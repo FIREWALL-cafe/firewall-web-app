@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { getSupportPageStrings } from '../lib/sanity';
+import { useLanguage } from '../context/LanguageContext';
 
 import Lambent from '../assets/images/Lambent_logo_typeimage_CS5-300x196.jpg';
 import NYC from '../assets/images/NYCulture_current_vector-04_16_2008-300x139.jpg';
 import Jerome from '../assets/images/JEROME_LOGO_4c-300x76.jpg';
 
 function Supporters() {
+  const { language } = useLanguage();
   const [headings, setHeadings] = useState({
     supportersHeading: 'Thanks to our supporters.',
     supportersHeadingZh: '感谢我们的支持者。',
@@ -14,7 +16,7 @@ function Supporters() {
   useEffect(() => {
     async function fetchStrings() {
       try {
-        const strings = await getSupportPageStrings('en');
+        const strings = await getSupportPageStrings(language);
         if (strings && (strings.supportersHeading || strings.supportersHeadingZh)) {
           setHeadings({
             supportersHeading: strings.supportersHeading || 'Thanks to our supporters.',
@@ -24,7 +26,7 @@ function Supporters() {
       } catch (_) {}
     }
     fetchStrings();
-  }, []);
+  }, [language]);
 
   return (
     <section className="flex overflow-hidden flex-col items-center w-full bg-white pb-16 px-4">

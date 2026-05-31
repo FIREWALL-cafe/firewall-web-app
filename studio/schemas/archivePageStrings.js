@@ -9,21 +9,21 @@ export default defineType({
   fields: [
     {
       name: 'archivePageHeading',
-      title: 'Archive Page - Main Heading (English)',
+      title: 'Pixelated Header — English line (black)',
       type: 'localeString',
-      description: 'Main heading for the Archive page',
+      description: 'The large black English line of the Archive page pixelated header (e.g. "Archive"). Fill in the English value — the Chinese value on this field is not used.',
     },
     {
       name: 'archivePageHeadingZh',
-      title: 'Archive Page - Main Heading (Chinese)',
+      title: 'Pixelated Header — Chinese line (red)',
       type: 'localeString',
-      description: 'Chinese version of the Archive page heading',
+      description: 'The red Chinese line shown directly below the English header (e.g. "存档"). Fill in the Chinese value — this line is always shown in Chinese regardless of the language toggle.',
     },
     {
       name: 'archiveBodyText',
-      title: 'Archive Page - Body Text',
+      title: 'Description (under page header)',
       type: 'localeText',
-      description: 'Introductory paragraph below the archive heading',
+      description: 'Introductory paragraph shown directly below the pixelated header. Provide both English and Chinese; it follows the language toggle.',
     },
     {
       name: 'archiveInputPlaceholder',

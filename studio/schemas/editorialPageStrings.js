@@ -67,13 +67,19 @@ export default defineType({
       type: 'localeText',
       description: 'Body copy for the featured editorial article section',
     },
+    {
+      name: 'editorialArticlesHeading',
+      title: 'Editorial Page - Articles Section Heading',
+      type: 'localeString',
+      description: 'Heading for the grid of (non-featured) expert articles below the featured article (e.g., "Expert Articles" / "专家文章")',
+    },
   ],
 
   preview: {
     prepare() {
       return {
         title: 'Editorial Page',
-        subtitle: 'Manage editorial page UI text (9 fields)',
+        subtitle: 'Manage editorial page UI text',
       }
     },
   },
