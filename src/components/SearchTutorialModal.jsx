@@ -302,7 +302,7 @@ function SearchTutorialModal({ open, onClose, initialScreen = 0, onComplete, hid
       <div className="fixed inset-0 z-[151] flex items-center justify-center p-4 pointer-events-none">
         <div
           className="relative bg-white border border-black rounded-[8px] shadow-[0px_4px_12px_0px_rgba(0,0,0,0.25)] overflow-hidden pointer-events-auto flex flex-col"
-          style={{ width: 'min(500px, calc(100vw - 32px))' }}
+          style={{ width: 'min(500px, calc(100vw - 32px))', height: 'min(620px, calc(100vh - 64px))' }}
         >
           {/* Close button */}
           <button
@@ -314,7 +314,7 @@ function SearchTutorialModal({ open, onClose, initialScreen = 0, onComplete, hid
           </button>
 
           {/* Header */}
-          <div className="flex items-center justify-center gap-[11px] pt-8 pb-0">
+          <div className="shrink-0 flex items-center justify-center gap-[11px] pt-8 pb-0">
             {screen === 0 ? (
               <>
                 <img src={searchHeaderIcon} alt="" className="size-9" />
@@ -334,10 +334,12 @@ function SearchTutorialModal({ open, onClose, initialScreen = 0, onComplete, hid
           </div>
 
           {/* Screen content */}
-          {screen === 0 ? <SearchScreen /> : screen === 1 ? <ResultsScreen /> : <ArchiveScreen />}
+          <div className="flex-1 overflow-y-auto min-h-0">
+            {screen === 0 ? <SearchScreen /> : screen === 1 ? <ResultsScreen /> : <ArchiveScreen />}
+          </div>
 
           {/* Footer */}
-          <div className={`flex items-center px-8 py-6 ${hideBack ? 'justify-center' : 'justify-between'}`}>
+          <div className={`shrink-0 flex items-center px-8 py-6 ${hideBack ? 'justify-center' : 'justify-between'}`}>
             {!hideBack && (
               <button
                 onClick={handleBack}
