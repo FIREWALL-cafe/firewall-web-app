@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { getFeaturedPressArticle, urlFor } from '../lib/sanity';
+import { getFeaturedPressArticle, getPressPageStrings, urlFor } from '../lib/sanity';
 
 import PressPost from '../assets/images/press-washington_post.jpg';
 
@@ -16,12 +16,17 @@ const FALLBACK = {
 function FeaturedArticle() {
   const { language } = useLanguage();
   const [article, setArticle] = useState(null);
+  const [readArticleLabel, setReadArticleLabel] = useState('');
 
   useEffect(() => {
     async function load() {
       try {
-        const data = await getFeaturedPressArticle(language);
+        const [data, strings] = await Promise.all([
+          getFeaturedPressArticle(language),
+          getPressPageStrings(language),
+        ]);
         if (data) setArticle(data);
+        if (strings?.pressReadArticleButton) setReadArticleLabel(strings.pressReadArticleButton);
       } catch (_) {}
     }
     load();
@@ -55,7 +60,7 @@ function FeaturedArticle() {
               className="flex gap-1 justify-center items-center self-start px-4 mt-10 text-xl text-center text-red-600 bg-white rounded border border-red-600 border-solid min-h-[56px]"
               rel="noreferrer"
             >
-              <span className="self-stretch my-auto">{data.readArticleLabel}</span>
+              <span className="self-stretch my-auto">{readArticleLabel || data.readArticleLabel || FALLBACK.readArticleLabel}</span>
               <svg
                 className="w-6 h-6 text-red-600"
                 fill="none"

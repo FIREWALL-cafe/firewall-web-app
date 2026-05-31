@@ -556,17 +556,11 @@ export async function getEditorialPageStrings(lang = 'en') {
 // Press Page Strings
 export async function getPressPageStrings(lang = 'en') {
   try {
-    const fields = [
-      'pressIntroText', 'pressFeaturedSectionBody',
-      'pressPublishedLabel', 'pressSourceLabel', 'pressReadArticleButton',
-      'pressExternalLinkLabel', 'pressNoArticlesMessage',
-      'pressFilterLanguageLabel', 'pressAllLanguagesOption'
-    ]
-
     const result = await client.fetch(
       `*[_type == "pressPageStrings"][0] {
-        ${buildLocalizedQuery(fields, lang)},
-        ${buildBilingualHeadingQuery(['pressPageHeading'], ['pressPageHeadingZh'])}
+        "pressPageHeading": coalesce(pressPageHeading.en, pressPageHeading.en),
+        "pressPageHeadingZh": pressPageHeadingZh,
+        ${buildLocalizedQuery(['pressIntroText', 'pressFeaturedSectionBody', 'pressReadArticleButton'], lang)}
       }`,
       { lang }
     )

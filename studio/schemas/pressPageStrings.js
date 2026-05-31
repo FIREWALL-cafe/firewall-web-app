@@ -16,8 +16,8 @@ export default defineType({
     {
       name: 'pressPageHeadingZh',
       title: 'Press Page - Main Heading (Chinese)',
-      type: 'localeString',
-      description: 'Chinese version of the Press page heading',
+      type: 'string',
+      description: 'Chinese heading displayed below the English heading (always shown in Chinese, not language-toggled)',
     },
     {
       name: 'pressIntroText',
@@ -26,52 +26,16 @@ export default defineType({
       description: 'Introduction text for press coverage section',
     },
     {
-      name: 'pressPublishedLabel',
-      title: 'Press Page - Published Label',
-      type: 'localeString',
-      description: 'Label for published date (e.g., "Published:")',
-    },
-    {
-      name: 'pressSourceLabel',
-      title: 'Press Page - Source Label',
-      type: 'localeString',
-      description: 'Label for source/publication (e.g., "Source:")',
+      name: 'pressFeaturedSectionBody',
+      title: 'Press Page - Featured Section Body',
+      type: 'localeText',
+      description: 'Body copy for the featured press article section. Both English and Chinese fields are controlled by the language toggle.',
     },
     {
       name: 'pressReadArticleButton',
       title: 'Press Page - Read Article Button',
       type: 'localeString',
-      description: 'Text for "Read Article" external link button',
-    },
-    {
-      name: 'pressExternalLinkLabel',
-      title: 'Press Page - External Link Label',
-      type: 'localeString',
-      description: 'Label for external links (e.g., "View on [source]")',
-    },
-    {
-      name: 'pressNoArticlesMessage',
-      title: 'Press Page - No Articles Message',
-      type: 'localeString',
-      description: 'Message displayed when no press articles available',
-    },
-    {
-      name: 'pressFilterLanguageLabel',
-      title: 'Press Page - Filter Language Label',
-      type: 'localeString',
-      description: 'Label for language filter dropdown',
-    },
-    {
-      name: 'pressAllLanguagesOption',
-      title: 'Press Page - All Languages Option',
-      type: 'localeString',
-      description: 'Option text for "All Languages" filter',
-    },
-    {
-      name: 'pressFeaturedSectionBody',
-      title: 'Press Page - Featured Section Body',
-      type: 'localeText',
-      description: 'Body copy for the featured press article section',
+      description: 'Text for the "Read Article" button on the featured article (e.g., "Read article" / "阅读文章")',
     },
   ],
 
@@ -79,7 +43,7 @@ export default defineType({
     prepare() {
       return {
         title: 'Press Page',
-        subtitle: 'Manage press page UI text (11 fields)',
+        subtitle: 'Manage press page UI text (4 fields)',
       }
     },
   },
