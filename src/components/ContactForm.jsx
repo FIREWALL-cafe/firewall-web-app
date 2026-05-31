@@ -28,7 +28,8 @@ const ContactForm = () => {
     };
     // submitting form
     const response = await fetch(`/send-email`, config);
-    setAlertMessage(response.text());
+    const data = await response.json();
+    setAlertMessage(response.ok ? 'Message sent successfully!' : (data.error || 'Failed to send message.'));
     setDisplayAlert(true);
   };
 

@@ -23,6 +23,10 @@
   },
   "rewrites": [
     {
+      "source": "/send-email",
+      "destination": "/api/send-email"
+    },
+    {
       "source": "/vote",
       "destination": "/api/vote"
     },
