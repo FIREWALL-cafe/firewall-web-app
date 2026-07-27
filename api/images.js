@@ -41,15 +41,55 @@ async function getGoogleImagesSerper(query) {
     throw new Error(`Serper.dev API returned ${response.status}: ${JSON.stringify(data)}`);
   }
 
-  // Extract image URLs from Serper response
+  // Extract image + source page URLs from Serper response.
+  // `imageUrl` is the image file; `link` is the web page it was found on.
   const images = data.images || [];
   const results = images
     .filter(img => img && img.imageUrl) // Filter out invalid images
     .slice(0, 9) // Limit to 9 images
-    .map(img => img.imageUrl);
+    .map(img => ({ image: img.imageUrl, source: img.link || null }));
 
   console.log(`Successfully fetched ${results.length} Google images`);
   return results;
+}
+
+// Emits one structured, greppable log line capturing the raw shape of a Baidu
+// response. Purpose: collect ground-truth data (benign vs. sensitive terms) so we
+// can later distinguish genuine censorship (opaque zero results / state-media-only
+// results) from bot-blocks (`antiFlag`) and technical failures. Observability only
+// — this does NOT change what getBaiduImages returns. Grep Vercel logs for
+// "[BAIDU_PROBE]" to collect the dataset.
+function logBaiduProbe(fields) {
+  try {
+    console.log('[BAIDU_PROBE]', JSON.stringify({ ts: Date.now(), ...fields }));
+  } catch (e) {
+    console.warn('[BAIDU_PROBE] failed to serialize probe log:', e.message);
+  }
+}
+
+// Pulls the source-page hostname for each image. Used to spot "soft censorship",
+// where Baidu returns results but only from authorized/state-media domains.
+function extractSourceDomains(images) {
+  return images.slice(0, 9).map(img => {
+    const src =
+      (img.replaceUrl && img.replaceUrl[0] && img.replaceUrl[0].FromURL) || img.fromURL || '';
+    const m = /^https?:\/\/([^/]+)/.exec(src);
+    return m ? m[1] : null;
+  });
+}
+
+// Selected response headers worth recording: censorship-relevant Baidu headers and
+// Bright Data proxy error signals.
+function baiduHeaderSubset(response) {
+  return {
+    search_result: response.headers.get('Search_result'),
+    bdqid: response.headers.get('Bdqid'),
+    content_type: response.headers.get('Content-Type'),
+    content_length: response.headers.get('Content-Length'),
+    x_brd_err_code: response.headers.get('x-brd-err-code'),
+    x_brd_err_msg: response.headers.get('x-brd-err-msg'),
+    proxy_status: response.headers.get('Proxy-Status'),
+  };
 }
 
 async function getBaiduImages(query) {
@@ -81,45 +121,117 @@ async function getBaiduImages(query) {
     const response = await fetchWithFallback(url, fetchOptions);
     console.log('Baidu fetch completed, status:', response.status);
 
+    const fetchPath = response.fwFetchPath || 'unknown';
+    const headers = baiduHeaderSubset(response);
+
     // Check for Bright Data proxy errors (even on 200 responses)
     const brdErrorCode = response.headers.get('x-brd-err-code');
     const brdErrorMsg = response.headers.get('x-brd-err-msg');
     const proxyStatus = response.headers.get('Proxy-Status');
 
     if (brdErrorCode || proxyStatus) {
+      logBaiduProbe({
+        query,
+        fetchPath,
+        httpStatus: response.status,
+        classification: 'proxy_error',
+        headers,
+      });
       console.warn('========== BRIGHT DATA PROXY ERROR ==========');
       console.warn('BrightData Error Code:', brdErrorCode);
       console.warn('BrightData Error Message:', brdErrorMsg);
       console.warn('Proxy-Status Header:', proxyStatus);
       console.warn('============================================');
 
-      // Return empty results with error info
-      return {
-        images: [],
-        proxyError: true,
-        errorCode: brdErrorCode,
-        errorMessage: brdErrorMsg,
-        proxyStatus: proxyStatus,
-      };
+      return { images: [], probe: { classification: 'proxy_error', listNum: null } };
     }
 
     if (!response.ok) {
-      throw new Error(`Baidu API returned ${response.status}: ${response.statusText}`);
+      logBaiduProbe({
+        query,
+        fetchPath,
+        httpStatus: response.status,
+        classification: 'http_error',
+        headers,
+      });
+      return { images: [], probe: { classification: 'http_error', listNum: null } };
     }
 
     console.log('Reading response body...');
     const text = await response.text();
     console.log('Response body length:', text.length);
-    const data = JSON.parse(text);
-    const images = data.data || [];
 
-    const results = images
-      .filter(img => img && img.thumbURL) // Filter out invalid images
+    // Parse defensively so we can still log the raw body shape on malformed responses.
+    let data = null;
+    let parseOk = false;
+    try {
+      data = JSON.parse(text);
+      parseOk = true;
+    } catch {
+      /* handled below via probe log */
+    }
+
+    if (!parseOk) {
+      logBaiduProbe({
+        query,
+        fetchPath,
+        httpStatus: response.status,
+        classification: 'parse_error',
+        headers,
+        bodyBytes: text.length,
+        bodyPrefix: text.slice(0, 800),
+      });
+      // Preserve prior behavior: unparseable body yields no Baidu results.
+      return { images: [], probe: { classification: 'parse_error', listNum: null } };
+    }
+
+    // Bot-block: HTTP 200 + valid JSON, but an anti-scraper payload
+    // (e.g. {"antiFlag":1,"message":"Forbid spider access"}) with no `data` array.
+    // This is indistinguishable from real censorship unless detected explicitly.
+    const isBotBlock =
+      data.antiFlag !== undefined ||
+      (typeof data.message === 'string' && !Array.isArray(data.data));
+
+    const rawImages = Array.isArray(data.data) ? data.data : [];
+    const withThumb = rawImages.filter(img => img && img.thumbURL);
+    const classification = isBotBlock
+      ? 'bot_block'
+      : withThumb.length === 0
+        ? 'empty_results'
+        : 'has_results';
+
+    logBaiduProbe({
+      query,
+      fetchPath,
+      httpStatus: response.status,
+      classification,
+      headers,
+      bodyBytes: text.length,
+      antiFlag: data.antiFlag ?? null,
+      message: data.message ?? null,
+      // Baidu's own reported result counts — more reliable than the sliced array.
+      listNum: data.listNum ?? null,
+      displayNum: data.displayNum ?? null,
+      bdFmtDispNum: data.bdFmtDispNum ?? null,
+      dataLen: rawImages.length,
+      withThumb: withThumb.length,
+      sourceDomains: extractSourceDomains(withThumb),
+      ...(isBotBlock ? { bodyPrefix: text.slice(0, 800) } : {}),
+    });
+
+    // `thumbURL` is the image file; the source page it was found on lives in
+    // `replaceUrl[].FromURL` (falling back to `fromURL`), and is sometimes absent.
+    const results = withThumb
       .slice(0, 9) // Limit to 9 images
-      .map(img => img.thumbURL);
+      .map(img => ({
+        image: img.thumbURL,
+        source: (img.replaceUrl && img.replaceUrl[0] && img.replaceUrl[0].FromURL) || img.fromURL || null,
+      }));
 
     console.log(`Successfully fetched ${results.length} Baidu images`);
-    return results;
+    // `probe` carries the raw response signal (classification + Baidu's own total)
+    // so the handler can persist it for later censorship analysis.
+    return { images: results, probe: { classification, listNum: data.listNum ?? null } };
   } catch (error) {
     console.error('========== BAIDU SEARCH ERROR ==========');
     console.error('Error name:', error.name);
@@ -134,15 +246,20 @@ async function getBaiduImages(query) {
     console.error('Error stack:', error.stack);
     console.error('========================================');
 
-    // If it's a timeout/abort error, return error info along with empty results
-    if (error.name === 'AbortError' || error.message.includes('aborted')) {
+    const isTimeout = error.name === 'AbortError' || error.message.includes('aborted');
+    logBaiduProbe({
+      query,
+      classification: isTimeout ? 'timeout' : 'fetch_error',
+      errorName: error.name,
+      errorMessage: error.message,
+      errorCode: error.code,
+      errorCauseCode: error.cause && error.cause.code,
+    });
+
+    // If it's a timeout/abort error, note it so the handler can surface it
+    if (isTimeout) {
       console.warn('Baidu request timed out (tried direct + proxy fallback)');
-      return {
-        images: [],
-        timeout: true,
-        url: url,
-        error: 'Baidu request timeout after fallback attempts',
-      };
+      return { images: [], probe: { classification: 'timeout', listNum: null } };
     }
 
     // Check if it's a network/proxy error
@@ -152,9 +269,9 @@ async function getBaiduImages(query) {
       );
     }
 
-    // Return empty array as fallback instead of throwing
+    // Return empty results as fallback instead of throwing
     // This allows Google results to still be processed and saved
-    return [];
+    return { images: [], probe: { classification: 'fetch_error', listNum: null } };
   }
 }
 
@@ -209,6 +326,8 @@ async function createSearchRecord({
   search_client_name,
   search_ip_address,
   translation,
+  baidu_response_class,
+  baidu_list_num,
 }) {
   console.log('Creating search record for:', query);
 
@@ -225,6 +344,9 @@ async function createSearchRecord({
     search_term_translation_language_code: langTo,
     search_term_initial_language_confidence: '1.0',
     search_term_initial_language_alternate_code: null,
+    // Raw Baidu response signal for later censorship analysis.
+    baidu_response_class: baidu_response_class ?? null,
+    baidu_list_num: baidu_list_num ?? null,
   };
 
   const createResponse = await fetch(`${backendUrl}/create-search`, {
@@ -257,10 +379,12 @@ async function processImagesAsync({ searchId, google, baidu }) {
   console.log('Processing images for search ID:', searchId);
 
   const backendUrl = process.env.BACKEND_API_URL;
+  // Forward image file URL + source page URL so the backend can persist both.
+  const toEntries = arr => arr.slice(0, 9).map(r => ({ url: r.image, source: r.source || null }));
   const imageData = {
     searchId,
-    google_images: google.slice(0, 9),
-    baidu_images: baidu.slice(0, 9),
+    google_images: toEntries(google),
+    baidu_images: toEntries(baidu),
   };
 
   try {
@@ -361,20 +485,16 @@ export default async function handler(req, res) {
 
     const finalGoogleResults = googleResults.status === 'fulfilled' ? googleResults.value : [];
     let finalBaiduResults = [];
+    let baiduProbe = null;
     let baiduTimeoutInfo = null;
 
     if (baiduResults.status === 'fulfilled') {
-      const baiduResponse = baiduResults.value;
-
-      // Check if it's a timeout response object or regular array
-      if (baiduResponse && baiduResponse.timeout) {
-        finalBaiduResults = baiduResponse.images || [];
-        baiduTimeoutInfo = {
-          url: baiduResponse.url,
-          error: baiduResponse.error,
-        };
-      } else if (Array.isArray(baiduResponse)) {
-        finalBaiduResults = baiduResponse;
+      // getBaiduImages always resolves to { images, probe }.
+      const baiduResponse = baiduResults.value || {};
+      finalBaiduResults = baiduResponse.images || [];
+      baiduProbe = baiduResponse.probe || null;
+      if (baiduProbe && baiduProbe.classification === 'timeout') {
+        baiduTimeoutInfo = { error: 'Baidu request timeout after fallback attempts' };
       }
     }
 
@@ -429,6 +549,8 @@ export default async function handler(req, res) {
         search_client_name,
         search_ip_address: clientIp,
         translation: translatedQuery,
+        baidu_response_class: baiduProbe?.classification ?? null,
+        baidu_list_num: baiduProbe?.listNum ?? null,
       });
       console.log('Search created with ID:', searchId, 'and IP:', clientIp);
 

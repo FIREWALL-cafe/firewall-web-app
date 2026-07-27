@@ -59,6 +59,13 @@ export async function fetchWithFallback(url, options = {}) {
 
     clearTimeout(timeoutId);
     console.log('✓ Direct connection successful');
+    // Tag which path served the response so callers can attribute behavior
+    // (e.g. bot-blocks) to direct vs. proxy when logging raw responses.
+    try {
+      response.fwFetchPath = 'direct';
+    } catch {
+      /* Response prop may be read-only in some runtimes; non-critical */
+    }
     return response;
   } catch (directError) {
     // Log fallback event
@@ -84,6 +91,11 @@ export async function fetchWithFallback(url, options = {}) {
 
       clearTimeout(timeoutId);
       console.log('✓ Proxy connection successful (fallback)');
+      try {
+        response.fwFetchPath = 'proxy';
+      } catch {
+        /* Response prop may be read-only in some runtimes; non-critical */
+      }
       return response;
     } catch (proxyError) {
       console.error('✗ Both direct and proxy connections failed');
