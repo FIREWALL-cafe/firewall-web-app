@@ -19,9 +19,15 @@ const getDisplayUrl = url => {
   try {
     return new URL(url).hostname;
   } catch {
-    return url.slice(0, 40);
+    return (url || '').slice(0, 40);
   }
 };
+
+// Result entries are { image, source }: `image` is the file URL to display,
+// `source` is the web page it was found on (may be null → non-clickable).
+// Tolerate legacy plain-string entries as a fallback.
+const imageOf = result => (typeof result === 'string' ? result : result?.image);
+const sourceOf = result => (typeof result === 'string' ? null : result?.source);
 
 function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, onRetry }) {
   const [currentIndex, setCurrentIndex] = useState(null); // Start with no selection
@@ -64,8 +70,8 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
 
   // Create slides array for the lightbox with pairs of images
   const slides = images?.googleResults?.map((googleImage, index) => ({
-    google: googleImage,
-    baidu: images.baiduResults[index],
+    google: imageOf(googleImage),
+    baidu: imageOf(images.baiduResults[index]),
     alt: `Image Pair ${index + 1}`,
   }));
 
@@ -143,24 +149,33 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                   {isLoading ? (
                     <Skeleton height={320} width="80%" />
                   ) : (
-                    images?.googleResults?.[currentIndex] && (
-                      <a
-                        href={images.googleResults[currentIndex]}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group relative max-h-full max-w-full flex items-center justify-center"
-                      >
-                        <img
-                          src={images.googleResults[currentIndex]}
-                          className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
-                          onError={handleOnError}
-                          alt={`Google search result ${currentIndex + 1}`}
-                        />
-                        <div className="absolute bottom-0 right-0 hidden group-hover:block bg-black/70 text-white text-[10px] px-1.5 py-0.5 max-w-xs truncate pointer-events-none">
-                          {getDisplayUrl(images.googleResults[currentIndex])}
-                        </div>
-                      </a>
-                    )
+                    images?.googleResults?.[currentIndex] &&
+                    (() => {
+                      const result = images.googleResults[currentIndex];
+                      const source = sourceOf(result);
+                      const Wrapper = source ? 'a' : 'div';
+                      const linkProps = source
+                        ? { href: source, target: '_blank', rel: 'noopener noreferrer' }
+                        : {};
+                      return (
+                        <Wrapper
+                          {...linkProps}
+                          className="group relative max-h-full max-w-full flex items-center justify-center"
+                        >
+                          <img
+                            src={imageOf(result)}
+                            className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
+                            onError={handleOnError}
+                            alt={`Google search result ${currentIndex + 1}`}
+                          />
+                          {source && (
+                            <div className="absolute bottom-0 right-0 hidden group-hover:block bg-black/70 text-white text-[10px] px-1.5 py-0.5 max-w-xs truncate pointer-events-none">
+                              {getDisplayUrl(source)}
+                            </div>
+                          )}
+                        </Wrapper>
+                      );
+                    })()
                   )}
                 </div>
               </div>
@@ -199,24 +214,33 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                       alt="Search term is banned in China"
                     />
                   ) : (
-                    images?.baiduResults?.[currentIndex] && (
-                      <a
-                        href={images.baiduResults[currentIndex]}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group relative max-h-full max-w-full flex items-center justify-center"
-                      >
-                        <img
-                          src={images.baiduResults[currentIndex]}
-                          className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
-                          onError={e => handleOnError(e, true)}
-                          alt={`Baidu search result ${currentIndex + 1}`}
-                        />
-                        <div className="absolute bottom-0 right-0 hidden group-hover:block bg-black/70 text-white text-[10px] px-1.5 py-0.5 max-w-xs truncate pointer-events-none">
-                          {getDisplayUrl(images.baiduResults[currentIndex])}
-                        </div>
-                      </a>
-                    )
+                    images?.baiduResults?.[currentIndex] &&
+                    (() => {
+                      const result = images.baiduResults[currentIndex];
+                      const source = sourceOf(result);
+                      const Wrapper = source ? 'a' : 'div';
+                      const linkProps = source
+                        ? { href: source, target: '_blank', rel: 'noopener noreferrer' }
+                        : {};
+                      return (
+                        <Wrapper
+                          {...linkProps}
+                          className="group relative max-h-full max-w-full flex items-center justify-center"
+                        >
+                          <img
+                            src={imageOf(result)}
+                            className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
+                            onError={e => handleOnError(e, true)}
+                            alt={`Baidu search result ${currentIndex + 1}`}
+                          />
+                          {source && (
+                            <div className="absolute bottom-0 right-0 hidden group-hover:block bg-black/70 text-white text-[10px] px-1.5 py-0.5 max-w-xs truncate pointer-events-none">
+                              {getDisplayUrl(source)}
+                            </div>
+                          )}
+                        </Wrapper>
+                      );
+                    })()
                   )}
                 </div>
                 {!isLoading && !baiduEmpty && (
@@ -247,37 +271,46 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                     <Skeleton height="100%" width="100%" />
                   </div>
                 ))
-            : images?.googleResults?.map((image, index) => (
-                <a
-                  key={index}
-                  href={image}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => handleThumbnailClick(index)}
-                  className={`group relative block aspect-square overflow-visible ${
-                    currentIndex !== null && currentIndex === index
-                      ? 'opacity-60 bg-[#0084CC]'
-                      : 'opacity-100'
-                  }`}
-                >
-                  <div className="w-full h-full overflow-hidden">
-                    <img
-                      src={image}
-                      className="w-full h-full object-cover"
-                      onError={handleOnError}
-                      alt={`Google thumbnail ${index + 1}`}
-                    />
-                  </div>
-                  <div className="absolute bottom-0 right-0 hidden group-hover:block bg-black/70 text-white text-[10px] px-1 py-0.5 max-w-full truncate pointer-events-none z-10">
-                    {getDisplayUrl(image)}
-                  </div>
-                  {currentIndex !== null && currentIndex === index && (
-                    <div className="absolute inset-[-4px] border border-blue-600 rounded-[6px] bg-blue-300/30 pointer-events-none" />
-                  )}
-                </a>
-              ))}
+            : images?.googleResults?.map((image, index) => {
+                const source = sourceOf(image);
+                const Wrapper = source ? 'a' : 'button';
+                const linkProps = source
+                  ? { href: source, target: '_blank', rel: 'noopener noreferrer' }
+                  : { type: 'button' };
+                return (
+                  <Wrapper
+                    key={index}
+                    {...linkProps}
+                    onClick={() => handleThumbnailClick(index)}
+                    className={`group relative block aspect-square overflow-visible w-full p-0 border-0 appearance-none ${
+                      currentIndex !== null && currentIndex === index
+                        ? 'opacity-60 bg-[#0084CC]'
+                        : 'opacity-100 bg-transparent'
+                    }`}
+                  >
+                    <div className="w-full h-full overflow-hidden">
+                      <img
+                        src={imageOf(image)}
+                        className="w-full h-full object-cover"
+                        onError={handleOnError}
+                        alt={`Google thumbnail ${index + 1}`}
+                      />
+                    </div>
+                    {source && (
+                      <div className="absolute bottom-0 right-0 hidden group-hover:block bg-black/70 text-white text-[10px] px-1 py-0.5 max-w-full truncate pointer-events-none z-10">
+                        {getDisplayUrl(source)}
+                      </div>
+                    )}
+                    {currentIndex !== null && currentIndex === index && (
+                      <div className="absolute inset-[-4px] border border-blue-600 rounded-[6px] bg-blue-300/30 pointer-events-none" />
+                    )}
+                  </Wrapper>
+                );
+              })}
         </div>
-        <div className={`w-1/2 bg-neutral-100 ${baiduEmpty ? 'flex items-center justify-center p-8' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4'}`}>
+        <div
+          className={`w-1/2 bg-neutral-100 ${baiduEmpty ? 'flex items-center justify-center p-8' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4'}`}
+        >
           {baiduEmpty ? (
             <div className="flex flex-col items-center justify-center gap-4 text-center">
               <img src={cloudAlert} alt="" className="w-16 h-16" />
@@ -302,58 +335,64 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                 </button>
               )}
             </div>
-          ) : isLoading
-            ? Array(9)
-                .fill(0)
-                .map((_, index) => (
-                  <div key={index} className="relative aspect-square overflow-hidden">
-                    <Skeleton height="100%" width="100%" />
-                  </div>
-                ))
-            : isBanned
-              ? Array(9)
-                  .fill(0)
-                  .map((_, index) => (
-                    <div
-                      key={index}
-                      className="relative aspect-square overflow-hidden"
-                    >
-                      <img
-                        src={CensoredBrokenImage}
-                        className="w-full h-full object-cover"
-                        alt="Search term is banned in China"
-                      />
-                    </div>
-                  ))
-              : images?.baiduResults?.map((image, index) => (
-                <a
+          ) : isLoading ? (
+            Array(9)
+              .fill(0)
+              .map((_, index) => (
+                <div key={index} className="relative aspect-square overflow-hidden">
+                  <Skeleton height="100%" width="100%" />
+                </div>
+              ))
+          ) : isBanned ? (
+            Array(9)
+              .fill(0)
+              .map((_, index) => (
+                <div key={index} className="relative aspect-square overflow-hidden">
+                  <img
+                    src={CensoredBrokenImage}
+                    className="w-full h-full object-cover"
+                    alt="Search term is banned in China"
+                  />
+                </div>
+              ))
+          ) : (
+            images?.baiduResults?.map((image, index) => {
+              const source = sourceOf(image);
+              const Wrapper = source ? 'a' : 'button';
+              const linkProps = source
+                ? { href: source, target: '_blank', rel: 'noopener noreferrer' }
+                : { type: 'button' };
+              return (
+                <Wrapper
                   key={index}
-                  href={image}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  {...linkProps}
                   onClick={() => handleThumbnailClick(index)}
-                  className={`group relative block aspect-square overflow-visible ${
+                  className={`group relative block aspect-square overflow-visible w-full p-0 border-0 appearance-none ${
                     currentIndex !== null && currentIndex === index
                       ? 'opacity-60 bg-red-900'
-                      : 'opacity-100'
+                      : 'opacity-100 bg-transparent'
                   }`}
                 >
                   <div className="w-full h-full overflow-hidden">
                     <img
-                      src={image}
+                      src={imageOf(image)}
                       className="w-full h-full object-cover"
                       onError={e => handleOnError(e, true)}
                       alt={`Baidu thumbnail ${index + 1}`}
                     />
                   </div>
-                  <div className="absolute bottom-0 right-0 hidden group-hover:block bg-black/70 text-white text-[10px] px-1 py-0.5 max-w-full truncate pointer-events-none z-10">
-                    {getDisplayUrl(image)}
-                  </div>
+                  {source && (
+                    <div className="absolute bottom-0 right-0 hidden group-hover:block bg-black/70 text-white text-[10px] px-1 py-0.5 max-w-full truncate pointer-events-none z-10">
+                      {getDisplayUrl(source)}
+                    </div>
+                  )}
                   {currentIndex !== null && currentIndex === index && (
                     <div className="absolute inset-[-4px] border border-red-600 rounded-[6px] bg-red-300/30 pointer-events-none" />
                   )}
-                </a>
-              ))}
+                </Wrapper>
+              );
+            })
+          )}
         </div>
       </div>
 

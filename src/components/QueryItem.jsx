@@ -34,16 +34,21 @@ const useImageGallery = searchId => {
     const response = await fetch(url, { method: 'post' });
     const results = await response.json();
 
+    const toResult = result => ({
+      image: result.image_href || result.image_data,
+      source: result.image_source_url || null,
+    });
+
     const googleResults = results
       .filter(result => result.image_search_engine === 'google')
-      .map(result => result.image_href || result.image_data)
-      .filter(Boolean)
+      .map(toResult)
+      .filter(r => r.image)
       .slice(0, 9);
 
     const baiduResults = results
       .filter(result => result.image_search_engine === 'baidu')
-      .map(result => result.image_href || result.image_data)
-      .filter(Boolean)
+      .map(toResult)
+      .filter(r => r.image)
       .slice(0, 9);
 
     setImageResults({ googleResults, baiduResults });
@@ -155,7 +160,9 @@ const QueryItem = ({
             <div className="flex flex-col items-end space-y-1">
               <div className="flex items-center space-x-1 text-base">
                 <img src={VoteIcon} alt="Votes" className="w-5 h-5" />
-                <span className="font-medium">{(unique_voters ?? total_votes).toString().padStart(2, '0')}</span>
+                <span className="font-medium">
+                  {(unique_voters ?? total_votes).toString().padStart(2, '0')}
+                </span>
               </div>
               <div className="text-base text-gray-900">{formatDate(search_timestamp)}</div>
             </div>
@@ -234,7 +241,11 @@ const QueryItem = ({
 
       <div className={isExpanded ? 'w-full' : 'hidden'}>
         {imageResults?.googleResults && (
-          <SearchCompare images={imageResults} searchId={search_id} isBanned={search_term_status_banned} />
+          <SearchCompare
+            images={imageResults}
+            searchId={search_id}
+            isBanned={search_term_status_banned}
+          />
         )}
       </div>
     </div>
