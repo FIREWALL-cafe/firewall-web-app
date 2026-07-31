@@ -1,6 +1,10 @@
 // Vercel Function to handle image search requests
 // Implements Google and Baidu search directly without Express server dependency
 
+import { fetchWithFallback } from './lib/proxy.js';
+import { classifyCensorship } from './lib/censorship.js';
+import { waitUntil } from '@vercel/functions';
+
 async function withRetry(fn, delay = 1000) {
   try {
     return await fn();
@@ -10,9 +14,6 @@ async function withRetry(fn, delay = 1000) {
     return await fn();
   }
 }
-
-import { fetchWithFallback } from './lib/proxy.js';
-import { waitUntil } from '@vercel/functions';
 
 // Helper functions for search providers
 async function getGoogleImagesSerper(query) {
@@ -143,7 +144,7 @@ async function getBaiduImages(query) {
       console.warn('Proxy-Status Header:', proxyStatus);
       console.warn('============================================');
 
-      return { images: [], probe: { classification: 'proxy_error', listNum: null } };
+      return { images: [], probe: { classification: 'proxy_error', listNum: null, count: 0, domains: [] } };
     }
 
     if (!response.ok) {
@@ -154,7 +155,7 @@ async function getBaiduImages(query) {
         classification: 'http_error',
         headers,
       });
-      return { images: [], probe: { classification: 'http_error', listNum: null } };
+      return { images: [], probe: { classification: 'http_error', listNum: null, count: 0, domains: [] } };
     }
 
     console.log('Reading response body...');
@@ -182,7 +183,7 @@ async function getBaiduImages(query) {
         bodyPrefix: text.slice(0, 800),
       });
       // Preserve prior behavior: unparseable body yields no Baidu results.
-      return { images: [], probe: { classification: 'parse_error', listNum: null } };
+      return { images: [], probe: { classification: 'parse_error', listNum: null, count: 0, domains: [] } };
     }
 
     // Bot-block: HTTP 200 + valid JSON, but an anti-scraper payload
@@ -229,9 +230,18 @@ async function getBaiduImages(query) {
       }));
 
     console.log(`Successfully fetched ${results.length} Baidu images`);
-    // `probe` carries the raw response signal (classification + Baidu's own total)
-    // so the handler can persist it for later censorship analysis.
-    return { images: results, probe: { classification, listNum: data.listNum ?? null } };
+    // `probe` carries the raw response signal (classification, Baidu's own total,
+    // usable-image count, and source domains) so the handler can classify and
+    // persist a censorship verdict.
+    return {
+      images: results,
+      probe: {
+        classification,
+        listNum: data.listNum ?? null,
+        count: results.length,
+        domains: extractSourceDomains(withThumb),
+      },
+    };
   } catch (error) {
     console.error('========== BAIDU SEARCH ERROR ==========');
     console.error('Error name:', error.name);
@@ -259,7 +269,7 @@ async function getBaiduImages(query) {
     // If it's a timeout/abort error, note it so the handler can surface it
     if (isTimeout) {
       console.warn('Baidu request timed out (tried direct + proxy fallback)');
-      return { images: [], probe: { classification: 'timeout', listNum: null } };
+      return { images: [], probe: { classification: 'timeout', listNum: null, count: 0, domains: [] } };
     }
 
     // Check if it's a network/proxy error
@@ -271,7 +281,7 @@ async function getBaiduImages(query) {
 
     // Return empty results as fallback instead of throwing
     // This allows Google results to still be processed and saved
-    return { images: [], probe: { classification: 'fetch_error', listNum: null } };
+    return { images: [], probe: { classification: 'fetch_error', listNum: null, count: 0, domains: [] } };
   }
 }
 
@@ -328,6 +338,9 @@ async function createSearchRecord({
   translation,
   baidu_response_class,
   baidu_list_num,
+  censorship_verdict,
+  censorship_confidence,
+  censorship_checked_at,
 }) {
   console.log('Creating search record for:', query);
 
@@ -347,6 +360,10 @@ async function createSearchRecord({
     // Raw Baidu response signal for later censorship analysis.
     baidu_response_class: baidu_response_class ?? null,
     baidu_list_num: baidu_list_num ?? null,
+    // Computed censorship verdict (candidate signal for human review).
+    censorship_verdict: censorship_verdict ?? null,
+    censorship_confidence: censorship_confidence ?? null,
+    censorship_checked_at: censorship_checked_at ?? null,
   };
 
   const createResponse = await fetch(`${backendUrl}/create-search`, {
@@ -539,7 +556,22 @@ export default async function handler(req, res) {
       req.connection?.remoteAddress ||
       '127.0.0.1';
 
-    // 5. Create search record (fast - wait for this)
+    // 5. Classify the Baidu result relative to its Google control (candidate
+    //    signal for human review — never an authoritative label).
+    let censorship = { verdict: null, confidence: null, checkedAt: null };
+    if (baiduProbe) {
+      const { verdict, confidence } = classifyCensorship({
+        baiduClass: baiduProbe.classification,
+        baiduListNum: baiduProbe.listNum,
+        baiduCount: baiduProbe.count,
+        baiduDomains: baiduProbe.domains,
+        googleCount: finalGoogleResults.length,
+      });
+      censorship = { verdict, confidence, checkedAt: Date.now() };
+      console.log('Censorship verdict:', verdict, `(confidence ${confidence})`);
+    }
+
+    // 6. Create search record (fast - wait for this)
     let searchId = null;
     try {
       searchId = await createSearchRecord({
@@ -551,10 +583,13 @@ export default async function handler(req, res) {
         translation: translatedQuery,
         baidu_response_class: baiduProbe?.classification ?? null,
         baidu_list_num: baiduProbe?.listNum ?? null,
+        censorship_verdict: censorship.verdict,
+        censorship_confidence: censorship.confidence,
+        censorship_checked_at: censorship.checkedAt,
       });
       console.log('Search created with ID:', searchId, 'and IP:', clientIp);
 
-      // 5b. Process images in background (don't wait)
+      // 6b. Process images in background (don't wait)
       // Check if waitUntil is available (production) or fallback (dev)
       if (typeof waitUntil === 'function') {
         waitUntil(
@@ -580,7 +615,7 @@ export default async function handler(req, res) {
       // Note: if createSearchRecord fails, we don't queue image processing
     }
 
-    // 6. Return results immediately (don't wait for image processing)
+    // 7. Return results immediately (don't wait for image processing)
     const response = {
       searchId,
       googleResults: finalGoogleResults,
