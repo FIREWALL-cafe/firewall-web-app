@@ -28,6 +28,7 @@ import termsPageStrings from './termsPageStrings'
 import featuredPressArticle from './featuredPressArticle'
 import homepageImages from './homepageImages'
 import siteAssets from './siteAssets'
+import videoEmbed from './videoEmbed'
 
 export const schemaTypes = [
   // Locale types (must be registered first)
@@ -69,6 +70,7 @@ export const schemaTypes = [
 
   // Reusable components
   featureCard,
+  videoEmbed,
 
   // Image assets
   homepageImages,

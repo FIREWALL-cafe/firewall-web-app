@@ -55,6 +55,10 @@
       "destination": "/api/searches"
     },
     {
+      "source": "/vimeo-oembed",
+      "destination": "/api/vimeo-oembed"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/api/proxy"
     },

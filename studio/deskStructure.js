@@ -200,6 +200,43 @@ export const deskStructure = (S) =>
                     ])
                 ),
 
+              // Videos — grouped by the page they appear on.
+              S.listItem()
+                .title('Videos')
+                .icon(() => '🎬')
+                .child(
+                  S.list()
+                    .title('Videos by Page')
+                    .items([
+                      S.listItem()
+                        .title('Homepage')
+                        .icon(() => '🏠')
+                        .child(
+                          S.documentList()
+                            .title('Homepage Videos')
+                            .filter('_type == "videoEmbed" && placement == "home"')
+                            .defaultOrdering([{ field: 'displayOrder', direction: 'asc' }])
+                        ),
+                      S.listItem()
+                        .title('Expert Commentary')
+                        .icon(() => '📰')
+                        .child(
+                          S.documentList()
+                            .title('Expert Commentary Videos')
+                            .filter('_type == "videoEmbed" && placement == "editorial"')
+                            .defaultOrdering([{ field: 'displayOrder', direction: 'asc' }])
+                        ),
+                      S.divider(),
+                      S.listItem()
+                        .title('All Videos')
+                        .icon(() => '🎬')
+                        .child(
+                          S.documentTypeList('videoEmbed')
+                            .title('All Videos')
+                        ),
+                    ])
+                ),
+
               S.divider(),
 
               // Page UI Strings (direct children)

@@ -4,6 +4,7 @@ import { getEditorialPageStrings, getSiteAssets, urlFor } from '../lib/sanity';
 import FeaturedEditorial from './FeaturedEditorial';
 import ExpertArticles from './ExpertArticles';
 import NewsletterSection from './NewsletterSection';
+import VideoEmbedSection from './VideoEmbedSection';
 
 // Static import as fallback
 import Commentary from '../assets/icons/expert-commentary.png';
@@ -93,6 +94,7 @@ function Experts() {
             </p>
           </div>
         </section>
+        <VideoEmbedSection page="editorial" />
         <FeaturedEditorial
           featuredLabel={uiStrings.editorialFeaturedLabel}
           featuredSectionBody={uiStrings.editorialFeaturedSectionBody}

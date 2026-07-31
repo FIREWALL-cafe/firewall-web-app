@@ -553,6 +553,35 @@ export async function getEditorialPageStrings(lang = 'en') {
   }
 }
 
+// Video Embeds — repeatable videos placed on a given page ('home' | 'editorial').
+// Returns enabled videos for that placement, localized and ordered.
+export async function getVideoEmbeds(placement, lang = 'en') {
+  try {
+    const result = await client.fetch(
+      `*[_type == "videoEmbed" && enabled != false && placement == $placement]
+        | order(displayOrder asc) {
+        _id,
+        vimeoUrl,
+        "heading": heading.en,
+        "headingZh": heading.zh,
+        "description": ${localizeField('description', lang)},
+        "playButtonLabel": ${localizeField('playButtonLabel', lang)},
+        posterAlt,
+        posterImage {
+          asset->,
+          hotspot,
+          crop
+        }
+      }`,
+      { placement, lang }
+    )
+    return result || []
+  } catch (error) {
+    console.error('Error fetching video embeds from Sanity:', error)
+    return []
+  }
+}
+
 // Press Page Strings
 export async function getPressPageStrings(lang = 'en') {
   try {

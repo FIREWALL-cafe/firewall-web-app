@@ -4,6 +4,7 @@ import AboutSection from './AboutSection';
 import InfoSection from './InfoSection';
 import SearchTrendsSection from './SearchTrendsSection';
 import NewsletterSection from './NewsletterSection';
+import VideoEmbedSection from './VideoEmbedSection';
 
 function Home() {
   const image = 'usHeadlines';
@@ -11,6 +12,7 @@ function Home() {
     <>
       <HeroSection />
       <AboutSection />
+      <VideoEmbedSection page="home" />
       <InfoSection />
       <SearchTrendsSection />
       <NewsletterSection image={image} />
