@@ -12,8 +12,10 @@ import baiduLogo from '../assets/icons/baidu_logo_long.svg';
 import CarouselLeft from '../assets/icons/carousel-left.svg';
 import CarouselRight from '../assets/icons/carousel-right.svg';
 import QuestionIcon from './icons/QuestionIcon';
+import SoftCensorshipIcon from './icons/SoftCensorshipIcon';
 import BrokenImagePadding from '../assets/icons/broken-image-placeholder_padding.svg';
 import CensoredBrokenImage from '../assets/icons/censored-image-placeholder_padding.svg';
+import { isStateMedia } from '../lib/stateMedia';
 
 const getDisplayUrl = url => {
   try {
@@ -22,6 +24,25 @@ const getDisplayUrl = url => {
     return (url || '').slice(0, 40);
   }
 };
+
+const hostOf = url => {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return null;
+  }
+};
+
+// Baidu results sourced from state-media/government sites get a warning triangle.
+const StateMediaWarning = ({ source }) =>
+  isStateMedia(hostOf(source)) ? (
+    <SoftCensorshipIcon
+      className="absolute bottom-1 right-1 z-[5] drop-shadow"
+      data-tooltip-id="tooltip-soft-censorship"
+      data-tooltip-content="Soft censorship: this result comes from a Chinese state-media or government website."
+      data-tooltip-place="top"
+    />
+  ) : null;
 
 // Result entries are { image, source }: `image` is the file URL to display,
 // `source` is the web page it was found on (may be null → non-clickable).
@@ -102,6 +123,7 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
 
   return (
     <div className="w-full max-w-screen-xl mx-auto relative">
+      <Tooltip id="tooltip-soft-censorship" border={'1px solid #e60011'} />
       {/* Search ID in top left corner */}
       {searchId && (
         <div className="absolute top-2 left-2 z-10 bg-black/60 text-white px-2 py-1 rounded text-xs font-mono">
@@ -240,6 +262,7 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                             onError={e => handleOnError(e, true)}
                             alt={`Baidu search result ${currentIndex + 1}`}
                           />
+                          <StateMediaWarning source={source} />
                           <SourceLink source={source} className="max-w-xs" />
                         </div>
                       );
@@ -404,6 +427,7 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                       alt={`Baidu thumbnail ${index + 1}`}
                     />
                   </button>
+                  <StateMediaWarning source={source} />
                   <SourceLink source={source} className="max-w-full" />
                   {currentIndex !== null && currentIndex === index && (
                     <div className="absolute inset-[-4px] border border-red-600 rounded-[6px] bg-red-300/30 pointer-events-none" />

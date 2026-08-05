@@ -10,27 +10,17 @@
 //   法轮功 Falun Gong → has_results, listNum 71,  all state media       → soft_censored
 //   习明泽 Xi Mingze  → empty_results, listNum 0                        → hard_censored
 
-// State-media hostnames. Matched by suffix: hostname === d || endsWith('.' + d).
-// Note: `gov.cn` therefore matches any *.gov.cn. Extend as new outlets appear.
-export const STATE_MEDIA_DOMAINS = [
-  'cctv.com', 'cctv.cn', 'people.com.cn', 'xinhuanet.com', 'news.cn',
-  'chinadaily.com.cn', 'chinanews.com', 'chinanews.com.cn', 'cyol.com',
-  'youth.cn', 'globaltimes.cn', 'huanqiu.com', 'gmw.cn', 'qstheory.cn',
-  'china.com.cn', 'cri.cn', 'ce.cn', '81.cn', 'chinamil.com.cn',
-  '12371.cn', 'gov.cn', 'cntv.cn', 'cnr.cn',
-];
+// The domain list + matcher live in src/lib/stateMedia.js so the frontend can
+// use them too (CRA cannot import from api/); re-exported here so this module
+// remains the classifier's single public surface.
+import { STATE_MEDIA_DOMAINS, isStateMedia } from '../../src/lib/stateMedia.js';
+
+export { STATE_MEDIA_DOMAINS, isStateMedia };
 
 // Baidu response classes that are technical failures, never censorship.
 const FAILURE_CLASSES = new Set([
   'bot_block', 'proxy_error', 'http_error', 'parse_error', 'timeout', 'fetch_error',
 ]);
-
-// True if a hostname belongs to (or is a subdomain of) a state-media domain.
-export function isStateMedia(hostname) {
-  if (!hostname) return false;
-  const host = String(hostname).toLowerCase();
-  return STATE_MEDIA_DOMAINS.some((d) => host === d || host.endsWith('.' + d));
-}
 
 // Classify a single search's Baidu outcome relative to its Google control.
 // Returns { verdict, confidence } where verdict is one of:

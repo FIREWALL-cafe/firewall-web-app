@@ -42,6 +42,25 @@ describe('ImageCarousel result links', () => {
     ).toBe(true);
   });
 
+  test('Baidu results from state-media domains get the soft-censorship triangle', () => {
+    render(<ImageCarousel images={images} />);
+    // Baidu thumbnail sourced from tv.people.com.cn → warning shown
+    expect(screen.getAllByRole('img', { name: 'Soft censorship warning' })).toHaveLength(1);
+  });
+
+  test('non-state-media sources get no soft-censorship triangle', () => {
+    render(
+      <ImageCarousel
+        images={{
+          googleResults: [{ image: 'g1.jpg', source: 'https://tv.people.com.cn/x' }],
+          baiduResults: [{ image: 'b1.jpg', source: 'https://www.douyin.com/video/1' }],
+        }}
+      />
+    );
+    // Google results never get the triangle, and douyin.com is not state media
+    expect(screen.queryByRole('img', { name: 'Soft censorship warning' })).not.toBeInTheDocument();
+  });
+
   test('empty Baidu results with a hard_censored verdict show the censored panel', () => {
     render(
       <ImageCarousel
