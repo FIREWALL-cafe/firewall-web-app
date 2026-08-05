@@ -17,7 +17,7 @@ export const STATE_MEDIA_DOMAINS = [
   'chinadaily.com.cn', 'chinanews.com', 'chinanews.com.cn', 'cyol.com',
   'youth.cn', 'globaltimes.cn', 'huanqiu.com', 'gmw.cn', 'qstheory.cn',
   'china.com.cn', 'cri.cn', 'ce.cn', '81.cn', 'chinamil.com.cn',
-  '12371.cn', 'gov.cn',
+  '12371.cn', 'gov.cn', 'cntv.cn', 'cnr.cn',
 ];
 
 // Baidu response classes that are technical failures, never censorship.
