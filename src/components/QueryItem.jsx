@@ -71,6 +71,8 @@ const QueryItem = ({
   search_region,
   search_timestamp,
   search_term_status_banned,
+  censorship_verdict,
+  censorship_confidence,
   isExpanded = false,
   onToggle,
 }) => {
@@ -242,7 +244,12 @@ const QueryItem = ({
       <div className={isExpanded ? 'w-full' : 'hidden'}>
         {imageResults?.googleResults && (
           <SearchCompare
-            images={imageResults}
+            images={{
+              ...imageResults,
+              censorship: censorship_verdict
+                ? { verdict: censorship_verdict, confidence: censorship_confidence }
+                : null,
+            }}
             searchId={search_id}
             isBanned={search_term_status_banned}
           />

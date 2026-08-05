@@ -89,13 +89,15 @@ const searchImages = async options => {
   try {
     const response = await fetch('/api/images', { ...defaultConfig, ...options });
 
-    // Handle 404 - No images found
+    // Handle 404 - No images found (body still carries translation/censorship)
     if (response.status === 404) {
+      const body = await response.json().catch(() => ({}));
       return {
         error: 'No images found',
-        message: 'No images found for this search',
-        query: '',
-        translation: ''
+        message: body.message || 'No images found for this search',
+        query: body.query || '',
+        translation: body.translation || '',
+        censorship: body.censorship || null
       };
     }
 

@@ -409,11 +409,12 @@ function SearchInput({ searchMode }) {
                 throw new Error(response.error);
               }
 
-              const { googleResults, baiduResults, translation, searchId } = response;
+              const { googleResults, baiduResults, translation, searchId, censorship } = response;
               setSearchId(searchId);
               setResults({
                 googleResults: googleResults || [],
                 baiduResults: baiduResults || [],
+                censorship: censorship || null,
               });
               // Use translation from response if available, otherwise use the one we got earlier
               setTranslation(translation || translationResult?.translation || '');

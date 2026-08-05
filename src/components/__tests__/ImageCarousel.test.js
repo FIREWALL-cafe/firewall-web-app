@@ -42,6 +42,26 @@ describe('ImageCarousel result links', () => {
     ).toBe(true);
   });
 
+  test('empty Baidu results with a hard_censored verdict show the censored panel', () => {
+    render(
+      <ImageCarousel
+        images={{
+          googleResults: images.googleResults,
+          baiduResults: [],
+          censorship: { verdict: 'hard_censored', confidence: 0.85 },
+        }}
+      />
+    );
+    expect(screen.getByText('Possibly Censored')).toBeInTheDocument();
+    expect(screen.queryByText('Unable to Connect')).not.toBeInTheDocument();
+  });
+
+  test('empty Baidu results without a verdict show the connection-error panel', () => {
+    render(<ImageCarousel images={{ googleResults: images.googleResults, baiduResults: [] }} />);
+    expect(screen.getByText('Unable to Connect')).toBeInTheDocument();
+    expect(screen.queryByText('Possibly Censored')).not.toBeInTheDocument();
+  });
+
   test('carousel arrows wrap at the actual result count, not a hardcoded 9', () => {
     render(<ImageCarousel images={images} />);
     fireEvent.click(screen.getByRole('button', { name: 'Select Google result 1' }));

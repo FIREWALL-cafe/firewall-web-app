@@ -534,17 +534,6 @@ export default async function handler(req, res) {
       finalBaiduResults.length
     );
 
-    // Check if we have any results at all
-    if (finalGoogleResults.length === 0 && finalBaiduResults.length === 0) {
-      console.warn('No images found for query:', query);
-      return res.status(404).json({
-        error: 'No images found',
-        message: `No images found for "${query}"`,
-        query: query,
-        translation: translatedQuery,
-      });
-    }
-
     // Don't create placeholder objects - just use the empty array
     // The backend will handle missing Baidu results
     let processedBaiduResults = finalBaiduResults;
@@ -591,7 +580,9 @@ export default async function handler(req, res) {
 
       // 6b. Process images in background (don't wait)
       // Check if waitUntil is available (production) or fallback (dev)
-      if (typeof waitUntil === 'function') {
+      if (finalGoogleResults.length === 0 && processedBaiduResults.length === 0) {
+        console.log('No images to process, skipping background image processing');
+      } else if (typeof waitUntil === 'function') {
         waitUntil(
           processImagesAsync({
             searchId,
@@ -615,12 +606,27 @@ export default async function handler(req, res) {
       // Note: if createSearchRecord fails, we don't queue image processing
     }
 
-    // 7. Return results immediately (don't wait for image processing)
+    // 7. No results from either engine — the attempt is persisted above so
+    //    censored-but-empty searches still leave a trace in the archive.
+    if (finalGoogleResults.length === 0 && processedBaiduResults.length === 0) {
+      console.warn('No images found for query:', query);
+      return res.status(404).json({
+        error: 'No images found',
+        message: `No images found for "${query}"`,
+        query: query,
+        translation: translatedQuery,
+        searchId,
+        censorship,
+      });
+    }
+
+    // 8. Return results immediately (don't wait for image processing)
     const response = {
       searchId,
       googleResults: finalGoogleResults,
       baiduResults: processedBaiduResults,
       translation: translatedQuery,
+      censorship,
       ...(baiduTimeoutInfo ? { baiduTimeout: baiduTimeoutInfo } : {}),
     };
 

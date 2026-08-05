@@ -55,6 +55,10 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
     !images?.baiduResults?.length &&
     (images?.googleResults?.length ?? 0) > 0;
 
+  // Server-side verdict from api/lib/censorship.js: an empty Baidu answer that
+  // looks like suppression rather than a connection failure.
+  const baiduCensored = baiduEmpty && images?.censorship?.verdict === 'hard_censored';
+
   const handleOnError = (e, isBaidu = false) => {
     if (isBaidu && images?.baiduResults?.length === 0) {
       e.target.src = CensoredBrokenImage;
@@ -306,29 +310,55 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
           className={`w-1/2 bg-neutral-100 ${baiduEmpty ? 'flex items-center justify-center p-8' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4'}`}
         >
           {baiduEmpty ? (
-            <div className="flex flex-col items-center justify-center gap-4 text-center">
-              <img src={cloudAlert} alt="" className="w-16 h-16" />
-              <h3 className="text-xl font-bold text-neutral-800">Unable to Connect</h3>
-              <div className="flex items-center gap-1.5 text-sm text-neutral-500">
-                <span>We were unable to complete your search</span>
-                <QuestionIcon
-                  fill="#8d969e"
-                  className="w-4 h-4 flex-shrink-0"
-                  data-tooltip-id="tooltip-baidu-error"
-                  data-tooltip-content="Baidu search results could not be retrieved. This may be a temporary connection issue."
-                  data-tooltip-place="top"
-                />
-                <Tooltip id="tooltip-baidu-error" border={'1px solid #e60011'} />
+            baiduCensored ? (
+              <div className="flex flex-col items-center justify-center gap-4 text-center">
+                <img src={CensoredBrokenImage} alt="" className="w-24 h-24" />
+                <h3 className="text-xl font-bold text-neutral-800">Possibly Censored</h3>
+                <div className="flex items-center gap-1.5 text-sm text-neutral-500">
+                  <span>Baidu returned no results for this search</span>
+                  <QuestionIcon
+                    fill="#8d969e"
+                    className="w-4 h-4 flex-shrink-0"
+                    data-tooltip-id="tooltip-baidu-censored"
+                    data-tooltip-content="Baidu answered normally but returned an empty result set while Google found results — a strong signal that this term is censored on Baidu. This is an automated assessment, not a definitive label."
+                    data-tooltip-place="top"
+                  />
+                  <Tooltip id="tooltip-baidu-censored" border={'1px solid #e60011'} />
+                </div>
+                {onRetry && (
+                  <button
+                    onClick={onRetry}
+                    className="mt-2 px-8 py-2 border border-neutral-400 rounded text-neutral-700 hover:bg-neutral-200 transition-colors text-sm"
+                  >
+                    Retry
+                  </button>
+                )}
               </div>
-              {onRetry && (
-                <button
-                  onClick={onRetry}
-                  className="mt-2 px-8 py-2 border border-neutral-400 rounded text-neutral-700 hover:bg-neutral-200 transition-colors text-sm"
-                >
-                  Retry
-                </button>
-              )}
-            </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center gap-4 text-center">
+                <img src={cloudAlert} alt="" className="w-16 h-16" />
+                <h3 className="text-xl font-bold text-neutral-800">Unable to Connect</h3>
+                <div className="flex items-center gap-1.5 text-sm text-neutral-500">
+                  <span>We were unable to complete your search</span>
+                  <QuestionIcon
+                    fill="#8d969e"
+                    className="w-4 h-4 flex-shrink-0"
+                    data-tooltip-id="tooltip-baidu-error"
+                    data-tooltip-content="Baidu search results could not be retrieved. This may be a temporary connection issue."
+                    data-tooltip-place="top"
+                  />
+                  <Tooltip id="tooltip-baidu-error" border={'1px solid #e60011'} />
+                </div>
+                {onRetry && (
+                  <button
+                    onClick={onRetry}
+                    className="mt-2 px-8 py-2 border border-neutral-400 rounded text-neutral-700 hover:bg-neutral-200 transition-colors text-sm"
+                  >
+                    Retry
+                  </button>
+                )}
+              </div>
+            )
           ) : isLoading ? (
             Array(9)
               .fill(0)
