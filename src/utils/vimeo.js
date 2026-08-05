@@ -23,12 +23,13 @@ export function parseVimeoId(url) {
   return fallback ? fallback[1] : null;
 }
 
-// Build the embed iframe src for a Vimeo ID. Autoplay is enabled because the
-// iframe is only injected after an explicit user click (lightbox facade).
-export function buildVimeoEmbedSrc(id) {
+// Build the embed iframe src for a Vimeo ID. Autoplay defaults to on because
+// the lightbox only injects the iframe after an explicit user click; pass
+// { autoplay: false } for players that render on page load (e.g. /film).
+export function buildVimeoEmbedSrc(id, { autoplay = true } = {}) {
   if (!id) return null;
   const params = new URLSearchParams({
-    autoplay: '1',
+    ...(autoplay ? { autoplay: '1' } : {}),
     title: '0',
     byline: '0',
     portrait: '0',

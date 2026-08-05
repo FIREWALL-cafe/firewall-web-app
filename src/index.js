@@ -19,6 +19,7 @@ import Contributors from './components/Contributors';
 import Dashboard from './components/Dashboard';
 import WhyDidThisHappen from './components/WhyDidThisHappen';
 import TermsAndConditions from './components/TermsAndConditions';
+import FilmPage from './components/FilmPage';
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
@@ -51,6 +52,10 @@ const router = createBrowserRouter([
       {
         path: 'editorial/:slug',
         element: <EditorialArticle />,
+      },
+      {
+        path: 'film',
+        element: <FilmPage />,
       },
       {
         path: 'events/:eventId',

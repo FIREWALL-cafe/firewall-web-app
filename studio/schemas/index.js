@@ -8,6 +8,7 @@ import translation from './translation'
 import {localeString, localeText, localeBlockContent} from './localeTypes'
 import navigationSettings from './navigationSettings'
 import censorshipSettings from './censorshipSettings'
+import videoPage from './videoPage'
 import featureCard from './featureCard'
 
 // UI String Singletons (refactored from single uiStrings schema)
@@ -49,6 +50,7 @@ export const schemaTypes = [
   // Settings/Singletons
   navigationSettings,
   censorshipSettings,
+  videoPage,
 
   // UI String Singletons (14 documents)
   homepageStrings,

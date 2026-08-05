@@ -555,6 +555,34 @@ export async function getEditorialPageStrings(lang = 'en') {
 
 // Video Embeds — repeatable videos placed on a given page ('home' | 'editorial').
 // Returns enabled videos for that placement, localized and ordered.
+// Film Page — singleton for the full-video page (/film). The video is a
+// Sanity-hosted file when uploaded, with a Vimeo URL fallback.
+export async function getVideoPage(lang = 'en') {
+  try {
+    const result = await client.fetch(
+      `*[_type == "videoPage"][0]{
+        "heading": heading.en,
+        "headingZh": heading.zh,
+        "caption": ${localizeField('caption', lang)},
+        "bodyText": ${localizeField('bodyText', lang)},
+        vimeoUrl,
+        "videoUrl": videoFile.asset->url,
+        "videoMimeType": videoFile.asset->mimeType,
+        posterAlt,
+        posterImage {
+          asset->,
+          hotspot,
+          crop
+        }
+      }`
+    )
+    return result || null
+  } catch (error) {
+    console.error('Error fetching video page from Sanity:', error)
+    return null
+  }
+}
+
 // Censorship Settings — editor-managed additions to the built-in state-media
 // domain list (see src/lib/stateMedia.js). Singleton document.
 export async function getCensorshipSettings() {

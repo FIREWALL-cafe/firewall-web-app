@@ -234,6 +234,16 @@ export const deskStructure = (S) =>
                           S.documentTypeList('videoEmbed')
                             .title('All Videos')
                         ),
+                      S.divider(),
+                      S.listItem()
+                        .title('Film Page')
+                        .icon(() => '🎞️')
+                        .child(
+                          S.document()
+                            .schemaType('videoPage')
+                            .documentId('videoPage')
+                            .title('Film Page')
+                        ),
                     ])
                 ),
 
