@@ -165,17 +165,21 @@ test('STATE_MEDIA_DOMAINS excludes the Baidu aggregator', () => {
   expect(STATE_MEDIA_DOMAINS).not.toContain('baijiahao.baidu.com');
 });
 
-describe('extraDomains (Sanity censorshipSettings)', () => {
-  test('isStateMedia accepts editor-added domains without mutating defaults', () => {
-    expect(isStateMedia('news.sohu.com')).toBe(false);
+describe('Sanity censorshipSettings override', () => {
+  test('a non-empty list replaces the built-in defaults entirely', () => {
+    // editor-added domain matches
     expect(isStateMedia('news.sohu.com', ['sohu.com'])).toBe(true);
-    // built-in entries still match when extras are passed
-    expect(isStateMedia('tv.people.com.cn', ['sohu.com'])).toBe(true);
-    // and the default list is unchanged afterwards
-    expect(isStateMedia('news.sohu.com')).toBe(false);
+    // built-in entry NOT in the override list no longer matches — editors control the list
+    expect(isStateMedia('tv.people.com.cn', ['sohu.com'])).toBe(false);
   });
 
-  test('classifyCensorship counts extra domains toward the soft-censorship ratio', () => {
+  test('an empty list falls back to the built-in defaults', () => {
+    expect(isStateMedia('tv.people.com.cn')).toBe(true);
+    expect(isStateMedia('tv.people.com.cn', [])).toBe(true);
+    expect(isStateMedia('news.sohu.com', [])).toBe(false);
+  });
+
+  test('classifyCensorship uses the override list for the soft-censorship ratio', () => {
     const args = {
       baiduClass: 'has_results',
       baiduListNum: 60,
@@ -184,8 +188,8 @@ describe('extraDomains (Sanity censorshipSettings)', () => {
       googleCount: 9,
     };
     expect(classifyCensorship(args).verdict).toBe('uncensored');
-    expect(classifyCensorship({ ...args, extraDomains: ['sohu.com'] }).verdict).toBe(
-      'soft_censored'
-    );
+    expect(
+      classifyCensorship({ ...args, stateMediaDomains: ['sohu.com', 'people.com.cn'] }).verdict
+    ).toBe('soft_censored');
   });
 });

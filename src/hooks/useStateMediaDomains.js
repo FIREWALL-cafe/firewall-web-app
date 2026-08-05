@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { getCensorshipSettings } from '../lib/sanity';
 
-// Editor-managed additions to the built-in state-media domain list, fetched
-// once per page load and shared by every component instance.
+// Editor-managed state-media domain list (replaces the built-in defaults when
+// non-empty), fetched once per page load and shared by every component instance.
 let cachedFetch = null;
 
 export function useStateMediaDomains() {

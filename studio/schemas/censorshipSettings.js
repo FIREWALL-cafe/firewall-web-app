@@ -1,8 +1,9 @@
 import {defineType} from 'sanity'
 
-// Singleton — additional state-media/government domains for censorship detection.
-// These are merged with the built-in defaults in src/lib/stateMedia.js; entries
-// here extend the list without a code deploy.
+// Singleton — the state-media/government domain list for censorship detection.
+// A non-empty list here REPLACES the built-in defaults in src/lib/stateMedia.js,
+// giving editors full control without a code deploy. An empty list falls back
+// to the built-in defaults (safety net against accidental clearing).
 export default defineType({
   name: 'censorshipSettings',
   title: 'Censorship Settings',
@@ -11,13 +12,14 @@ export default defineType({
   fields: [
     {
       name: 'stateMediaDomains',
-      title: 'Additional State-Media Domains',
+      title: 'State-Media Domains',
       type: 'array',
       description:
         'Hostnames of Chinese state-media or government websites, e.g. "cntv.cn". ' +
         'Matched by suffix, so "example.cn" also covers every subdomain like "news.example.cn". ' +
-        'These extend the built-in list (which already includes gov.cn, people.com.cn, cctv.com, etc.); ' +
-        'they cannot remove built-in entries.',
+        'This list is THE list used by the site — adding and removing entries here takes effect ' +
+        'within ~10 minutes, no code deploy needed. If the list is left completely empty, the ' +
+        'site falls back to a built-in default list.',
       of: [
         {
           type: 'string',

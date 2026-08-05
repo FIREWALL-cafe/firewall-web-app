@@ -2,8 +2,10 @@
 // censorship classifier (api/lib/censorship.js) and the frontend soft-censorship
 // warning icons. Lives under src/ because CRA cannot import from api/.
 
+// Built-in DEFAULTS only: when the Sanity censorshipSettings document has a
+// non-empty list, that list replaces this one entirely (editors have control).
 // Matched by suffix: hostname === d || endsWith('.' + d).
-// Note: `gov.cn` therefore matches any *.gov.cn. Extend as new outlets appear.
+// Note: `gov.cn` therefore matches any *.gov.cn.
 export const STATE_MEDIA_DOMAINS = [
   'cctv.com', 'cctv.cn', 'people.com.cn', 'xinhuanet.com', 'news.cn',
   'chinadaily.com.cn', 'chinanews.com', 'chinanews.com.cn', 'cyol.com',
@@ -13,13 +15,12 @@ export const STATE_MEDIA_DOMAINS = [
 ];
 
 // True if a hostname belongs to (or is a subdomain of) a state-media domain.
-// `extraDomains` (from the Sanity censorshipSettings singleton) extends the
-// built-in list; it can never remove built-in entries.
-export function isStateMedia(hostname, extraDomains = []) {
+// A non-empty `domains` list (from the Sanity censorshipSettings singleton)
+// REPLACES the built-in defaults; empty/missing falls back to the defaults so
+// a cleared document or failed fetch can never silently disable detection.
+export function isStateMedia(hostname, domains = []) {
   if (!hostname) return false;
   const host = String(hostname).toLowerCase();
-  const domains = extraDomains.length
-    ? STATE_MEDIA_DOMAINS.concat(extraDomains)
-    : STATE_MEDIA_DOMAINS;
-  return domains.some((d) => host === d || host.endsWith('.' + d));
+  const list = domains.length ? domains : STATE_MEDIA_DOMAINS;
+  return list.some((d) => host === d || host.endsWith('.' + d));
 }

@@ -72,18 +72,23 @@ describe('ImageCarousel result links', () => {
     expect(screen.queryByRole('img', { name: 'Soft censorship warning' })).not.toBeInTheDocument();
   });
 
-  test('Sanity-managed extra domains extend the triangle matching', async () => {
+  test('the Sanity list overrides triangle matching entirely', async () => {
     sanity.getCensorshipSettings.mockResolvedValue({ stateMediaDomains: ['douyin.com'] });
     render(
       <ImageCarousel
         images={{
           googleResults: [{ image: 'g1.jpg', source: null }],
-          baiduResults: [{ image: 'b1.jpg', source: 'https://www.douyin.com/video/1' }],
+          baiduResults: [
+            { image: 'b1.jpg', source: 'https://www.douyin.com/video/1' },
+            { image: 'b2.jpg', source: 'https://tv.people.com.cn/article' },
+          ],
         }}
       />
     );
+    // douyin.com is in the editor list → triangle; the built-in people.com.cn
+    // is not in the override list → no triangle for it.
     await waitFor(() =>
-      expect(screen.getByRole('img', { name: 'Soft censorship warning' })).toBeInTheDocument()
+      expect(screen.getAllByRole('img', { name: 'Soft censorship warning' })).toHaveLength(1)
     );
   });
 

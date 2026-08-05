@@ -31,7 +31,7 @@ export function classifyCensorship({
   baiduCount,
   baiduDomains,
   googleCount,
-  extraDomains = [],
+  stateMediaDomains = [],
 } = {}) {
   // 1. Technical failures are NEVER censorship — removes the dominant
   //    false-positive class without any retry.
@@ -55,7 +55,7 @@ export function classifyCensorship({
   // Soft censorship: results present but scrubbed to authorized domains.
   const domains = Array.isArray(baiduDomains) ? baiduDomains.filter(Boolean) : [];
   const stateRatio = domains.length
-    ? domains.filter((d) => isStateMedia(d, extraDomains)).length / domains.length
+    ? domains.filter((d) => isStateMedia(d, stateMediaDomains)).length / domains.length
     : 0;
   if (stateRatio >= 0.7) {
     const confidence = stateRatio >= 0.99 ? 0.8 : 0.6;

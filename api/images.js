@@ -3,7 +3,7 @@
 
 import { fetchWithFallback } from './lib/proxy.js';
 import { classifyCensorship } from './lib/censorship.js';
-import { getExtraStateMediaDomains } from './lib/censorshipSettings.js';
+import { getStateMediaDomains } from './lib/censorshipSettings.js';
 import { waitUntil } from '@vercel/functions';
 
 async function withRetry(fn, delay = 1000) {
@@ -550,15 +550,16 @@ export default async function handler(req, res) {
     //    signal for human review — never an authoritative label).
     let censorship = { verdict: null, confidence: null, checkedAt: null };
     if (baiduProbe) {
-      // Editor-managed additions to the state-media list (cached, ~0ms after first call)
-      const extraDomains = await getExtraStateMediaDomains();
+      // Editor-managed state-media list (cached, ~0ms after first call);
+      // empty → classifier falls back to built-in defaults.
+      const stateMediaDomains = await getStateMediaDomains();
       const { verdict, confidence } = classifyCensorship({
         baiduClass: baiduProbe.classification,
         baiduListNum: baiduProbe.listNum,
         baiduCount: baiduProbe.count,
         baiduDomains: baiduProbe.domains,
         googleCount: finalGoogleResults.length,
-        extraDomains,
+        stateMediaDomains,
       });
       censorship = { verdict, confidence, checkedAt: Date.now() };
       console.log('Censorship verdict:', verdict, `(confidence ${confidence})`);

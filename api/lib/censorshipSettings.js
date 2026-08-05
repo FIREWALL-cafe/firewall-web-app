@@ -2,13 +2,16 @@
 // module scope so classification never adds per-search latency: the first
 // search after a cold start pays one small GROQ request, everything else is
 // served from cache for CACHE_TTL_MS.
+//
+// A non-empty list REPLACES the built-in defaults in src/lib/stateMedia.js;
+// an empty list (or a failed fetch) means callers fall back to the defaults.
 
 const CACHE_TTL_MS = 10 * 60 * 1000;
 const FAILURE_TTL_MS = 60 * 1000; // retry sooner after a failed fetch
 
 let cache = { domains: [], fetchedAt: 0, ttl: 0 };
 
-export async function getExtraStateMediaDomains() {
+export async function getStateMediaDomains() {
   const now = Date.now();
   if (now - cache.fetchedAt < cache.ttl) return cache.domains;
 
