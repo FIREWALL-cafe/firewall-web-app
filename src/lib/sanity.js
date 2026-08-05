@@ -565,6 +565,8 @@ export async function getVideoEmbeds(placement, lang = 'en') {
         "heading": heading.en,
         "headingZh": heading.zh,
         "description": ${localizeField('description', lang)},
+        "caption": ${localizeField('caption', lang)},
+        "bodyText": ${localizeField('bodyText', lang)},
         "playButtonLabel": ${localizeField('playButtonLabel', lang)},
         posterAlt,
         posterImage {

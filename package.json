@@ -88,7 +88,7 @@
   },
   "jest": {
     "transformIgnorePatterns": [
-      "node_modules/(?!(@sanity|yet-another-react-lightbox)/)"
+      "node_modules/(?!(@sanity|@portabletext|yet-another-react-lightbox)/)"
     ],
     "moduleNameMapper": {
       "@sanity/client/csm": "<rootDir>/node_modules/@sanity/client/dist/index.cjs",

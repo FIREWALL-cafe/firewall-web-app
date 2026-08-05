@@ -59,6 +59,18 @@ export default defineType({
       description: 'Optional bilingual description shown below the heading',
     },
     {
+      name: 'caption',
+      title: 'Caption',
+      type: 'localeString',
+      description: 'Optional bilingual caption shown directly below the video poster (like an image caption)',
+    },
+    {
+      name: 'bodyText',
+      title: 'Text Below Video',
+      type: 'localeBlockContent',
+      description: 'Optional bilingual rich text shown below the video preview',
+    },
+    {
       name: 'posterImage',
       title: 'Poster Image',
       type: 'image',

@@ -35,6 +35,29 @@ describe('VideoEmbedSection', () => {
     jest.clearAllMocks();
   });
 
+  test('renders caption below the poster and rich text below the preview', async () => {
+    sanity.getVideoEmbeds.mockResolvedValue([
+      {
+        ...mockVideos[0],
+        caption: 'Filmed in Shanghai, 2019',
+        bodyText: [
+          {
+            _type: 'block',
+            _key: 'b1',
+            style: 'normal',
+            markDefs: [],
+            children: [{ _type: 'span', _key: 's1', text: 'Longer text below the preview.', marks: [] }],
+          },
+        ],
+      },
+    ]);
+
+    renderWithLanguage(<VideoEmbedSection page="editorial" />);
+
+    expect(await screen.findByText('Filmed in Shanghai, 2019')).toBeInTheDocument();
+    expect(screen.getByText('Longer text below the preview.')).toBeInTheDocument();
+  });
+
   test('renders videos for the given placement', async () => {
     sanity.getVideoEmbeds.mockResolvedValue(mockVideos);
 

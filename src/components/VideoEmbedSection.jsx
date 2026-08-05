@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { PortableText } from '@portabletext/react';
 import { useLanguage } from '../context/LanguageContext';
 import { getVideoEmbeds, urlFor } from '../lib/sanity';
 import { parseVimeoId } from '../utils/vimeo';
 import VideoLightbox from './VideoLightbox';
+
+const bodyTextComponents = {
+  block: {
+    normal: ({ children }) => (
+      <p className="max-w-[800px] text-xl leading-9">{children}</p>
+    ),
+  },
+};
 
 // Renders all enabled videos for a given page as click-to-play facades.
 // `page` matches the videoEmbed `placement` field ('home' | 'editorial').
@@ -108,6 +117,14 @@ function VideoEmbedSection({ page }) {
                   </span>
                 </span>
               </button>
+              {video.caption && (
+                <p className="text-sm text-neutral-600 leading-snug text-center">{video.caption}</p>
+              )}
+              {Array.isArray(video.bodyText) && video.bodyText.length > 0 && (
+                <div className="flex w-full flex-col items-center gap-4 text-center">
+                  <PortableText value={video.bodyText} components={bodyTextComponents} />
+                </div>
+              )}
             </div>
           );
         })}
