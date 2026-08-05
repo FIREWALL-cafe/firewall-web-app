@@ -274,6 +274,13 @@ export const deskStructure = (S) =>
                   S.documentTypeList('navigationSettings')
                     .title('Navigation Settings')
                 ),
+              S.listItem()
+                .title('Censorship Settings')
+                .icon(() => '⚠️')
+                .child(
+                  S.documentTypeList('censorshipSettings')
+                    .title('Censorship Settings')
+                ),
             ])
         ),
 

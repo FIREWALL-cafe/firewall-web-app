@@ -555,6 +555,20 @@ export async function getEditorialPageStrings(lang = 'en') {
 
 // Video Embeds — repeatable videos placed on a given page ('home' | 'editorial').
 // Returns enabled videos for that placement, localized and ordered.
+// Censorship Settings — editor-managed additions to the built-in state-media
+// domain list (see src/lib/stateMedia.js). Singleton document.
+export async function getCensorshipSettings() {
+  try {
+    const result = await client.fetch(
+      `*[_type == "censorshipSettings"][0]{ stateMediaDomains }`
+    )
+    return result || {}
+  } catch (error) {
+    console.error('Error fetching censorship settings from Sanity:', error)
+    return {}
+  }
+}
+
 export async function getVideoEmbeds(placement, lang = 'en') {
   try {
     const result = await client.fetch(

@@ -164,3 +164,28 @@ describe('classifyCensorship — thresholds & edges', () => {
 test('STATE_MEDIA_DOMAINS excludes the Baidu aggregator', () => {
   expect(STATE_MEDIA_DOMAINS).not.toContain('baijiahao.baidu.com');
 });
+
+describe('extraDomains (Sanity censorshipSettings)', () => {
+  test('isStateMedia accepts editor-added domains without mutating defaults', () => {
+    expect(isStateMedia('news.sohu.com')).toBe(false);
+    expect(isStateMedia('news.sohu.com', ['sohu.com'])).toBe(true);
+    // built-in entries still match when extras are passed
+    expect(isStateMedia('tv.people.com.cn', ['sohu.com'])).toBe(true);
+    // and the default list is unchanged afterwards
+    expect(isStateMedia('news.sohu.com')).toBe(false);
+  });
+
+  test('classifyCensorship counts extra domains toward the soft-censorship ratio', () => {
+    const args = {
+      baiduClass: 'has_results',
+      baiduListNum: 60,
+      baiduCount: 9,
+      baiduDomains: ['a.sohu.com', 'b.sohu.com', 'tv.people.com.cn'],
+      googleCount: 9,
+    };
+    expect(classifyCensorship(args).verdict).toBe('uncensored');
+    expect(classifyCensorship({ ...args, extraDomains: ['sohu.com'] }).verdict).toBe(
+      'soft_censored'
+    );
+  });
+});

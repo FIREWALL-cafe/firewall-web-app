@@ -16,6 +16,7 @@ import SoftCensorshipIcon from './icons/SoftCensorshipIcon';
 import BrokenImagePadding from '../assets/icons/broken-image-placeholder_padding.svg';
 import CensoredBrokenImage from '../assets/icons/censored-image-placeholder_padding.svg';
 import { isStateMedia } from '../lib/stateMedia';
+import { useStateMediaDomains } from '../hooks/useStateMediaDomains';
 
 const getDisplayUrl = url => {
   try {
@@ -34,8 +35,8 @@ const hostOf = url => {
 };
 
 // Baidu results sourced from state-media/government sites get a warning triangle.
-const StateMediaWarning = ({ source }) =>
-  isStateMedia(hostOf(source)) ? (
+const StateMediaWarning = ({ source, extraDomains }) =>
+  isStateMedia(hostOf(source), extraDomains) ? (
     <SoftCensorshipIcon
       className="absolute bottom-1 right-1 z-[5] drop-shadow"
       data-tooltip-id="tooltip-soft-censorship"
@@ -69,6 +70,7 @@ const SourceLink = ({ source, className = '' }) =>
 function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, onRetry }) {
   const [currentIndex, setCurrentIndex] = useState(null); // Start with no selection
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const extraStateMediaDomains = useStateMediaDomains();
 
   const baiduEmpty =
     !isLoading &&
@@ -262,7 +264,7 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                             onError={e => handleOnError(e, true)}
                             alt={`Baidu search result ${currentIndex + 1}`}
                           />
-                          <StateMediaWarning source={source} />
+                          <StateMediaWarning source={source} extraDomains={extraStateMediaDomains} />
                           <SourceLink source={source} className="max-w-xs" />
                         </div>
                       );
@@ -427,7 +429,7 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                       alt={`Baidu thumbnail ${index + 1}`}
                     />
                   </button>
-                  <StateMediaWarning source={source} />
+                  <StateMediaWarning source={source} extraDomains={extraStateMediaDomains} />
                   <SourceLink source={source} className="max-w-full" />
                   {currentIndex !== null && currentIndex === index && (
                     <div className="absolute inset-[-4px] border border-red-600 rounded-[6px] bg-red-300/30 pointer-events-none" />

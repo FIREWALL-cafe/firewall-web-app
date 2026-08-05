@@ -1,6 +1,17 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import * as sanity from '../../lib/sanity';
+import { __resetStateMediaDomainsCache } from '../../hooks/useStateMediaDomains';
 import ImageCarousel from '../ImageCarousel';
+
+jest.mock('../../lib/sanity', () => ({
+  getCensorshipSettings: jest.fn().mockResolvedValue({}),
+}));
+
+beforeEach(() => {
+  __resetStateMediaDomainsCache();
+  sanity.getCensorshipSettings.mockResolvedValue({});
+});
 
 const images = {
   googleResults: [
@@ -59,6 +70,21 @@ describe('ImageCarousel result links', () => {
     );
     // Google results never get the triangle, and douyin.com is not state media
     expect(screen.queryByRole('img', { name: 'Soft censorship warning' })).not.toBeInTheDocument();
+  });
+
+  test('Sanity-managed extra domains extend the triangle matching', async () => {
+    sanity.getCensorshipSettings.mockResolvedValue({ stateMediaDomains: ['douyin.com'] });
+    render(
+      <ImageCarousel
+        images={{
+          googleResults: [{ image: 'g1.jpg', source: null }],
+          baiduResults: [{ image: 'b1.jpg', source: 'https://www.douyin.com/video/1' }],
+        }}
+      />
+    );
+    await waitFor(() =>
+      expect(screen.getByRole('img', { name: 'Soft censorship warning' })).toBeInTheDocument()
+    );
   });
 
   test('empty Baidu results with a hard_censored verdict show the censored panel', () => {

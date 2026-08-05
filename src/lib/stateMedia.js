@@ -13,8 +13,13 @@ export const STATE_MEDIA_DOMAINS = [
 ];
 
 // True if a hostname belongs to (or is a subdomain of) a state-media domain.
-export function isStateMedia(hostname) {
+// `extraDomains` (from the Sanity censorshipSettings singleton) extends the
+// built-in list; it can never remove built-in entries.
+export function isStateMedia(hostname, extraDomains = []) {
   if (!hostname) return false;
   const host = String(hostname).toLowerCase();
-  return STATE_MEDIA_DOMAINS.some((d) => host === d || host.endsWith('.' + d));
+  const domains = extraDomains.length
+    ? STATE_MEDIA_DOMAINS.concat(extraDomains)
+    : STATE_MEDIA_DOMAINS;
+  return domains.some((d) => host === d || host.endsWith('.' + d));
 }
