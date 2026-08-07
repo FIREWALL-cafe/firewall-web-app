@@ -85,6 +85,17 @@ export const deskStructure = (S) =>
           S.list()
             .title('Page Content')
             .items([
+              // Editor-composed pages (page-builder documents, live at /<slug>)
+              S.listItem()
+                .title('Custom Pages')
+                .icon(() => '🧱')
+                .child(
+                  S.documentTypeList('page')
+                    .title('Custom Pages')
+                ),
+
+              S.divider(),
+
               // Editorial
               S.listItem()
                 .title('Editorial')

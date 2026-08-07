@@ -1042,6 +1042,61 @@ export async function getSiteAssets() {
   }
 }
 
+// ========== PAGE BUILDER ==========
+
+// Editor-composed pages (studio schema: page.js). Fetched by the catch-all
+// route in src/index.js and rendered by src/components/DynamicPage.jsx.
+// One conditional projection per block type; localized with EN fallback.
+export async function getPageBySlug(slug, lang = 'en') {
+  try {
+    const result = await client.fetch(
+      `*[_type == "page" && slug.current == $slug][0] {
+        "title": title.en,
+        "titleZh": title.zh,
+        metaDescription,
+        pageBuilder[] {
+          _type,
+          _key,
+          _type == "heroBlock" => {
+            "heading": ${localizeField('heading', lang)},
+            "tagline": ${localizeField('tagline', lang)},
+            image {
+              asset->,
+              hotspot,
+              crop,
+              alt
+            }
+          },
+          _type == "richTextBlock" => {
+            "content": coalesce(content.${lang}, content.en)
+          },
+          _type == "imageBlock" => {
+            image {
+              asset->,
+              hotspot,
+              crop,
+              alt
+            },
+            "caption": ${localizeField('caption', lang)}
+          },
+          _type == "ctaBlock" => {
+            "heading": ${localizeField('heading', lang)},
+            "body": ${localizeField('body', lang)},
+            "buttonText": ${localizeField('buttonText', lang)},
+            url,
+            variant
+          }
+        }
+      }`,
+      { slug, lang }
+    )
+    return result || null
+  } catch (error) {
+    console.error('Error fetching page from Sanity:', error)
+    return null
+  }
+}
+
 // ========== EDITORIAL ARTICLES ==========
 
 /**

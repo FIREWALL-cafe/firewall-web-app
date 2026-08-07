@@ -11,6 +11,13 @@ import censorshipSettings from './censorshipSettings'
 import videoPage from './videoPage'
 import featureCard from './featureCard'
 
+// Page builder
+import page from './page'
+import heroBlock from './blocks/heroBlock'
+import richTextBlock from './blocks/richTextBlock'
+import imageBlock from './blocks/imageBlock'
+import ctaBlock from './blocks/ctaBlock'
+
 // UI String Singletons (refactored from single uiStrings schema)
 import homepageStrings from './homepageStrings'
 import searchPageStrings from './searchPageStrings'
@@ -37,6 +44,13 @@ export const schemaTypes = [
   localeString,
   localeText,
   localeBlockContent,
+
+  // Page builder (document + its block types)
+  page,
+  heroBlock,
+  richTextBlock,
+  imageBlock,
+  ctaBlock,
 
   // Original schemas
   event,

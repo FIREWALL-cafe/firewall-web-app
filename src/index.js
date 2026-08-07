@@ -20,6 +20,7 @@ import Dashboard from './components/Dashboard';
 import WhyDidThisHappen from './components/WhyDidThisHappen';
 import TermsAndConditions from './components/TermsAndConditions';
 import FilmPage from './components/FilmPage';
+import DynamicPage from './components/DynamicPage';
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
@@ -100,6 +101,12 @@ const router = createBrowserRouter([
       {
         path: 'terms',
         element: <TermsAndConditions />,
+      },
+      // Catch-all for editor-composed Sanity pages — must stay last so the
+      // static routes above always win. Owns the not-found state too.
+      {
+        path: ':slug',
+        element: <DynamicPage />,
       },
     ],
   },
