@@ -112,6 +112,45 @@ describe('ImageCarousel result links', () => {
     expect(screen.queryByText('Possibly Censored')).not.toBeInTheDocument();
   });
 
+  test('short result lists are padded to 9 tiles with the broken-link icon', () => {
+    // 2 Google results → 7 placeholders; 1 Baidu result → 8 placeholders.
+    render(<ImageCarousel images={images} />);
+    expect(screen.getAllByAltText('Broken or missing image')).toHaveLength(15);
+    // Placeholders are not selectable results.
+    expect(screen.getAllByRole('button', { name: /Select Google result/ })).toHaveLength(2);
+    expect(screen.getAllByRole('button', { name: /Select Baidu result/ })).toHaveLength(1);
+  });
+
+  test('a hard_censored verdict fills all 9 Baidu tiles with the censored icon', () => {
+    render(
+      <ImageCarousel
+        images={{
+          googleResults: images.googleResults,
+          baiduResults: [],
+          censorship: { verdict: 'hard_censored', confidence: 0.85 },
+        }}
+      />
+    );
+    expect(screen.getAllByAltText('Possibly censored image')).toHaveLength(9);
+    expect(screen.getByText('Possibly Censored')).toBeInTheDocument();
+  });
+
+  test('a banned term fills all 9 Baidu tiles with the censored icon', () => {
+    render(<ImageCarousel images={{ googleResults: images.googleResults, baiduResults: [] }} isBanned />);
+    expect(screen.getAllByAltText('Search term is banned in China')).toHaveLength(9);
+  });
+
+  test('source badges are tinted blue for Google and red for Baidu', () => {
+    render(<ImageCarousel images={images} />);
+    const badges = screen.getAllByTitle(/Open original page/);
+    const googleBadge = badges.find(b => b.getAttribute('href') === 'https://example.com/page1');
+    const baiduBadge = badges.find(
+      b => b.getAttribute('href') === 'https://tv.people.com.cn/article'
+    );
+    expect(googleBadge.className).toContain('bg-blue-600');
+    expect(baiduBadge.className).toContain('bg-red-600');
+  });
+
   test('carousel arrows wrap at the actual result count, not a hardcoded 9', () => {
     render(<ImageCarousel images={images} />);
     fireEvent.click(screen.getByRole('button', { name: 'Select Google result 1' }));

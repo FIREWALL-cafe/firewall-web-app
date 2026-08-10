@@ -53,19 +53,39 @@ const sourceOf = result => (typeof result === 'string' ? null : result?.source);
 
 // Hover badge that is the one clickable way to open a result's original page.
 // Plain clicks on images only select them; this keeps visitors on the site.
-const SourceLink = ({ source, className = '' }) =>
-  source ? (
+// Tinted per engine: Google blue, Baidu red.
+const SourceLink = ({ source, engine = 'google', className = '' }) => {
+  const tint =
+    engine === 'baidu' ? 'bg-red-600/80 hover:bg-red-600' : 'bg-blue-600/80 hover:bg-blue-600';
+  return source ? (
     <a
       href={source}
       target="_blank"
       rel="noopener noreferrer"
       onClick={e => e.stopPropagation()}
       title={`Open original page: ${source}`}
-      className={`absolute bottom-0 right-0 hidden group-hover:block bg-black/70 hover:bg-black/90 hover:underline text-white text-[10px] px-1.5 py-0.5 truncate z-10 ${className}`}
+      className={`absolute bottom-0 right-0 hidden group-hover:block ${tint} hover:underline text-white text-[10px] px-1.5 py-0.5 truncate z-10 ${className}`}
     >
       {getDisplayUrl(source)} ↗
     </a>
   ) : null;
+};
+
+const GRID_SIZE = 9;
+
+// Fills the grid slots left empty by a short result list, so both engines
+// always show a full 3×3 grid: censored icon when the gap is attributed to
+// censorship, broken-link icon otherwise.
+const PlaceholderTiles = ({ count, censored = false, alt }) =>
+  Array.from({ length: Math.max(0, GRID_SIZE - count) }, (_, i) => (
+    <div key={`placeholder-${i}`} className="relative aspect-square overflow-hidden">
+      <img
+        src={censored ? CensoredBrokenImage : BrokenImagePadding}
+        className="w-full h-full object-contain"
+        alt={alt}
+      />
+    </div>
+  ));
 
 function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, onRetry }) {
   const [currentIndex, setCurrentIndex] = useState(null); // Start with no selection
@@ -82,12 +102,14 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
   // looks like suppression rather than a connection failure.
   const baiduCensored = baiduEmpty && images?.censorship?.verdict === 'hard_censored';
 
-  const handleOnError = (e, isBaidu = false) => {
-    if (isBaidu && images?.baiduResults?.length === 0) {
-      e.target.src = CensoredBrokenImage;
-    } else {
-      e.target.src = BrokenImagePadding;
-    }
+  // A result whose image fails to load shows the broken-link icon in place;
+  // censorship is signaled separately (verdict/banned), not by load failures.
+  const handleOnError = e => {
+    e.target.onerror = null;
+    e.target.src = BrokenImagePadding;
+    // The placeholder is an icon: show it whole instead of cropping to fill.
+    e.target.classList.remove('object-cover');
+    e.target.classList.add('object-contain');
   };
 
   const resultCount = Math.max(
@@ -210,7 +232,7 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                             onError={handleOnError}
                             alt={`Google search result ${currentIndex + 1}`}
                           />
-                          <SourceLink source={source} className="max-w-xs" />
+                          <SourceLink source={source} engine="google" className="max-w-xs" />
                         </div>
                       );
                     })()
@@ -261,11 +283,11 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                           <img
                             src={imageOf(result)}
                             className="object-contain max-h-full max-w-full shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
-                            onError={e => handleOnError(e, true)}
+                            onError={handleOnError}
                             alt={`Baidu search result ${currentIndex + 1}`}
                           />
                           <StateMediaWarning source={source} domains={stateMediaDomains} />
-                          <SourceLink source={source} className="max-w-xs" />
+                          <SourceLink source={source} engine="baidu" className="max-w-xs" />
                         </div>
                       );
                     })()
@@ -291,15 +313,17 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
       {/* Thumbnails */}
       <div className="flex flex-row">
         <div className="w-1/2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 border-r border-red-300">
-          {isLoading
-            ? Array(9)
-                .fill(0)
-                .map((_, index) => (
-                  <div key={index} className="relative aspect-square overflow-hidden">
-                    <Skeleton height="100%" width="100%" />
-                  </div>
-                ))
-            : images?.googleResults?.map((image, index) => {
+          {isLoading ? (
+            Array(9)
+              .fill(0)
+              .map((_, index) => (
+                <div key={index} className="relative aspect-square overflow-hidden">
+                  <Skeleton height="100%" width="100%" />
+                </div>
+              ))
+          ) : (
+            <>
+              {images?.googleResults?.map((image, index) => {
                 const source = sourceOf(image);
                 return (
                   <div
@@ -323,44 +347,25 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                         alt={`Google thumbnail ${index + 1}`}
                       />
                     </button>
-                    <SourceLink source={source} className="max-w-full" />
+                    <SourceLink source={source} engine="google" className="max-w-full" />
                     {currentIndex !== null && currentIndex === index && (
                       <div className="absolute inset-[-4px] border border-blue-600 rounded-[6px] bg-blue-300/30 pointer-events-none" />
                     )}
                   </div>
                 );
               })}
+              <PlaceholderTiles
+                count={images?.googleResults?.length ?? 0}
+                alt="Broken or missing image"
+              />
+            </>
+          )}
         </div>
         <div
-          className={`w-1/2 bg-neutral-100 ${baiduEmpty ? 'flex items-center justify-center p-8' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4'}`}
+          className={`w-1/2 bg-neutral-100 ${baiduEmpty && !baiduCensored ? 'flex items-center justify-center p-8' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4'}`}
         >
-          {baiduEmpty ? (
-            baiduCensored ? (
-              <div className="flex flex-col items-center justify-center gap-4 text-center">
-                <img src={CensoredBrokenImage} alt="" className="w-24 h-24" />
-                <h3 className="text-xl font-bold text-neutral-800">Possibly Censored</h3>
-                <div className="flex items-center gap-1.5 text-sm text-neutral-500">
-                  <span>Baidu returned no results for this search</span>
-                  <QuestionIcon
-                    fill="#8d969e"
-                    className="w-4 h-4 flex-shrink-0"
-                    data-tooltip-id="tooltip-baidu-censored"
-                    data-tooltip-content="Baidu answered normally but returned an empty result set while Google found results — a strong signal that this term is censored on Baidu. This is an automated assessment, not a definitive label."
-                    data-tooltip-place="top"
-                  />
-                  <Tooltip id="tooltip-baidu-censored" border={'1px solid #e60011'} />
-                </div>
-                {onRetry && (
-                  <button
-                    onClick={onRetry}
-                    className="mt-2 px-8 py-2 border border-neutral-400 rounded text-neutral-700 hover:bg-neutral-200 transition-colors text-sm"
-                  >
-                    Retry
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-4 text-center">
+          {baiduEmpty && !baiduCensored ? (
+            <div className="flex flex-col items-center justify-center gap-4 text-center">
                 <img src={cloudAlert} alt="" className="w-16 h-16" />
                 <h3 className="text-xl font-bold text-neutral-800">Unable to Connect</h3>
                 <div className="flex items-center gap-1.5 text-sm text-neutral-500">
@@ -383,7 +388,6 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                   </button>
                 )}
               </div>
-            )
           ) : isLoading ? (
             Array(9)
               .fill(0)
@@ -393,50 +397,72 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                 </div>
               ))
           ) : isBanned ? (
-            Array(9)
-              .fill(0)
-              .map((_, index) => (
-                <div key={index} className="relative aspect-square overflow-hidden">
-                  <img
-                    src={CensoredBrokenImage}
-                    className="w-full h-full object-cover"
-                    alt="Search term is banned in China"
+            <PlaceholderTiles count={0} censored alt="Search term is banned in China" />
+          ) : baiduCensored ? (
+            <>
+              <PlaceholderTiles count={0} censored alt="Possibly censored image" />
+              <div className="col-span-full flex flex-col items-center gap-2 pt-2 text-center">
+                <h3 className="text-xl font-bold text-neutral-800">Possibly Censored</h3>
+                <div className="flex items-center gap-1.5 text-sm text-neutral-500">
+                  <span>Baidu returned no results for this search</span>
+                  <QuestionIcon
+                    fill="#8d969e"
+                    className="w-4 h-4 flex-shrink-0"
+                    data-tooltip-id="tooltip-baidu-censored"
+                    data-tooltip-content="Baidu answered normally but returned an empty result set while Google found results — a strong signal that this term is censored on Baidu. This is an automated assessment, not a definitive label."
+                    data-tooltip-place="top"
                   />
+                  <Tooltip id="tooltip-baidu-censored" border={'1px solid #e60011'} />
                 </div>
-              ))
-          ) : (
-            images?.baiduResults?.map((image, index) => {
-              const source = sourceOf(image);
-              return (
-                <div
-                  key={index}
-                  className={`group relative aspect-square overflow-visible w-full ${
-                    currentIndex !== null && currentIndex === index
-                      ? 'opacity-60 bg-red-900'
-                      : 'opacity-100 bg-transparent'
-                  }`}
-                >
+                {onRetry && (
                   <button
-                    type="button"
-                    onClick={() => handleThumbnailClick(index)}
-                    className="block w-full h-full overflow-hidden p-0 border-0 appearance-none bg-transparent"
-                    aria-label={`Select Baidu result ${index + 1}`}
+                    onClick={onRetry}
+                    className="mt-2 px-8 py-2 border border-neutral-400 rounded text-neutral-700 hover:bg-neutral-200 transition-colors text-sm"
                   >
-                    <img
-                      src={imageOf(image)}
-                      className="w-full h-full object-cover"
-                      onError={e => handleOnError(e, true)}
-                      alt={`Baidu thumbnail ${index + 1}`}
-                    />
+                    Retry
                   </button>
-                  <StateMediaWarning source={source} domains={stateMediaDomains} />
-                  <SourceLink source={source} className="max-w-full" />
-                  {currentIndex !== null && currentIndex === index && (
-                    <div className="absolute inset-[-4px] border border-red-600 rounded-[6px] bg-red-300/30 pointer-events-none" />
-                  )}
-                </div>
-              );
-            })
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              {images?.baiduResults?.map((image, index) => {
+                const source = sourceOf(image);
+                return (
+                  <div
+                    key={index}
+                    className={`group relative aspect-square overflow-visible w-full ${
+                      currentIndex !== null && currentIndex === index
+                        ? 'opacity-60 bg-red-900'
+                        : 'opacity-100 bg-transparent'
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => handleThumbnailClick(index)}
+                      className="block w-full h-full overflow-hidden p-0 border-0 appearance-none bg-transparent"
+                      aria-label={`Select Baidu result ${index + 1}`}
+                    >
+                      <img
+                        src={imageOf(image)}
+                        className="w-full h-full object-cover"
+                        onError={handleOnError}
+                        alt={`Baidu thumbnail ${index + 1}`}
+                      />
+                    </button>
+                    <StateMediaWarning source={source} domains={stateMediaDomains} />
+                    <SourceLink source={source} engine="baidu" className="max-w-full" />
+                    {currentIndex !== null && currentIndex === index && (
+                      <div className="absolute inset-[-4px] border border-red-600 rounded-[6px] bg-red-300/30 pointer-events-none" />
+                    )}
+                  </div>
+                );
+              })}
+              <PlaceholderTiles
+                count={images?.baiduResults?.length ?? 0}
+                alt="Broken or missing image"
+              />
+            </>
           )}
         </div>
       </div>
@@ -487,7 +513,7 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
                     <img
                       src={slide.baidu}
                       className="w-full h-full p-2 object-cover shadow-[2px_2px_3px_rgba(0,0,0,0.3)]"
-                      onError={e => handleOnError(e, true)}
+                      onError={handleOnError}
                       alt="Baidu search result"
                     />
                   ) : null}
