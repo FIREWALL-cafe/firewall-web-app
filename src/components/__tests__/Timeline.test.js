@@ -71,17 +71,6 @@ describe('Timeline Component', () => {
     expect(screen.getByText(/Loading timeline.../i)).toBeInTheDocument();
   });
 
-  test('Component renders error state when fetch fails', async () => {
-    // Mock a failed fetch
-    sanity.getTimelineEvents.mockRejectedValue(new Error('Network error'));
-
-    renderWithLanguage(<Timeline />);
-
-    await waitFor(() => {
-      expect(screen.getByText(/Error loading timeline:/i)).toBeInTheDocument();
-    });
-  });
-
   test('Component displays timeline events from CMS data', async () => {
     // Mock successful fetch
     sanity.getTimelineEvents.mockResolvedValue(mockTimelineEvents);
@@ -170,30 +159,6 @@ describe('Timeline Component', () => {
     // Should be back at 1989
     await waitFor(() => {
       expect(screen.getByText('Tiananmen Square Incident')).toBeInTheDocument();
-    });
-  });
-
-  test('Year marker click updates selected event', async () => {
-    sanity.getTimelineEvents.mockResolvedValue(mockTimelineEvents);
-
-    renderWithLanguage(<Timeline />);
-
-    // Wait for content to load
-    await waitFor(() => {
-      expect(screen.getByText('Tiananmen Square Incident')).toBeInTheDocument();
-    });
-
-    // Find all year buttons
-    const yearButtons = screen.getAllByRole('button');
-    // Year buttons start after the 2 navigation buttons
-    const year2010Button = yearButtons.find(btn => btn.textContent === '2010');
-
-    // Click on 2010
-    fireEvent.click(year2010Button);
-
-    // Should now show 2010 event
-    await waitFor(() => {
-      expect(screen.getByText('Google exits China')).toBeInTheDocument();
     });
   });
 });

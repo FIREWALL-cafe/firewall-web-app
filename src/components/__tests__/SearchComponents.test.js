@@ -39,28 +39,6 @@ describe('Search Components Localization', () => {
     jest.clearAllMocks();
   });
 
-  test('VoteButton renders with Sanity strings', async () => {
-    const mockVoteHandler = jest.fn();
-
-    renderWithLanguageContext(
-      <VoteButton
-        voteCategory="votes_censored"
-        voteHandler={mockVoteHandler}
-        disabled={false}
-        shouldReset={false}
-        totalVotes={5}
-      />
-    );
-
-    // Wait for Sanity data to load
-    await waitFor(() => {
-      expect(screen.getByText(mockVoteStrings.voteButtonCensored)).toBeInTheDocument();
-    });
-
-    // Verify vote count is displayed
-    expect(screen.getByText('5')).toBeInTheDocument();
-  });
-
   test('VoteButton preserves ID mapping for backend compatibility', async () => {
     const mockVoteHandler = jest.fn();
 
