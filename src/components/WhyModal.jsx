@@ -1,7 +1,8 @@
 import React from 'react';
 import visibilityOff from '../assets/icons/visibility_off.svg';
-import brokenImage from '../assets/icons/broken_link.jpg';
+import brokenImage from '../assets/icons/broken-image-placeholder.svg';
 import cloudAlert from '../assets/icons/cloud_alert.svg';
+import SoftCensorshipIcon from './icons/SoftCensorshipIcon';
 
 const ROWS = [
   {
@@ -9,6 +10,12 @@ const ROWS = [
     label: '删减版',
     title: 'Image Censored',
     description: 'An image has been censored by Baidu',
+  },
+  {
+    Icon: SoftCensorshipIcon,
+    title: 'Soft Censorship',
+    description:
+      'This result comes from a Chinese state-media or government website. It is not blocked, but what you see is shaped by state-approved sources.',
   },
   {
     icon: brokenImage,
@@ -40,9 +47,13 @@ function WhyModal({ open, onClose }) {
           <div className="flex flex-col w-full">
             {ROWS.map((row, i) => (
               <React.Fragment key={row.title}>
-                <div className="flex items-center h-[75px] bg-white rounded-[8px] overflow-hidden">
+                <div className="flex items-center min-h-[75px] py-1 bg-white rounded-[8px] overflow-hidden">
                   <div className="flex flex-col items-center justify-center gap-0.5 bg-[#f5f7f9] rounded-[8px] shrink-0 w-[72px] h-[72px]">
-                    <img src={row.icon} alt="" className="w-9 h-9 object-contain" />
+                    {row.Icon ? (
+                      <row.Icon width={36} height={36} />
+                    ) : (
+                      <img src={row.icon} alt="" className="w-9 h-9 object-contain" />
+                    )}
                     {row.label && (
                       <span className="text-[10px] font-semibold tracking-wide text-[#e81717]">
                         {row.label}
