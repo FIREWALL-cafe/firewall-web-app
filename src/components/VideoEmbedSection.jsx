@@ -29,13 +29,15 @@ function VideoEmbedSection({ page }) {
         const data = await getVideoEmbeds(page, language);
         if (cancelled) return;
 
+        // An uploaded file wins over the Vimeo URL, mirroring FilmPage.
         const withIds = (data || [])
-          .map((v) => ({ ...v, vimeoId: parseVimeoId(v.vimeoUrl) }))
-          .filter((v) => v.vimeoId);
+          .map((v) => ({ ...v, vimeoId: v.videoUrl ? null : parseVimeoId(v.vimeoUrl) }))
+          .filter((v) => v.videoUrl || v.vimeoId);
         setVideos(withIds);
 
         // Fetch Vimeo thumbnails for videos without a CMS poster override.
-        const needsPoster = withIds.filter((v) => !v.posterImage);
+        // Uploaded files have no oEmbed thumbnail; they rely on posterImage.
+        const needsPoster = withIds.filter((v) => v.vimeoId && !v.posterImage);
         await Promise.all(
           needsPoster.map(async (v) => {
             try {
@@ -63,7 +65,7 @@ function VideoEmbedSection({ page }) {
 
   if (!videos.length) return null;
 
-  const openVideo = videos.find((v) => v.vimeoId === openId);
+  const openVideo = videos.find((v) => v._id === openId);
 
   return (
     <section className="flex w-full flex-col items-center py-16 max-md:py-12">
@@ -93,7 +95,7 @@ function VideoEmbedSection({ page }) {
 
               <button
                 type="button"
-                onClick={() => setOpenId(video.vimeoId)}
+                onClick={() => setOpenId(video._id)}
                 aria-label={playLabel}
                 className="group relative aspect-video w-full overflow-hidden rounded-lg bg-black focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
               >
@@ -134,6 +136,8 @@ function VideoEmbedSection({ page }) {
         open={Boolean(openVideo)}
         onClose={() => setOpenId(null)}
         vimeoId={openVideo?.vimeoId}
+        videoUrl={openVideo?.videoUrl}
+        videoMimeType={openVideo?.videoMimeType}
         title={openVideo?.heading || 'Video'}
         closeLabel={language === 'zh' ? '关闭' : 'Close'}
       />

@@ -2,9 +2,19 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import { buildVimeoEmbedSrc } from '../utils/vimeo';
 import CloseX from '../assets/icons/close.svg';
 
-// Accessible click-to-play lightbox. The Vimeo iframe is only rendered while
-// the lightbox is open, so the player never loads until the user opts in.
-function VideoLightbox({ open, onClose, vimeoId, title = 'Video', closeLabel = 'Close' }) {
+// Accessible click-to-play lightbox. The player is only rendered while the
+// lightbox is open, so nothing loads until the user opts in. Plays an
+// uploaded file (`videoUrl`) with the native browser player when present,
+// otherwise falls back to the Vimeo iframe embed.
+function VideoLightbox({
+  open,
+  onClose,
+  vimeoId,
+  videoUrl,
+  videoMimeType,
+  title = 'Video',
+  closeLabel = 'Close',
+}) {
   const dialogRef = useRef(null);
   const closeButtonRef = useRef(null);
   const previouslyFocused = useRef(null);
@@ -19,7 +29,7 @@ function VideoLightbox({ open, onClose, vimeoId, title = 'Video', closeLabel = '
       // Simple focus trap: keep Tab focus inside the dialog.
       if (e.key === 'Tab') {
         const focusable = dialogRef.current?.querySelectorAll(
-          'button, [href], iframe, [tabindex]:not([tabindex="-1"])',
+          'button, [href], iframe, video, [tabindex]:not([tabindex="-1"])',
         );
         if (!focusable || focusable.length === 0) return;
         const first = focusable[0];
@@ -55,9 +65,9 @@ function VideoLightbox({ open, onClose, vimeoId, title = 'Video', closeLabel = '
     };
   }, [open]);
 
-  if (!open || !vimeoId) return null;
+  if (!open || (!videoUrl && !vimeoId)) return null;
 
-  const src = buildVimeoEmbedSrc(vimeoId);
+  const src = videoUrl ? null : buildVimeoEmbedSrc(vimeoId);
 
   return (
     <div
@@ -84,14 +94,26 @@ function VideoLightbox({ open, onClose, vimeoId, title = 'Video', closeLabel = '
           <img src={CloseX} alt="" className="h-6 w-6 invert" />
         </button>
         <div className="aspect-video w-full overflow-hidden rounded-lg bg-black shadow-2xl">
-          <iframe
-            src={src}
-            title={title}
-            className="h-full w-full"
-            frameBorder="0"
-            allow="autoplay; fullscreen; picture-in-picture"
-            allowFullScreen
-          />
+          {videoUrl ? (
+            <video
+              controls
+              autoPlay
+              playsInline
+              className="h-full w-full"
+              aria-label={title}
+            >
+              <source src={videoUrl} type={videoMimeType || undefined} />
+            </video>
+          ) : (
+            <iframe
+              src={src}
+              title={title}
+              className="h-full w-full"
+              frameBorder="0"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+            />
+          )}
         </div>
       </div>
     </div>

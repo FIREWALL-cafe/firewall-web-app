@@ -6,7 +6,7 @@ export default defineType({
   name: 'videoEmbed',
   title: 'Video Embed',
   type: 'document',
-  description: 'A Vimeo video shown as a click-to-play section on a page',
+  description: 'A video shown as a click-to-play section on a page (uploaded file or Vimeo)',
 
   fields: [
     {
@@ -39,12 +39,22 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     },
     {
+      name: 'videoFile',
+      title: 'Video File',
+      type: 'file',
+      description:
+        'The full video, uploaded to Sanity and played with the native browser player. ' +
+        'Note: playback is at full bitrate (no adaptive streaming) and large files count ' +
+        'against the Sanity bandwidth quota.',
+      options: {accept: 'video/*'},
+    },
+    {
       name: 'vimeoUrl',
-      title: 'Vimeo URL',
+      title: 'Vimeo URL (fallback)',
       type: 'url',
-      description: 'Full Vimeo link, e.g. https://vimeo.com/1207538492',
-      validation: (Rule) =>
-        Rule.required().uri({scheme: ['http', 'https']}),
+      description:
+        'Used only when no video file is uploaded above. Full Vimeo link, e.g. https://vimeo.com/1207538492',
+      validation: (Rule) => Rule.uri({scheme: ['http', 'https']}),
     },
     {
       name: 'heading',
@@ -74,7 +84,9 @@ export default defineType({
       name: 'posterImage',
       title: 'Poster Image',
       type: 'image',
-      description: 'Optional. Overrides the Vimeo thumbnail used as the play poster.',
+      description:
+        'Optional for Vimeo (overrides the Vimeo thumbnail used as the play poster). ' +
+        'Recommended for uploaded video files, which have no automatic thumbnail.',
       options: {hotspot: true},
     },
     {

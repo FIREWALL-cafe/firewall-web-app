@@ -604,6 +604,8 @@ export async function getVideoEmbeds(placement, lang = 'en') {
         | order(displayOrder asc) {
         _id,
         vimeoUrl,
+        "videoUrl": videoFile.asset->url,
+        "videoMimeType": videoFile.asset->mimeType,
         "heading": heading.en,
         "headingZh": heading.zh,
         "description": ${localizeField('description', lang)},

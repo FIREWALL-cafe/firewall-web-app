@@ -84,6 +84,57 @@ describe('VideoEmbedSection', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  test('renders an uploaded video file and plays it natively in the lightbox', async () => {
+    sanity.getVideoEmbeds.mockResolvedValue([
+      {
+        _id: 'video-file-1',
+        vimeoUrl: null,
+        videoUrl: 'https://cdn.sanity.io/files/abc/production/film.mp4',
+        videoMimeType: 'video/mp4',
+        heading: 'Uploaded Film',
+        playButtonLabel: 'Play film',
+        posterAlt: '',
+        posterImage: null,
+      },
+    ]);
+
+    renderWithLanguage(<VideoEmbedSection page="home" />);
+
+    const playButton = await screen.findByRole('button', { name: 'Play film' });
+    // No oEmbed lookup for uploaded files — there is no Vimeo thumbnail.
+    expect(global.fetch).not.toHaveBeenCalled();
+
+    fireEvent.click(playButton);
+
+    const dialog = await screen.findByRole('dialog');
+    const video = dialog.querySelector('video');
+    expect(video).toBeInTheDocument();
+    expect(video.querySelector('source')).toHaveAttribute(
+      'src',
+      'https://cdn.sanity.io/files/abc/production/film.mp4',
+    );
+    expect(video.querySelector('source')).toHaveAttribute('type', 'video/mp4');
+    expect(dialog.querySelector('iframe')).not.toBeInTheDocument();
+  });
+
+  test('prefers the uploaded file over the Vimeo URL when both are set', async () => {
+    sanity.getVideoEmbeds.mockResolvedValue([
+      {
+        ...mockVideos[0],
+        videoUrl: 'https://cdn.sanity.io/files/abc/production/film.mp4',
+        videoMimeType: 'video/mp4',
+      },
+    ]);
+
+    renderWithLanguage(<VideoEmbedSection page="home" />);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Play trailer' }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog.querySelector('video')).toBeInTheDocument();
+    expect(dialog.querySelector('iframe')).not.toBeInTheDocument();
+  });
+
   test('opens the lightbox with the Vimeo iframe on play click', async () => {
     sanity.getVideoEmbeds.mockResolvedValue(mockVideos);
 
