@@ -1,0 +1,6 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Flag cloth -->
+  <path d="M6 4 H19 L15.8 8.25 L19 12.5 H6 Z" fill="#F59E0B" stroke="#92400E" stroke-width="1" stroke-linejoin="round"/>
+  <!-- Pole -->
+  <rect x="5" y="3" width="1.8" height="18" rx="0.9" fill="#92400E"/>
+</svg>

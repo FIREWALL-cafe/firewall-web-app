@@ -3,6 +3,8 @@ export { default as ArrowLeft } from './ArrowLeft';
 export { default as ArrowRight } from './ArrowRight';
 export { default as ExpandIcon } from './ExpandIcon';
 export { default as QuestionIcon } from './QuestionIcon';
+export { default as FlagWarningIcon } from './FlagWarningIcon';
+export { default as SoftCensorshipIcon } from './SoftCensorshipIcon';
 
 // SVG icon imports for backward compatibility
 export { ReactComponent as ClockIcon } from '../../assets/icons/schedule.svg';
