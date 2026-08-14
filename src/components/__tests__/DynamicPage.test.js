@@ -153,9 +153,97 @@ describe('DynamicPage', () => {
 });
 
 describe('PageBuilder', () => {
+  beforeEach(() => {
+    sanity.urlFor.mockReturnValue({
+      width: () => ({ url: () => 'https://cdn.sanity.example/image.jpg' }),
+    });
+  });
+
   test('renders nothing for empty or missing blocks', () => {
     const { container } = render(<PageBuilder blocks={[]} />);
     expect(container).toBeEmptyDOMElement();
+  });
+
+  test('video block plays an uploaded file with the native player', () => {
+    const { container } = render(
+      <PageBuilder
+        blocks={[
+          {
+            _type: 'videoBlock',
+            _key: 'v1',
+            videoUrl: 'https://cdn.sanity.example/film.mp4',
+            videoMimeType: 'video/mp4',
+            caption: 'Opening night',
+          },
+        ]}
+      />
+    );
+    const video = container.querySelector('video');
+    expect(video).toBeInTheDocument();
+    expect(video.querySelector('source')).toHaveAttribute(
+      'src',
+      'https://cdn.sanity.example/film.mp4'
+    );
+    expect(screen.getByText('Opening night')).toBeInTheDocument();
+    expect(container.querySelector('iframe')).not.toBeInTheDocument();
+  });
+
+  test('video block falls back to a Vimeo embed without an uploaded file', () => {
+    const { container } = render(
+      <PageBuilder
+        blocks={[
+          {
+            _type: 'videoBlock',
+            _key: 'v2',
+            vimeoUrl: 'https://vimeo.com/1207538492',
+          },
+        ]}
+      />
+    );
+    const iframe = container.querySelector('iframe');
+    expect(iframe).toHaveAttribute(
+      'src',
+      expect.stringContaining('player.vimeo.com/video/1207538492')
+    );
+    expect(container.querySelector('video')).not.toBeInTheDocument();
+  });
+
+  test('feature cards render referenced featureCard documents as linked cards', () => {
+    render(
+      <MemoryRouter>
+        <PageBuilder
+          blocks={[
+            {
+              _type: 'featureCardsBlock',
+              _key: 'f1',
+              heading: 'Explore',
+              cards: [
+                {
+                  _id: 'card-search',
+                  title: 'Search',
+                  titleEn: 'Search',
+                  titleZh: '搜索',
+                  description: 'Compare Google and Baidu results.',
+                  url: '/search',
+                  iconSrc: 'search-grayscale',
+                  iconSrcHover: 'search-color',
+                  bgColor: 'bg-blue-100',
+                  textColor: 'text-black',
+                  borderColor: 'border-gray-300',
+                },
+                // Broken reference (unpublished/deleted card) dereferences to null
+                null,
+              ],
+            },
+          ]}
+        />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Explore')).toBeInTheDocument();
+    const card = screen.getByRole('link', { name: /Search/ });
+    expect(card).toHaveAttribute('href', '/search');
+    expect(screen.getByText('搜索')).toBeInTheDocument();
+    expect(screen.getByText('Compare Google and Baidu results.')).toBeInTheDocument();
   });
 
   test('flags unknown block types in development', () => {

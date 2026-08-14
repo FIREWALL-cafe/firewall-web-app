@@ -17,6 +17,8 @@ import heroBlock from './blocks/heroBlock'
 import richTextBlock from './blocks/richTextBlock'
 import imageBlock from './blocks/imageBlock'
 import ctaBlock from './blocks/ctaBlock'
+import videoBlock from './blocks/videoBlock'
+import featureCardsBlock from './blocks/featureCardsBlock'
 
 // UI String Singletons (refactored from single uiStrings schema)
 import homepageStrings from './homepageStrings'
@@ -51,6 +53,8 @@ export const schemaTypes = [
   richTextBlock,
   imageBlock,
   ctaBlock,
+  videoBlock,
+  featureCardsBlock,
 
   // Original schemas
   event,

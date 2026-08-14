@@ -2,6 +2,8 @@ import HeroBlock from './HeroBlock';
 import RichTextBlock from './RichTextBlock';
 import ImageBlock from './ImageBlock';
 import CtaBlock from './CtaBlock';
+import VideoBlock from './VideoBlock';
+import FeatureCardsBlock from './FeatureCardsBlock';
 
 // Maps Sanity page-builder block types (studio/schemas/blocks/) to components.
 const blockComponents = {
@@ -9,6 +11,8 @@ const blockComponents = {
   richTextBlock: RichTextBlock,
   imageBlock: ImageBlock,
   ctaBlock: CtaBlock,
+  videoBlock: VideoBlock,
+  featureCardsBlock: FeatureCardsBlock,
 };
 
 function PageBuilder({ blocks }) {

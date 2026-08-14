@@ -1087,6 +1087,33 @@ export async function getPageBySlug(slug, lang = 'en') {
             "buttonText": ${localizeField('buttonText', lang)},
             url,
             variant
+          },
+          _type == "videoBlock" => {
+            vimeoUrl,
+            "videoUrl": videoFile.asset->url,
+            "videoMimeType": videoFile.asset->mimeType,
+            "caption": ${localizeField('caption', lang)},
+            posterImage {
+              asset->,
+              hotspot,
+              crop
+            }
+          },
+          _type == "featureCardsBlock" => {
+            "heading": ${localizeField('heading', lang)},
+            cards[]-> {
+              _id,
+              "title": ${localizeField('title', lang)},
+              "titleEn": ${localizeField('title', 'en')},
+              "titleZh": ${localizeField('title', 'zh')},
+              "description": ${localizeField('description', lang)},
+              url,
+              iconSrc,
+              iconSrcHover,
+              bgColor,
+              textColor,
+              borderColor
+            }
           }
         }
       }`,

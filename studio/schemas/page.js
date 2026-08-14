@@ -44,6 +44,8 @@ export default defineType({
         {type: 'richTextBlock'},
         {type: 'imageBlock'},
         {type: 'ctaBlock'},
+        {type: 'videoBlock'},
+        {type: 'featureCardsBlock'},
       ],
       options: {
         insertMenu: {
