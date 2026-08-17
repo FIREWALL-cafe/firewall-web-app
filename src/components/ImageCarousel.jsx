@@ -76,13 +76,16 @@ const GRID_SIZE = 9;
 // Fills the grid slots left empty by a short result list, so both engines
 // always show a full 3×3 grid: censored icon when the gap is attributed to
 // censorship, broken-link icon otherwise.
+// Tile geometry is shared with the result thumbnails so placeholders land on
+// exactly the same grid. Only the first tile is labelled; the repeats are
+// decorative, so screen readers announce the state once instead of nine times.
 const PlaceholderTiles = ({ count, censored = false, alt }) =>
   Array.from({ length: Math.max(0, GRID_SIZE - count) }, (_, i) => (
-    <div key={`placeholder-${i}`} className="relative aspect-square overflow-hidden">
+    <div key={`placeholder-${i}`} className="relative aspect-square overflow-hidden w-full">
       <img
         src={censored ? CensoredBrokenImage : BrokenImagePadding}
         className="w-full h-full object-contain"
-        alt={alt}
+        alt={i === 0 ? alt : ''}
       />
     </div>
   ));
@@ -401,28 +404,16 @@ function ImageCarousel({ images, searchId, isLoading = false, isBanned = false, 
           ) : baiduCensored ? (
             <>
               <PlaceholderTiles count={0} censored alt="Possibly censored image" />
-              <div className="col-span-full flex flex-col items-center gap-2 pt-2 text-center">
-                <h3 className="text-xl font-bold text-neutral-800">Possibly Censored</h3>
-                <div className="flex items-center gap-1.5 text-sm text-neutral-500">
-                  <span>Baidu returned no results for this search</span>
-                  <QuestionIcon
-                    fill="#8d969e"
-                    className="w-4 h-4 flex-shrink-0"
-                    data-tooltip-id="tooltip-baidu-censored"
-                    data-tooltip-content="Baidu answered normally but returned an empty result set while Google found results — a strong signal that this term is censored on Baidu. This is an automated assessment, not a definitive label."
-                    data-tooltip-place="top"
-                  />
-                  <Tooltip id="tooltip-baidu-censored" border={'1px solid #e60011'} />
-                </div>
-                {onRetry && (
+              {onRetry && (
+                <div className="col-span-full flex justify-center pt-2">
                   <button
                     onClick={onRetry}
-                    className="mt-2 px-8 py-2 border border-neutral-400 rounded text-neutral-700 hover:bg-neutral-200 transition-colors text-sm"
+                    className="px-8 py-2 border border-neutral-400 rounded text-neutral-700 hover:bg-neutral-200 transition-colors text-sm"
                   >
                     Retry
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </>
           ) : (
             <>

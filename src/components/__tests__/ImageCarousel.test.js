@@ -92,18 +92,24 @@ describe('ImageCarousel result links', () => {
     );
   });
 
-  test('empty Baidu results with a hard_censored verdict show the censored panel', () => {
-    render(
+  test('empty Baidu results with a hard_censored verdict show censored tiles, not the error panel', () => {
+    const { container } = render(
       <ImageCarousel
         images={{
           googleResults: images.googleResults,
           baiduResults: [],
           censorship: { verdict: 'hard_censored', confidence: 0.85 },
         }}
+        onRetry={() => {}}
       />
     );
-    expect(screen.getByText('Possibly Censored')).toBeInTheDocument();
+    expect(
+      container.querySelectorAll('img[src*="censored-image-placeholder"]')
+    ).toHaveLength(9);
     expect(screen.queryByText('Unable to Connect')).not.toBeInTheDocument();
+    // The explanatory copy is gone; the icons and Retry carry the state.
+    expect(screen.queryByText('Possibly Censored')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
   });
 
   test('empty Baidu results without a verdict show the connection-error panel', () => {
@@ -114,30 +120,21 @@ describe('ImageCarousel result links', () => {
 
   test('short result lists are padded to 9 tiles with the broken-link icon', () => {
     // 2 Google results → 7 placeholders; 1 Baidu result → 8 placeholders.
-    render(<ImageCarousel images={images} />);
-    expect(screen.getAllByAltText('Broken or missing image')).toHaveLength(15);
+    const { container } = render(<ImageCarousel images={images} />);
+    expect(container.querySelectorAll('img[src*="broken-image-placeholder"]')).toHaveLength(15);
+    // Only the first placeholder per column is announced; the rest are decorative.
+    expect(screen.getAllByAltText('Broken or missing image')).toHaveLength(2);
     // Placeholders are not selectable results.
     expect(screen.getAllByRole('button', { name: /Select Google result/ })).toHaveLength(2);
     expect(screen.getAllByRole('button', { name: /Select Baidu result/ })).toHaveLength(1);
   });
 
-  test('a hard_censored verdict fills all 9 Baidu tiles with the censored icon', () => {
-    render(
-      <ImageCarousel
-        images={{
-          googleResults: images.googleResults,
-          baiduResults: [],
-          censorship: { verdict: 'hard_censored', confidence: 0.85 },
-        }}
-      />
-    );
-    expect(screen.getAllByAltText('Possibly censored image')).toHaveLength(9);
-    expect(screen.getByText('Possibly Censored')).toBeInTheDocument();
-  });
-
   test('a banned term fills all 9 Baidu tiles with the censored icon', () => {
-    render(<ImageCarousel images={{ googleResults: images.googleResults, baiduResults: [] }} isBanned />);
-    expect(screen.getAllByAltText('Search term is banned in China')).toHaveLength(9);
+    const { container } = render(
+      <ImageCarousel images={{ googleResults: images.googleResults, baiduResults: [] }} isBanned />
+    );
+    expect(container.querySelectorAll('img[src*="censored-image-placeholder"]')).toHaveLength(9);
+    expect(screen.getAllByAltText('Search term is banned in China')).toHaveLength(1);
   });
 
   test('source badges are tinted blue for Google and red for Baidu', () => {
